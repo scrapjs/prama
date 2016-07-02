@@ -1,0 +1,43 @@
+{
+  "name": "prams",
+  "version": "1.0.0",
+  "description": "Beautiful settings form for application or tests",
+  "main": "index.js",
+  "dependencies": {
+    "brfs": "^1.4.3",
+    "inherits": "^2.0.1",
+    "insert-css": "^1.0.0",
+    "mutype": "^0.3.9",
+    "popoff": "^2.0.6",
+    "xtend": "^4.0.1"
+  },
+  "browserify": {
+    "transform": [
+      "brfs",
+      "bubleify"
+    ]
+  },
+  "devDependencies": {
+    "bubleify": "^0.5.0"
+  },
+  "scripts": {
+    "test": "budo test.js",
+    "test:browser": "budo test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dfcreative/prams.git"
+  },
+  "keywords": [
+    "settings",
+    "parameters",
+    "options",
+    "form"
+  ],
+  "author": "ΔY <dfcreative@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dfcreative/prams/issues"
+  },
+  "homepage": "https://github.com/dfcreative/prams#readme"
+}

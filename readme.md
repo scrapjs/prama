@@ -1,3 +1,5 @@
+[![❁](https://dfcreative.github.io/prams/logo.svg "❁")](https://dfcreative.github.io/prams)
+
 # prams [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
 Prams is settings constructor for applications or tests. Define parameters which your component depends on and _prams_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc. That is handy for testing and developing UI components.
@@ -182,3 +184,5 @@ Any other params will be placed to input tag attributes, like `min`, `max`, `ste
 * [popoff](https://github.com/dfcreative/popoff) — any type of popup, modal, dropdown etc.
 
 ## Credits
+
+Thanks to [freepik.com](<a href="http://www.freepik.com/free-photos-vectors/flower">Flower vector designed by Freepik</a>) for astonishing logo illustration.

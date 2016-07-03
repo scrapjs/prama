@@ -1,18 +1,18 @@
-[![❁](https://dfcreative.github.io/prams/logo.png "❁")](https://dfcreative.github.io/prams)
+[![❁](https://dfcreative.github.io/prama/logo.png "❁")](https://dfcreative.github.io/prama)
 
-# prams [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
+# prāma [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
 Settings constructor for applications or component tests.
-Define parameters which your component depends on and _prams_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc. That is handy for testing and developing UI components.
+Define parameters which your component depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc. That is handy for testing and developing UI components.
 
-[Example](https://dfcreative.github.io/prams).
+[Example](https://dfcreative.github.io/prama).
 
 ## Usage
 
-[![npm install prams](https://nodei.co/npm/prams.png?mini=true)](https://npmjs.org/package/prams/)
+[![npm install prama](https://nodei.co/npm/prama.png?mini=true)](https://npmjs.org/package/prama/)
 
 ```js
-var Params = require('prams');
+var Params = require('prama');
 
 var b = new Params([
 	{
@@ -32,13 +32,13 @@ var b = new Params([
 
 ## API
 
-### Prams(params?, options?)
+### Prama(params?, options?)
 
-Create prams instance based off `params` set and `options`.
+Create prama instance based off `params` set and `options`.
 Params may be an array or object with keys standing for param names.
 
 ```js
-var b = Prams({
+var b = Prama({
 	title: {
 
 	},
@@ -58,19 +58,19 @@ var b = Prams({
 });
 ```
 
-### prams.param(name, value|options, onchange?)
+### prama.param(name, value|options, onchange?)
 
 Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
 
-### prams.param(set|list)
+### prama.param(set|list)
 
 Add/set params based off object or array of params.
 
-### prams.param(name?)
+### prama.param(name?)
 
 Get value of a single param. If name is not defined, the object consisting of all params values will be returned.
 
-### prams.on('change', (name, value, opts) => {})
+### prama.on('change', (name, value, opts) => {})
 
 Hook up a callback for any parameter change.
 

@@ -4,7 +4,7 @@
 
 <em>Para</em>meters <em>ma</em>nager for applications or tests.
 
-Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc.
+Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading states, settings hierarchy, parameter types etc.
 
 **[Demo](https://dfcreative.github.io/prama)**
 
@@ -13,9 +13,9 @@ Define parameters which your component or application depends on and _prama_ wil
 [![npm install prama](https://nodei.co/npm/prama.png?mini=true)](https://npmjs.org/package/prama/)
 
 ```js
-var Params = require('prama');
+var createParams = require('prama');
 
-var params = new Params({
+var params = createParams({
 	name: {
 		label: 'Full name',
 		type: 'text'
@@ -37,12 +37,14 @@ var params = new Params({
 
 ## API
 
-### Prama(object|list, options?)
+### new Prama(object|list, options?)
 
 Create prama instance based off array or object with keys standing for param names and options.
 
 ```js
-var params = Prama([
+const Prama = require('prama');
+
+const params = new Prama([
 	{
 		//identifier, used as a key every here and there. Case-insensitive.
 		name: 'my-param',

@@ -8,10 +8,12 @@ Define parameters which your component or application depends on and _prama_ wil
 
 **[Demo](https://dfcreative.github.io/prama)**
 
-<details>
-<summary><h2>Usage</h2></summary>
+## Usage
 
 [![npm install prama](https://nodei.co/npm/prama.png?mini=true)](https://npmjs.org/package/prama/)
+
+<details>
+<summary>**Show code**</summary>
 
 ```js
 var Params = require('prama');
@@ -37,12 +39,14 @@ var params = new Params({
 ```
 </details>
 
-<details>
-<summary><h2>API</h2></summary>
+## API
 
 ### Prama(object|list, options?)
 
 Create prama instance based off array or object with keys standing for param names and options.
+
+<details>
+<summary>**Show code**</summary>
 
 ```js
 var params = Prama([

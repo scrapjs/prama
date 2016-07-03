@@ -2,8 +2,14 @@ var createParams = require('./');
 
 var params = createParams({
 	sampleText: {
-		label: 'Label',
-		placeholder: 'Field name...'
+		label: 'Field name',
+		value: 'Result',
+		placeholder: 'Field name...',
+		change: function (value) {
+			this.setParam('result', {
+				label: value
+			});
+		}
 	},
 	sampleNumber: {
 		label: 'Number',
@@ -23,10 +29,6 @@ var params = createParams({
 		value: true,
 		disabled: true
 	},
-	sampleText: {
-		label: 'Label',
-		placeholder: 'Field name...'
-	},
 	sampleButton: {
 		label: '',
 		type: 'button',
@@ -45,6 +47,9 @@ var params = createParams({
 			//return an html element with bound events
 			return 'Some <em>custom</em> html'
 		}
+	},
+	result: {
+		label: 'Result'
 	}
 }, {
 	title: 'Settings',

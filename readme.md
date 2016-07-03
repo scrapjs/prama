@@ -140,4 +140,4 @@ prama.element;
 
 ## Credits
 
-Thanks to [freepik.com](http://www.freepik.com/free-photos-vectors/flower) for astonishing illustration used for logo.
+Thanks to [freepik.com](http://www.freepik.com/free-vector/flower-mandala-ornaments_714316.htm#term=mandala&page=1&position=12) for astonishing illustration used for logo.

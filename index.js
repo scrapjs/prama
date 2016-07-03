@@ -9,6 +9,7 @@ const isMobile = require('is-mobile');
 const isPlainObject = require('mutype/is-object');
 const isPrimitive = require('mutype/is-plain');
 const Emitter = require('events');
+const morph = require('morphdom');
 const insertCSS = require('insert-css');
 const fs = require('fs');
 
@@ -40,7 +41,6 @@ function Params (params, opts) {
 
 	//params cache by names
 	this.params = {};
-
 
 	//create params from list
 	this.param(params);
@@ -218,144 +218,162 @@ Params.prototype.setParam = function (name, param, cb) {
 	}
 
 
-	//create element
-	if (!param.element) {
-		param.element = document.createElement('div');
-		param.element.innerHTML = `<label for="${param.name}" class="prama-label">${param.label}</label>`;
+	var label = `<label for="${param.name}" class="prama-label">${param.label}</label>`;
 
-		//custom create
-		if (param.create) {
-			var el = param.create.call(param, param);
-			if (el instanceof HTMLElement) {
-				param.element.appendChild(el);
-			}
-			else {
-				param.element.insertAdjacentHTML('beforeend', el);
-			}
+	var el = document.createElement('div');
+	el.classList.add('prama-param');
+
+	//custom create
+	if (param.create) {
+		var html = param.create.call(param, param);
+
+		if (html instanceof Element) {
+			el.appendChild(html);
 		}
-		//default type
 		else {
-			var html = '';
+			el.innerHTML = html
+		}
+	}
 
-			switch (param.type) {
-				case 'select':
-					html += `<select
-						id="${name}" class="prama-input prama-select" title="${param.value}">`;
+	//default type
+	else {
+		var html = '';
 
-					if (Array.isArray(param.values)) {
-						for (var i = 0; i < param.values.length; i++) {
-							html += `<option value="${param.values[i]}" ${param.values[i] === param.value ? 'selected' : ''}>${param.values[i]}</option>`
-						}
+		switch (param.type) {
+			case 'select':
+				html += `<select
+					id="${name}" class="prama-input prama-select" title="${param.value}">`;
+
+				if (Array.isArray(param.values)) {
+					for (var i = 0; i < param.values.length; i++) {
+						html += `<option value="${param.values[i]}" ${param.values[i] === param.value ? 'selected' : ''}>${param.values[i]}</option>`
 					}
-					else {
-						for (var name in param.values) {
-							html += `<option value="${param.values[name]}" ${param.values[name] === param.value ? 'selected' : ''}>${name}</option>`
-						}
-					}
-					html += `</select>`;
-					param.element.insertAdjacentHTML('beforeend', html);
-
-					break;
-
-				case 'number':
-				case 'range':
-				case 'multirange':
-					param.multiple = param.type === 'multirange';
-					param.value = param.value != null ? param.value : param.max ? param.max / 2 : 50;
-					param.min = param.min != null ? param.min : 0;
-					param.max = param.max != null ? param.max : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
-					param.step = param.step != null ? param.step : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
-					html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}" ${param.multiple ? 'multiple' : ''}/>`;
-					if (!param.multiple) {
-						html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>`;
-					}
-					else {
-						html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="text" title="${param.value}"/>`;
-					}
-					param.element.insertAdjacentHTML('beforeend', html);
-
-					var input = param.element.querySelector('input');
-					param.multiple && multirange(input);
-
-					break;
-
-				case 'checkbox':
-				case 'toggle':
-					param.value = param.value == null ? false : param.value;
-
-					html += `<label class="prama-toggle">
-						<input type="checkbox" id="${param.name}" class="prama-input" ${param.value ? 'checked' : ''}/>
-						<div class="prama-toggle-thumb"></div>
-					</label>`;
-
-					param.element.insertAdjacentHTML('beforeend', html);
-
-					break;
-
-				case 'button':
-					html = `<button id="${param.name}" class="prama-input prama-button"
-					>${ param.value }</button>`;
-					param.element.insertAdjacentHTML('beforeend', html);
-					break;
-
-				case 'radio':
-				case 'switch':
-				case 'multiple':
-				case 'list':
-					html = `<fieldset id="${param.name}" class="prama-radio">`;
-
-					if (Array.isArray(param.values)) {
-						for (var i = 0; i < param.values.length; i++) {
-							html += `<label for="${param.values[i]}"><input type="radio" value="${param.values[i]}" ${param.values[i] === param.value ? 'checked' : ''} id="${param.values[i]}" name="${param.name}"/> ${param.values[i]}</label>`;
-						}
-					}
-					else {
-						for (var name in param.values) {
-							html += `<label for="${name}"><input type="radio" value="${param.values[name]}" ${param.values[name] === param.value ? 'checked' : ''} id="${name}" name="${param.name}"/> ${param.values[name]}</label>`;
-						}
-					}
-
-					html += `</fieldset>`;
-					param.element.insertAdjacentHTML('beforeend', html);
-					break;
-
-				case 'file':
-					break;
-
-				default:
-					param.value = param.value == null ? '' : param.value;
-					html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-text" value="${param.value}" title="${param.value}" ${param.type ? 'type="${param.type}"' : ''}/>
-					`;
-					param.element.insertAdjacentHTML('beforeend', html);
-
-					break;
-			}
-
-			var inputs = param.element.querySelectorAll('input, select, button');
-
-			[].forEach.call(inputs, (input) => {
-				input.addEventListener('input', e => {
-					this.setParamValue(param.name, e.target);
-				});
-				input.addEventListener('change', e => {
-					this.setParamValue(param.name, e.target);
-				});
-				if (param.type === 'button' || param.type === 'submit') {
-					input.addEventListener('click', e => {
-						e.preventDefault();
-						this.setParamValue(param.name, e.target);
-					});
 				}
-				input.addEventListener('keypress', e => {
-					if (e.which === 13) {
-						this.setParamValue(param.name, e.target);
+				else {
+					for (var name in param.values) {
+						html += `<option value="${param.values[name]}" ${param.values[name] === param.value ? 'selected' : ''}>${name}</option>`
 					}
-				});
-			});
+				}
+				html += `</select>`;
+
+				break;
+
+			case 'number':
+			case 'range':
+			case 'multirange':
+				param.multiple = param.type === 'multirange';
+				param.value = param.value != null ? param.value : param.max ? param.max / 2 : 50;
+				param.min = param.min != null ? param.min : 0;
+				param.max = param.max != null ? param.max : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
+				param.step = param.step != null ? param.step : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
+				html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}" ${param.multiple ? 'multiple' : ''}/>`;
+				if (!param.multiple) {
+					html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>`;
+				}
+				else {
+					html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="text" title="${param.value}"/>`;
+				}
+
+				break;
+
+			case 'checkbox':
+			case 'toggle':
+				param.value = param.value == null ? false : param.value;
+
+				html += `<label class="prama-toggle">
+					<input type="checkbox" id="${param.name}" class="prama-input" ${param.value ? 'checked' : ''}/>
+					<div class="prama-toggle-thumb"></div>
+				</label>`;
+
+				break;
+
+			case 'button':
+				html = `<button id="${param.name}" class="prama-input prama-button"
+				>${ param.value }</button>`;
+				break;
+
+			case 'submit':
+			case 'reset':
+				throw 'Unimplemented';
+				break;
+
+			case 'radio':
+			case 'switch':
+			case 'multiple':
+			case 'list':
+				html = `<fieldset id="${param.name}" class="prama-radio">`;
+
+				if (Array.isArray(param.values)) {
+					for (var i = 0; i < param.values.length; i++) {
+						html += `<label for="${param.values[i]}"><input type="radio" value="${param.values[i]}" ${param.values[i] === param.value ? 'checked' : ''} id="${param.values[i]}" name="${param.name}"/> ${param.values[i]}</label>`;
+					}
+				}
+				else {
+					for (var name in param.values) {
+						html += `<label for="${name}"><input type="radio" value="${param.values[name]}" ${param.values[name] === param.value ? 'checked' : ''} id="${name}" name="${param.name}"/> ${param.values[name]}</label>`;
+					}
+				}
+
+				html += `</fieldset>`;
+
+				break;
+
+			case 'file':
+				throw 'Unimplemented';
+				break;
+
+			case 'canvas':
+			case 'output':
+				throw 'Unimplemented';
+				break;
+
+			default:
+				param.value = param.value == null ? '' : param.value;
+				html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-text" value="${param.value}" title="${param.value}" ${param.type ? 'type="${param.type}"' : ''}/>
+				`;
+
+				break;
 		}
 
-		param.element.classList.add('prama-param');
+		el.innerHTML = label + html;
+
+		if (param.multiple) {
+			var input = el.querySelector('input');
+			param.multiple && multirange(input);
+		}
+	}
+
+	//if new element - just add listeners and place httm
+	if (!param.element) {
+		param.element = el;
+
+		var inputs = param.element.querySelectorAll('input, select, button');
+
+		[].forEach.call(inputs, (input) => {
+			input.addEventListener('input', e => {
+				this.setParamValue(param.name, e.target);
+			});
+			input.addEventListener('change', e => {
+				this.setParamValue(param.name, e.target);
+			});
+			if (param.type === 'button' || param.type === 'submit') {
+				input.addEventListener('click', e => {
+					e.preventDefault();
+					this.setParamValue(param.name, e.target);
+				});
+			}
+			input.addEventListener('keypress', e => {
+				if (e.which === 13) {
+					this.setParamValue(param.name, e.target);
+				}
+			});
+		});
+
 		this.element.appendChild(param.element);
+	}
+	//otherwise morph exising element
+	else {
+		morph(param.element, el, {childrenOnly: true});
 	}
 
 	return this;
@@ -397,7 +415,7 @@ Params.prototype.setParamValue = function (name, value) {
 
 	param.element.title = value;
 	param.value = value;
-	param.change && param.change.call(self, value, param);
+	param.change && param.change.call(this, value, param);
 	this.emit('change', param.name, param.value, param);
 
 	//update ui

@@ -2,9 +2,10 @@
 
 # prams [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
-Prams is settings constructor for applications or tests. Define parameters which your component depends on and _prams_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc. That is handy for testing and developing UI components.
+Settings constructor for applications or component tests.
+Define parameters which your component depends on and _prams_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc. That is handy for testing and developing UI components.
 
-See [example](https://dfcreative.github.io/prams).
+[Example](https://dfcreative.github.io/prams).
 
 ## Usage
 

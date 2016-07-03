@@ -3,7 +3,7 @@
  */
 
 const inherits = require('inherits');
-const extend = require('xtend');
+const extend = require('xtend/mutable');
 const createPopup = require('popoff');
 const isMobile = require('is-mobile');
 const isPlainObject = require('mutype/is-object');
@@ -25,18 +25,22 @@ insertCSS(fs.readFileSync('./index.css', 'utf-8'));
 function Params (params, opts) {
 	if (!(this instanceof Params)) return new Params(params, opts);
 
-	extend(this, opts);
-
 	//create content
 	this.element = document.createElement('form');
 	this.element.classList.add('prama');
 
+	this.titleElement = document.createElement('h2');
+	this.titleElement.classList.add('prama-title');
+	this.titleElement.innerHTML = this.title;
+	this.titleElement.setAttribute('hidden', true);
+	this.element.appendChild(this.titleElement);
+
+	extend(this, opts);
+
+
 	//params cache by names
 	this.params = {};
 
-	if (this.title) {
-		this.element.innerHTML = `<h2 class="prama-title">${ this.title }</h2>`;
-	}
 
 	//create params from list
 	this.param(params);
@@ -92,7 +96,26 @@ function Params (params, opts) {
 
 inherits(Params, Emitter);
 
-Params.prototype.title = 'Settings';
+Object.defineProperties(Params.prototype, {
+	title: {
+		get: function () {
+			return this.titleElement.innerHTML;
+		},
+		set: function (value) {
+			if (!value) {
+				this.titleElement.innerHTML = '';
+				this.titleElement.setAttribute('hidden', true);
+			}
+			else {
+				if (!this.titleElement.innerHTML) {
+					this.titleElement.removeAttribute('hidden');
+				}
+				this.titleElement.innerHTML = value;
+			}
+		}
+	}
+});
+
 
 //update hash state
 Params.prototype.updateHistory = function () {
@@ -171,7 +194,7 @@ Params.prototype.setParam = function (name, param, cb) {
 	}
 
 	//normalize param
-	param = this.params[param.name] = extend(this.params[param.name], param);
+	param = this.params[param.name] = extend(this.params[param.name] || {}, param);
 
 	param.change = cb || param.change || param.onchange;
 
@@ -232,17 +255,13 @@ Params.prototype.setParam = function (name, param, cb) {
 
 				case 'number':
 				case 'range':
-					param.value = param.value == null ? 0.5 : param.value;
-					param.min = param.min != null ? 0 : param.min;
-					param.max = param.max != null ? 100 : param.max;
-					param.step = param.step != null ? 0.01 : param.step;
-					html += `<input
-						id="${param.name}" type="${param.type}" class="prama-input prama-${param.type}" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
+					param.value = param.value != null ? param.value : param.max ? param.max / 2 : 50;
+					param.min = param.min != null ? param.min : 0;
+					param.max = param.max != null ? param.max : param.value < 1 ? 1 : 100;
+					param.step = param.step != null ? param.step : param.value < 1 ? .01 : 1;
+					html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
+						<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
 					`;
-
-					if (param.type === 'range')	{
-						html += `<span class="prama-value">${param.value}</span>`;
-					}
 
 					break;
 
@@ -291,9 +310,9 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			param.element.insertAdjacentHTML('beforeend', html);
 
-			var input = param.element.querySelector('input, select, button');
+			var inputs = param.element.querySelectorAll('input, select, button');
 
-			if (input) {
+			[].forEach.call(inputs, (input) => {
 				input.addEventListener('input', e => {
 					this.setParamValue(param.name, getValue(e.target));
 				});
@@ -311,7 +330,7 @@ Params.prototype.setParam = function (name, param, cb) {
 						this.setParamValue(param.name, getValue(e.target));
 					}
 				});
-			}
+			});
 		}
 
 		param.element.classList.add('prama-param');
@@ -349,10 +368,12 @@ Params.prototype.setParamValue = function (name, value) {
 			target.checked = !!value;
 		}
 
-		var valueEl = param.element.querySelector('.prama-value');
-		if (valueEl) {
-			valueEl.innerHTML = value;
-		}
+		var valueEls = param.element.querySelectorAll('.prama-value');
+		[].forEach.call(valueEls, (el) => {
+			if (el === target) return;
+			el.value = value;
+
+		});
 	}
 
 

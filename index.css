@@ -2,6 +2,10 @@
 	font-family: sans-serif;
 }
 
+.prama hidden {
+	display: none!important;
+}
+
 .prama * {
 	box-sizing: border-box;
 }
@@ -32,7 +36,6 @@
 .prama input[type="number"],
 .prama input[type="range"],
 .prama select,
-.prama-value,
 .prama input[type="checkbox"],
 .prama input[type="radio"],
 .prama button,
@@ -55,8 +58,7 @@
 .prama input:not([type]),
 .prama input[type="text"],
 .prama input[type="number"],
-.prama select,
-.prama-value {
+.prama select {
 	width: 50%;
 	padding: 0 .5rem;
 }
@@ -104,11 +106,14 @@
 .prama input[type="range"] {
 	width: 40%;
 }
-.prama-value {
+.prama input[type="number"] {
 	width: 10%;
 }
+
 .prama input[type="range"] {
 	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
 	height: .5rem;
 	min-height: .5rem;
 }

@@ -2,12 +2,13 @@ var createParams = require('./');
 
 var params = createParams({
 	sampleText: {
-		label: 'Text Field'
+		label: 'Title',
+		value: 'Settings',
+		change: (value) => {
+			params.title = value;
+		}
 	},
 	sampleNumber: {
-		type: 'number'
-	},
-	sampleRange: {
 		value: 75
 	},
 	sampleSelect: {

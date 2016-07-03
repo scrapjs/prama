@@ -2,7 +2,7 @@
 
 # prāṃa [![WIP](https://img.shields.io/badge/Work%20in%20progress--green.svg)](http://github.com/badges/stability-badges)
 
-Settings manager for applications or tests.
+<em>Para</em>meters <em>ma</em>nager for applications or tests.
 
 Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc.
 

@@ -22,7 +22,8 @@
   },
   "scripts": {
     "test": "budo test.js",
-    "test:browser": "budo test.js"
+    "test:browser": "budo test.js -- -g bubleify",
+    "build": "browserify test.js -g bubleify -o demo/index.js"
   },
   "repository": {
     "type": "git",

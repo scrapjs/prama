@@ -18,12 +18,12 @@
 	margin-bottom: 1rem;
 }
 
-.prama label {
+.prama-label {
 	display: inline-block;
 	width: 20%;
 	vertical-align: middle;
 	line-height: 2rem;
-	min-height: 2rem;
+	height: 2rem;
 }
 
 .prama-input {
@@ -36,8 +36,8 @@
 .prama input[type="number"],
 .prama input[type="range"],
 .prama select,
-.prama input[type="checkbox"],
-.prama input[type="radio"],
+/*.prama input[type="checkbox"],*/
+/*.prama input[type="radio"],*/
 .prama button,
 .prama fieldset {
 	-webkit-appearance: none;
@@ -51,7 +51,6 @@
 	border: none;
 	margin: 0;
 	border-radius: .2222rem;
-	background: rgb(241, 244, 249);
 }
 
 .prama textarea,
@@ -59,30 +58,29 @@
 .prama input[type="text"],
 .prama input[type="number"],
 .prama select {
+	background: rgb(241, 244, 249);
 	width: 50%;
 	padding: 0 .5rem;
 }
 
 .prama input[type="checkbox"],
 .prama input[type="radio"] {
+	margin: 0;
 	cursor: pointer;
-	background: rgb(241, 244, 249);
+	background: rgb(2, 135, 210);
+	border-color: rgb(2, 98, 157);
 	font-weight: bolder;
 	font-size: 1.5rem;
-	line-height: 1.9rem;
+	line-height: 2rem;
+	width: 2rem;
+	height: 2rem;
+	vertical-align: top;
 	text-align: center;
 }
 .prama input[type="radio"] {
 	border-radius: 2rem;
 }
-.prama input[type="radio"]:checked:after {
-	content: '●';
-	color: rgb(2, 135, 210);
-}
-.prama input[type="checkbox"]:checked:after {
-	content: '✔';
-	color: rgb(2, 135, 210);
-}
+
 .prama fieldset {
 	padding: 0;
 	height: auto;
@@ -94,14 +92,71 @@
 .prama fieldset label {
 	width: auto;
 	cursor: pointer;
+	line-height: 2rem;
+	height: 2rem;
+	display: inline-block;
 	margin-right: 1rem;
 }
+
 .prama button {
 	background: rgb(2, 135, 210);
 	color: white;
 	padding: 0 1rem;
 	width: 20%;
+	cursor: pointer;
 }
+
+
+/* Hide default HTML checkbox */
+.prama-toggle {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 4rem;
+  height: 2rem;
+}
+.prama-toggle input {
+	display: none;
+}
+.prama-toggle .prama-toggle-thumb {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgb(241, 244, 249);
+	box-shadow: 0 0 0 2px rgb(239, 242, 247);
+	border-radius: 34px;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+.prama-toggle .prama-toggle-thumb:before {
+	position: absolute;
+	border-radius: 34px;
+	content: "";
+	height: 2rem;
+	width: 2rem;
+	left: 0;
+	bottom: 0;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+.prama-toggle input:checked + .prama-toggle-thumb {
+	box-shadow: 0 0 0 2px rgb(2, 135, 210);
+	background-color: rgb(2, 135, 210);
+}
+.prama-toggle input:focus + .prama-toggle-thumb {
+	box-shadow: 0 0 1px rgb(2, 135, 210);
+}
+.prama-toggle input:checked + .prama-toggle-thumb:before {
+	-webkit-transform: translateX(2rem);
+	-ms-transform: translateX(2rem);
+	transform: translateX(2rem);
+}
+
+
 
 .prama input[type="range"] {
 	width: 40%;
@@ -111,12 +166,12 @@
 	padding-right: 0;
 }
 
-
 .prama input[type="range"] {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	height: .5rem;
+	/** O_o you can’t use height for IE here */
+	padding: .75rem 0;
 	min-height: .5rem;
 }
 .prama input[type="range"]:focus {
@@ -162,41 +217,44 @@
 	background: rgb(2, 135, 210);
 	cursor: pointer;
 }
-.prama input[type="range"]::-ms-track {
+input[type="range"]::-ms-track {
 	height: .5rem;
 	cursor: pointer;
 	background: transparent;
 	border-color: transparent;
 	color: transparent;
 }
-.prama input[type="range"]::-ms-fill-lower {
+
+input[type="range"]::-ms-fill-lower {
 	background: rgb(241, 244, 249);
 	border: none;
 	border-radius: 26px;
 	box-shadow: none;
 }
-.prama input[type="range"]::-ms-fill-upper {
+input[type="range"]::-ms-fill-upper {
 	background: rgb(241, 244, 249);
 	border: none;
 	border-radius: 26px;
 	box-shadow: none;
 }
-.prama input[type="range"]::-ms-thumb {
+input[type="range"]::-ms-thumb {
 	box-shadow: none;
 	border: none;
-	height: 2rem;
 	width: 2rem;
 	border-radius: 2rem;
 	background: rgb(2, 135, 210);
 	cursor: pointer;
 	height: .5rem;
 }
-.prama input[type="range"]:focus::-ms-fill-lower {
+input[type="range"]:focus::-ms-fill-lower {
 	background: rgb(241, 244, 249);
 }
-.prama input[type="range"]:focus::-ms-fill-upper {
+input[type="range"]:focus::-ms-fill-upper {
 	background: rgb(241, 244, 249);
 }
+
+
+
 
 
 /** multirange polyfill */

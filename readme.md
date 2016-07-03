@@ -101,23 +101,18 @@ Param identifier, esed as a key every here and there. Case-insensitive. May incl
 
 Defines the type of param:
 
-* checkbox
-* range, number
-* multirange
-* text (default)
+* checkbox, toggle
+* number
+* range, multirange
 * select
 * button
-* radio
-* checkbox-list WIP
+* radio, switch, multiple
 * file WIP
-* multiselect WIP
-* switch WIP
 * color WIP
 * date WIP
-* area WIP
 * output WIP
 * canvas WIP
-* any html input type: password, email, url, tel, time, date, week,
+* text (default) or any html input type: password, email, url, tel, time, date, week
 
 Undefined type will be guessed based on other options.
 

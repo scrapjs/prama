@@ -221,7 +221,7 @@ Params.prototype.setParam = function (name, param, cb) {
 	//create element
 	if (!param.element) {
 		param.element = document.createElement('div');
-		param.element.innerHTML = `<label for="${param.name}">${param.label}</label>`;
+		param.element.innerHTML = `<label for="${param.name}" class="prama-label">${param.label}</label>`;
 
 		//custom create
 		if (param.create) {
@@ -282,8 +282,12 @@ Params.prototype.setParam = function (name, param, cb) {
 				case 'checkbox':
 				case 'toggle':
 					param.value = param.value == null ? false : param.value;
-					html += `<input id="${param.name}" type="checkbox" class="prama-input prama-${param.type}" title="${param.value}" ${param.value ? 'checked' : ''}/>
-					`;
+
+					html += `<label class="prama-toggle">
+						<input type="checkbox" id="${param.name}" class="prama-input" ${param.value ? 'checked' : ''}/>
+						<div class="prama-toggle-thumb"></div>
+					</label>`;
+
 					param.element.insertAdjacentHTML('beforeend', html);
 
 					break;
@@ -295,6 +299,9 @@ Params.prototype.setParam = function (name, param, cb) {
 					break;
 
 				case 'radio':
+				case 'switch':
+				case 'multiple':
+				case 'list':
 					html = `<fieldset id="${param.name}" class="prama-radio">`;
 
 					if (Array.isArray(param.values)) {
@@ -414,7 +421,7 @@ function getValue (target) {
 			if (target.classList.contains('ghost')) {
 				target = target.parentNode.querySelector('.original');
 			}
-			value = target.value.split(',').map(v => parseFloat(v));
+			value = [target.valueLow, target.valueHigh];
 		}
 		else {
 			value = parseFloat(target.value);
@@ -478,9 +485,11 @@ function multirange (input) {
 		Object.defineProperty(input, "value", {
 			get: function() { return this.valueLow + "," + this.valueHigh; },
 			set: function(v) {
-				var values = v.split(",");
-				this.valueLow = values[0];
-				this.valueHigh = values[1];
+				if (typeof v === 'string') {
+					v = v.split(",");
+				}
+				this.valueLow = v[0];
+				this.valueHigh = v[1];
 			},
 			enumerable: true
 		});

@@ -9,7 +9,11 @@ var params = createParams({
 		}
 	},
 	sampleNumber: {
+		label: 'Number',
 		value: 75
+	},
+	sampleRange: {
+		value: [22, 11]
 	},
 	sampleSelect: {
 		values: [1,2,3],
@@ -22,9 +26,10 @@ var params = createParams({
 		type: 'toggle',
 		value: true
 	},
-	sampleButtom: {
+	sampleButton: {
+		label: '',
 		type: 'button',
-		value: 'xxx'
+		value: 'Randomize'
 	},
 	radio: {
 		values: [1, 2, 3, 4],

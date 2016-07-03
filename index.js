@@ -205,12 +205,15 @@ Params.prototype.setParam = function (name, param, cb) {
 		else if (param.min || param.max || param.step || typeof param.value === 'number') {
 			param.type = 'range';
 		}
+		else if (Array.isArray(param.value)) {
+			param.type = 'multirange';
+		}
 		else if (typeof param.value === 'boolean') {
 			param.type = 'checkbox';
 		}
 	}
 
-	if (!param.label) {
+	if (param.label == null) {
 		param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
 	}
 
@@ -250,18 +253,26 @@ Params.prototype.setParam = function (name, param, cb) {
 						}
 					}
 					html += `</select>`;
+					param.element.insertAdjacentHTML('beforeend', html);
 
 					break;
 
 				case 'number':
 				case 'range':
+				case 'multirange':
+					param.multiple = param.type === 'multirange';
 					param.value = param.value != null ? param.value : param.max ? param.max / 2 : 50;
 					param.min = param.min != null ? param.min : 0;
-					param.max = param.max != null ? param.max : param.value < 1 ? 1 : 100;
-					param.step = param.step != null ? param.step : param.value < 1 ? .01 : 1;
-					html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
-						<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
-					`;
+					param.max = param.max != null ? param.max : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
+					param.step = param.step != null ? param.step : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
+					html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}" ${param.multiple ? 'multiple' : ''}/>`;
+					if (!param.multiple) {
+						html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>`;
+					}
+					param.element.insertAdjacentHTML('beforeend', html);
+
+					var input = param.element.querySelector('input');
+					param.multiple && multirange(input);
 
 					break;
 
@@ -271,6 +282,7 @@ Params.prototype.setParam = function (name, param, cb) {
 					html += `<input
 						id="${param.name}" type="checkbox" class="prama-input prama-${param.type}" title="${param.value}" ${param.value ? 'checked' : ''}/>
 					`;
+					param.element.insertAdjacentHTML('beforeend', html);
 
 					break;
 
@@ -278,6 +290,7 @@ Params.prototype.setParam = function (name, param, cb) {
 					html = `<button
 						id="${param.name}" class="prama-input prama-button"
 					>${ param.value }</button>`;
+					param.element.insertAdjacentHTML('beforeend', html);
 					break;
 
 				case 'radio':
@@ -295,6 +308,7 @@ Params.prototype.setParam = function (name, param, cb) {
 					}
 
 					html += `</fieldset>`;
+					param.element.insertAdjacentHTML('beforeend', html);
 					break;
 
 				case 'file':
@@ -304,30 +318,29 @@ Params.prototype.setParam = function (name, param, cb) {
 					param.value = param.value == null ? '' : param.value;
 					html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-text" value="${param.value}" title="${param.value}" ${param.type ? 'type="${param.type}"' : ''}/>
 					`;
+					param.element.insertAdjacentHTML('beforeend', html);
 
 					break;
 			}
-
-			param.element.insertAdjacentHTML('beforeend', html);
 
 			var inputs = param.element.querySelectorAll('input, select, button');
 
 			[].forEach.call(inputs, (input) => {
 				input.addEventListener('input', e => {
-					this.setParamValue(param.name, getValue(e.target));
+					this.setParamValue(param.name, e.target);
 				});
 				input.addEventListener('change', e => {
-					this.setParamValue(param.name, getValue(e.target));
+					this.setParamValue(param.name, e.target);
 				});
 				if (param.type === 'button' || param.type === 'submit') {
 					input.addEventListener('click', e => {
 						e.preventDefault();
-						this.setParamValue(param.name, getValue(e.target));
+						this.setParamValue(param.name, e.target);
 					});
 				}
 				input.addEventListener('keypress', e => {
 					if (e.which === 13) {
-						this.setParamValue(param.name, getValue(e.target));
+						this.setParamValue(param.name, e.target);
 					}
 				});
 			});
@@ -354,40 +367,130 @@ Params.prototype.getParam = function (name) {
 
 //set param value/options
 Params.prototype.setParamValue = function (name, value) {
+	var sourceTarget;
+	if (value instanceof Element) {
+		sourceTarget = value;
+		value = getValue(sourceTarget);
+	}
+
 	var param = this.params[name];
 
 	param.element.title = value;
 	param.value = value;
 	param.change && param.change.call(self, value, param);
+	this.emit('change', param.name, param.value, param);
 
 	//update ui
-	if (getValue(param.element) !== value) {
-		var target = param.element.querySelector('input, select, button');
+	var targets = param.element.querySelectorAll('input, select, button');
+	[].forEach.call(targets, target => {
+		if (target === sourceTarget) return;
+
+		//multirange
+		if (target.classList.contains('ghost')) {
+			// value[1];
+			console.log('ghost', value)
+			return
+		}
+		else if (target.classList.contains('original')) {
+			console.log('original', value)
+			// v
+			return
+		}
+
 		target.value = value;
 		if (target.type === 'checkbox') {
 			target.checked = !!value;
 		}
-
-		var valueEls = param.element.querySelectorAll('.prama-value');
-		[].forEach.call(valueEls, (el) => {
-			if (el === target) return;
-			el.value = value;
-
-		});
-	}
-
-
-	this.emit('change', param.name, param.value, param);
+	});
 }
 
 
 //get value from a dom element
 function getValue (target) {
-	var value = target.type === 'checkbox' ? target.checked : (target.type === 'number' || target.type === 'range') ? parseFloat(target.value) : target.value;
+	var value = target.type === 'checkbox' ? target.checked : target.value;
+
+	if (target.type === 'number' || target.type === 'range' || target.type === 'multirange' ) {
+		if (target.hasAttribute('multiple')) {
+			console.log(target, target.value);
+			value = target.value.split(',').map(v => parseFloat(v));
+		}
+		else {
+			value = parseFloat(target.value);
+		}
+	}
 
 	if (value == null && target.type === 'button') {
-		value = target.innerHTML ;
+		value = target.innerHTML;
 	}
 
 	return value;
+}
+
+
+
+
+//FIXME :'( multirange copy-paste (Lea Verou, please do npm)
+//https://github.com/LeaVerou/multirange
+var supportsMultiple = HTMLInputElement && "valueLow" in HTMLInputElement.prototype;
+
+var descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+
+function multirange (input) {
+	if (supportsMultiple || input.classList.contains("multirange")) {
+		return;
+	}
+
+	var values = input.getAttribute("value").split(",");
+	var max = +input.max || 100;
+	var ghost = input.cloneNode();
+
+	input.classList.add("multirange", "original");
+	ghost.classList.add("multirange", "ghost");
+
+	input.value = values[0] || max / 2;
+	ghost.value = values[1] || max / 2;
+
+	input.parentNode.insertBefore(ghost, input.nextSibling);
+
+	Object.defineProperty(input, "originalValue", descriptor.get ? descriptor : {
+		// Fuck you Safari >:(
+		get: function() { return this.value; },
+		set: function(v) { this.value = v; }
+	});
+
+	Object.defineProperties(input, {
+		valueLow: {
+			get: function() { return Math.min(this.originalValue, ghost.value); },
+			set: function(v) { this.originalValue = v; },
+			enumerable: true
+		},
+		valueHigh: {
+			get: function() { return Math.max(this.originalValue, ghost.value); },
+			set: function(v) { ghost.value = v; },
+			enumerable: true
+		}
+	});
+
+	if (descriptor.get) {
+		// Again, fuck you Safari
+		Object.defineProperty(input, "value", {
+			get: function() { return this.valueLow + "," + this.valueHigh; },
+			set: function(v) {
+				var values = v.split(",");
+				this.valueLow = values[0];
+				this.valueHigh = values[1];
+			},
+			enumerable: true
+		});
+	}
+
+	function update() {
+		ghost.style.setProperty("--low", input.valueLow * 100 / max + 1 + "%");
+		ghost.style.setProperty("--high", input.valueHigh * 100 / max - 1 + "%");
+	}
+
+	input.addEventListener("input", update);
+	ghost.addEventListener("input", update);
+
+	update();
 }

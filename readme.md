@@ -1,6 +1,6 @@
 [![❁](https://dfcreative.github.io/prama/logo.png "❁")](https://dfcreative.github.io/prama)
 
-# prāṃa [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
+# prāṃa [![WIP](https://img.shields.io/badge/Work%20in%20progress--green.svg)](http://github.com/badges/stability-badges)
 
 Settings manager for applications or tests.
 
@@ -102,8 +102,8 @@ Param identifier, esed as a key every here and there. Case-insensitive. May incl
 Defines the type of param:
 
 * checkbox
-* range
-* number
+* range, number
+* multirange
 * text (default)
 * select
 * button
@@ -121,39 +121,39 @@ Defines the type of param:
 
 Undefined type will be guessed based on other options.
 
-### param.label
+### label
 
 Human-readable name of param. If undefined, title-cased `param.name` will be used as a label.
 
-### param.help
+### help
 
 Display help text to elaborate what is the meaning of the param. Can be displayed as a short message.
 
-### param.value
+### value
 
 Current param value.
 
-### param.default
+### default
 
 Default param value. If undefined - the initial `param.value` will be used.
 
-### param.values
+### values
 
 Set of possible values. Can be array with values or object with names as keys and values as... values. Used in `select` and `switch` param types. By default `null`.
 
-### param.readonly
+### readonly
 
 Set type to `output` and ignore any attemts to change the value. By default `false`.
 
-### param.reload
+### reload
 
 Display notification that browser reload is required. Useful if some params significantly change the behavior of app, like switching _2d_ context to _webgl_ etc. By default `false`.
 
-### param.order
+### order
 
 Order of placement of the param. By default the order of passed list is used.
 
-### param.include
+### include
 
 Object with ids of other params dependent on the current param. Switching current param’s value to the defined value will display the dependent params.
 
@@ -168,19 +168,19 @@ b.param({
 });
 ```
 
-### param.style
+### style
 
 Place passed styles to param’s `style` property.
 
-### param.change
+### change
 
 Passed function will be called each time param’s value changed.
 
-### param.create
+### create
 
 Define function to create custom param. The function should return element or string with html.
 
-### param.*
+### *
 
 Any other params will be placed to input tag attributes, like `min`, `max`, `step`, `placeholder`, `title`, etc.
 

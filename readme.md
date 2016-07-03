@@ -2,7 +2,7 @@
 
 # prāṃa [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
-Create settings for applications or tests.
+Settings for applications or tests.
 
 Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc.
 
@@ -187,4 +187,4 @@ Any other params will be placed to input tag attributes, like `min`, `max`, `ste
 
 ## Credits
 
-Thanks to [freepik.com](<a href="http://www.freepik.com/free-photos-vectors/flower">Flower vector designed by Freepik</a>) for astonishing logo illustration.
+Thanks to [freepik.com](http://www.freepik.com/free-photos-vectors/flower) for astonishing illustration used for logo.

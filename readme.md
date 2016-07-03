@@ -1,4 +1,4 @@
-[![❁](https://dfcreative.github.io/prams/logo.png "❁")](https://dfcreative.github.io/prama)
+[![❁](https://dfcreative.github.io/prama/logo.png "❁")](https://dfcreative.github.io/prama)
 
 # prāṃa [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 

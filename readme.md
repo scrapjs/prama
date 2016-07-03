@@ -1,6 +1,6 @@
-[![❁](https://dfcreative.github.io/prama/logo.png "❁")](https://dfcreative.github.io/prama)
+[![❁](https://dfcreative.github.io/prams/logo.png "❁")](https://dfcreative.github.io/prama)
 
-# prāma [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
+# prāṃa [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
 Settings constructor for applications or component tests.
 Define parameters which your component depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc. That is handy for testing and developing UI components.

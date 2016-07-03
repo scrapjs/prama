@@ -3,32 +3,41 @@ var createParams = require('./');
 var params = createParams({
 	sampleText: {
 		label: 'Field name',
-		value: 'Result',
+		value: 'Field',
 		placeholder: 'Field name...',
 		change: function (value) {
-			this.setParam('result', {
+			this.setParam('example', {
 				label: value
 			});
 		}
 	},
-	sampleNumber: {
-		label: 'Number',
-		value: 75
-	},
-	sampleRange: {
-		label: 'Range',
-		value: [11, 22]
-	},
-	select: {
-		values: ['text', 'number', 'textarea', 'toggle', 'select', 'switch'],
+	sampleType: {
+		label: 'Type',
+		values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch'],
 		value: 'text',
-		change: () => {}
+		change: (value) => {
+			params.setParam('example', {
+				type: value
+			});
+		}
 	},
-	sampleToggle: {
-		label: 'Multiple',
-		value: true,
-		disabled: true
+	sampleNumber: {
+		label: 'Value',
+		value: 75,
+		change: (v) => {
+			params.setParam('example', v);
+		}
 	},
+	//TODO: make dependent on multirange/range type
+	// sampleRange: {
+	// 	label: 'Range',
+	// 	value: [11, 22]
+	// },
+	// sampleToggle: {
+	// 	label: 'Multiple',
+	// 	value: true,
+	// 	disabled: true
+	// },
 	sampleButton: {
 		label: '',
 		type: 'button',
@@ -43,13 +52,18 @@ var params = createParams({
 	},
 	customField: {
 		label: 'Custom Field',
+		style: {
+			marginTop: '4rem',
+			textAlign: 'center'
+		},
 		create: () => {
 			//return an html element with bound events
-			return 'Some <em>custom</em> html'
+			return '<h3>Result:</h3>'
 		}
 	},
-	result: {
-		label: 'Result'
+	example: {
+		type: 'text',
+		label: 'Field'
 	}
 }, {
 	title: 'Settings',

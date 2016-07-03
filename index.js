@@ -262,10 +262,15 @@ Params.prototype.setParam = function (name, param, cb) {
 			case 'range':
 			case 'multirange':
 				param.multiple = param.type === 'multirange';
-				param.value = param.value != null ? param.value : param.max ? param.max / 2 : 50;
+				param.value = param.value != null ? (typeof param.value === 'number' ? param.value : parseFloat(param.value)) : NaN;
+				if (isNaN(param.value)) param.value = param.max ? param.max / 2 : 50;
+				if (param.multiple && !Array.isArray(param.value)) {
+					param.value = [param.value - 10, param.value + 10];
+				}
 				param.min = param.min != null ? param.min : 0;
 				param.max = param.max != null ? param.max : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
 				param.step = param.step != null ? param.step : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
+
 				html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}" ${param.multiple ? 'multiple' : ''}/>`;
 				if (!param.multiple) {
 					html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>`;
@@ -327,20 +332,21 @@ Params.prototype.setParam = function (name, param, cb) {
 				throw 'Unimplemented';
 				break;
 
+			case 'textarea' :
+				param.value = param.value == null ? '' : param.value;
+				html += `<textarea placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
+				`;
+
+				break;
+
 			default:
 				param.value = param.value == null ? '' : param.value;
-				html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-text" value="${param.value}" title="${param.value}" ${param.type ? 'type="${param.type}"' : ''}/>
+				html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-text" value="${param.value}" title="${param.value}" ${param.type ? `type="${param.type}"` : ''}/>
 				`;
 
 				break;
 		}
-
 		el.innerHTML = label + html;
-
-		if (param.multiple) {
-			var input = el.querySelector('input');
-			param.multiple && multirange(input);
-		}
 	}
 
 	//if new element - just add listeners and place httm
@@ -373,8 +379,24 @@ Params.prototype.setParam = function (name, param, cb) {
 	}
 	//otherwise morph exising element
 	else {
+		console.log(el)
 		morph(param.element, el, {childrenOnly: true});
 	}
+
+	//preset style
+	if (param.style) {
+		for (var name in param.style) {
+			var v = param.style[name];
+			if (typeof v === 'number' && !/ndex/.test(name)) v += 'px';
+			param.element.style[name] = v;
+		}
+	}
+
+	//FIXME: where to place that init?
+	// if (param.multiple) {
+	// 	var input = el.querySelector('input');
+	// 	param.multiple && multirange(input);
+	// }
 
 	return this;
 };

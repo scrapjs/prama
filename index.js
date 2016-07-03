@@ -369,9 +369,21 @@ Params.prototype.getParam = function (name) {
 		return el && el.type === 'checkbox' ? el.checked : el && el.value;
 	}
 	else {
-		//TODO: return cache of param values
+		return this.getParams;
 	}
 }
+
+//get cache of params
+Params.prototype.getParams = function (whitelist) {
+	var res = {};
+	for (var name in this.params) {
+		if (!whitelist || (whitelist && whitelist[name] != null)) {
+			res[name] = this.params[name];
+		}
+	}
+	return res;
+}
+
 
 //set param value/options
 Params.prototype.setParamValue = function (name, value) {

@@ -6,7 +6,7 @@ Settings manager for applications or tests.
 
 Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc.
 
-**[Demo](https://dfcreative.github.io/prama)**.
+**[Demo](https://dfcreative.github.io/prama)**
 
 ## Usage
 
@@ -15,170 +15,120 @@ Define parameters which your component or application depends on and _prama_ wil
 ```js
 var Params = require('prama');
 
-var b = new Params([
-	{
-		name: 'log'
-		label: 'Logarithmic View',
-		type: 'checkbox',
-		value: true
+var params = new Params({
+	name: {
+		label: 'Full name',
+		type: 'text'
 	},
-	{
-
+	email: {
+		label: 'Email',
+		type: 'email'
+	},
+	submit: {
+		label: '',
+		value: 'Sign Up',
+		type: 'submit',
+		change: function () => {
+			params.getParams();
+		}
 	}
-], {
-	history: true,
-	load: true
 });
 ```
 
 ## API
 
-### Prama(params?, options?)
+### Prama(object|list, options?)
 
-Create prama instance based off `params` set and `options`.
-Params may be an array or object with keys standing for param names.
-
-```js
-var b = Prama({
-	title: {
-
-	},
-	preview: {
-
-	},
-	description: {
-
-	},
-	color: {
-
-		type: 'color'
-	}
-}, {
-	saveState: true,
-
-});
-```
-
-### prama.param(name, value|options, onchange?)
-
-Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
-
-### prama.param(set|list)
-
-Add/set params based off object or array of params.
-
-### prama.param(name?)
-
-Get value of a single param. If name is not defined, the object consisting of all params values will be returned.
-
-### prama.on('change', (name, value, opts) => {})
-
-Hook up a callback for any parameter change.
-
-
-## Options
-
-### history
-
-Track history of changed params.
-
-### load
-
-Autoload settings from the localStorage.
-
-### ui
-
-### button
-
-
-## Parameters
-
-### name
-
-Param identifier, esed as a key every here and there. Case-insensitive. May include dashes.
-
-### type
-
-Defines the type of param:
-
-* checkbox, toggle
-* number
-* range, multirange
-* select
-* button
-* radio, switch, multiple
-* file WIP
-* color WIP
-* date WIP
-* output WIP
-* canvas WIP
-* text (default) or any html input type: password, email, url, tel, time, date, week
-
-Undefined type will be guessed based on other options.
-
-### label
-
-Human-readable name of param. If undefined, title-cased `param.name` will be used as a label.
-
-### help
-
-Display help text to elaborate what is the meaning of the param. Can be displayed as a short message.
-
-### value
-
-Current param value.
-
-### default
-
-Default param value. If undefined - the initial `param.value` will be used.
-
-### values
-
-Set of possible values. Can be array with values or object with names as keys and values as... values. Used in `select` and `switch` param types. By default `null`.
-
-### readonly
-
-Set type to `output` and ignore any attemts to change the value. By default `false`.
-
-### reload
-
-Display notification that browser reload is required. Useful if some params significantly change the behavior of app, like switching _2d_ context to _webgl_ etc. By default `false`.
-
-### order
-
-Order of placement of the param. By default the order of passed list is used.
-
-### include
-
-Object with ids of other params dependent on the current param. Switching current param’s value to the defined value will display the dependent params.
+Create prama instance based off array or object with keys standing for param names and options.
 
 ```js
-b.param({
-	name: 'shape',
-	values: ['square', 'circle', 'triangle']
-	include: {
-		square: ['length'],
-		circle: ['radius']
-	}
+var params = Prama([
+	{
+		//identifier, used as a key every here and there. Case-insensitive.
+		name: 'my-param',
+
+		//checkbox/toggle, number, range/multirange, select, button, radio/switch
+		//any default input type: password, email, url, tel, time, date, week
+		//undefined type will be guessed from other options
+		type: 'text',
+
+		//(optional) human-readable name of param
+		label: '',
+
+		//(optional) starting/current value
+		value: false,
+
+		//(optional) for select or switch types
+		values: [] or {},
+
+		//(optional) input attributes
+		min: 0,
+		max: 100,
+		step: 1,
+		title: this.label,
+
+		//(optional) used to avoid over-serialization
+		default: this.value,
+
+		//(optional) order of placement
+		order: 0,
+
+		//(optional) whether page reload is required if param changed
+		reload: false,
+
+		//(optional) short message to explain the meaning of the param
+		help: false,
+
+		//(optional) whether we need to disable param, useful in case of dependent params
+		disabled: false,
+
+		//(optional) ignore any user attempts to input value
+		readonly: false,
+
+		//(optional) place passed styles to param’s `style` property.
+		style: {},
+
+		//(optional) will be called on any input or change event
+		change: (value) => {}
+
+		//(optional) for custom param return custom html
+		create: () => {}
+	},
+	...
+], {
+	//track history of changes
+	history: true,
+
+	//load last state from localStorage
+	load: true,
+
+	//show button at the page exhibiting settings page
+	ui: true
 });
+
+//Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
+prama.setParam(name, value|options?, onchange?);
+
+//Add/set params based off object or array of params.
+prama.setParams(object|array);
+
+//Get value of a single param with `name`.
+prama.getParam(name);
+
+//Get object with values of all params.
+prama.getParams(whitelist?);
+
+//Universal param getter/setter, including methods above
+prama.param(object|array?);
+prama.param(name?, value|options?, callback?);
+
+//Hook up a callback for any parameter change.
+prama.on('change', (name, value, opts) => {});
+
+
+//Form element, use if `ui === false`
+prama.element;
 ```
-
-### style
-
-Place passed styles to param’s `style` property.
-
-### change
-
-Passed function will be called each time param’s value changed.
-
-### create
-
-Define function to create custom param. The function should return element or string with html.
-
-### *
-
-Any other params will be placed to input tag attributes, like `min`, `max`, `step`, `placeholder`, `title`, etc.
-
 
 
 ## See also

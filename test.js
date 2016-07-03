@@ -2,11 +2,8 @@ var createParams = require('./');
 
 var params = createParams({
 	sampleText: {
-		label: 'Title',
-		value: 'Settings',
-		change: (value) => {
-			params.title = value;
-		}
+		label: 'Label',
+		placeholder: 'Field name...'
 	},
 	sampleNumber: {
 		label: 'Number',
@@ -17,17 +14,23 @@ var params = createParams({
 		value: [11, 22]
 	},
 	select: {
-		values: [1,2,3],
-		value: 2
+		values: ['text', 'number', 'textarea', 'toggle', 'select', 'switch'],
+		value: 'text',
+		change: () => {}
 	},
 	sampleToggle: {
-		label: 'Toggle',
-		value: true
+		label: 'Multiple',
+		value: true,
+		disabled: true
+	},
+	sampleText: {
+		label: 'Label',
+		placeholder: 'Field name...'
 	},
 	sampleButton: {
 		label: '',
 		type: 'button',
-		value: 'Randomize'
+		value: 'Add field'
 	},
 	radio: {
 		values: [1, 2, 3, 4],

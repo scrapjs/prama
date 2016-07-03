@@ -29,13 +29,13 @@ function Params (params, opts) {
 
 	//create content
 	this.element = document.createElement('form');
-	this.element.classList.add('prams');
+	this.element.classList.add('prama');
 
 	//params cache by names
 	this.params = {};
 
 	if (this.title) {
-		this.element.innerHTML = `<h2 class="prams-title">${ this.title }</h2>`;
+		this.element.innerHTML = `<h2 class="prama-title">${ this.title }</h2>`;
 	}
 
 	//create params from list
@@ -195,7 +195,7 @@ Params.prototype.setParam = function (name, param, cb) {
 	//create element
 	if (!param.element) {
 		param.element = document.createElement('div');
-		param.element.innerHTML = `<label for="${param.name}" class="pram-label">${param.label}</label>`;
+		param.element.innerHTML = `<label for="${param.name}">${param.label}</label>`;
 
 		//custom create
 		if (param.create) {
@@ -214,7 +214,7 @@ Params.prototype.setParam = function (name, param, cb) {
 			switch (param.type) {
 				case 'select':
 					html += `<select
-						id="${name}" class="pram-input pram-select" title="${param.value}">`;
+						id="${name}" class="prama-input prama-select" title="${param.value}">`;
 
 					if (Array.isArray(param.values)) {
 						for (var i = 0; i < param.values.length; i++) {
@@ -230,15 +230,19 @@ Params.prototype.setParam = function (name, param, cb) {
 
 					break;
 
-				case 'range':
 				case 'number':
-					param.min = param.min == null ? 0 : param.min;
-					param.max = param.max == null ? 100 : param.max;
-					param.step = param.step == null ? 0.01 : param.step;
+				case 'range':
 					param.value = param.value == null ? 0.5 : param.value;
+					param.min = param.min != null ? 0 : param.min;
+					param.max = param.max != null ? 100 : param.max;
+					param.step = param.step != null ? 0.01 : param.step;
 					html += `<input
-						id="${param.name}" type="${param.type}" class="pram-input pram-range" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
+						id="${param.name}" type="${param.type}" class="prama-input prama-${param.type}" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>
 					`;
+
+					if (param.type === 'range')	{
+						html += `<span class="prama-value">${param.value}</span>`;
+					}
 
 					break;
 
@@ -246,20 +250,40 @@ Params.prototype.setParam = function (name, param, cb) {
 				case 'toggle':
 					param.value = param.value == null ? false : param.value;
 					html += `<input
-						id="${param.name}" type="checkbox" class="pram-input pram-${param.type}" title="${param.value}" ${param.value ? 'checked' : ''}/>
+						id="${param.name}" type="checkbox" class="prama-input prama-${param.type}" title="${param.value}" ${param.value ? 'checked' : ''}/>
 					`;
 
 					break;
 
 				case 'button':
 					html = `<button
-						id="${param.name}" class="pram-input pram-button"
+						id="${param.name}" class="prama-input prama-button"
 					>${ param.value }</button>`;
+					break;
+
+				case 'radio':
+					html = `<fieldset id="${param.name}" class="prama-radio">`;
+
+					if (Array.isArray(param.values)) {
+						for (var i = 0; i < param.values.length; i++) {
+							html += `<label for="${param.values[i]}"><input type="radio" value="${param.values[i]}" ${param.values[i] === param.value ? 'checked' : ''} id="${param.values[i]}" name="${param.name}"/> ${param.values[i]}</label>`;
+						}
+					}
+					else {
+						for (var name in param.values) {
+							html += `<label for="${name}"><input type="radio" value="${param.values[name]}" ${param.values[name] === param.value ? 'checked' : ''} id="${name}" name="${param.name}"/> ${param.values[name]}</label>`;
+						}
+					}
+
+					html += `</fieldset>`;
+					break;
+
+				case 'file':
 					break;
 
 				default:
 					param.value = param.value == null ? '' : param.value;
-					html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="pram-input pram-text" value="${param.value}" title="${param.value}"/>
+					html += `<input placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-text" value="${param.value}" title="${param.value}" ${param.type ? 'type="${param.type}"' : ''}/>
 					`;
 
 					break;
@@ -276,10 +300,12 @@ Params.prototype.setParam = function (name, param, cb) {
 				input.addEventListener('change', e => {
 					this.setParamValue(param.name, getValue(e.target));
 				});
-				input.addEventListener('click', e => {
-					e.preventDefault();
-					this.setParamValue(param.name, getValue(e.target));
-				});
+				if (param.type === 'button' || param.type === 'submit') {
+					input.addEventListener('click', e => {
+						e.preventDefault();
+						this.setParamValue(param.name, getValue(e.target));
+					});
+				}
 				input.addEventListener('keypress', e => {
 					if (e.which === 13) {
 						this.setParamValue(param.name, getValue(e.target));
@@ -288,7 +314,7 @@ Params.prototype.setParam = function (name, param, cb) {
 			}
 		}
 
-		param.element.classList.add('pram');
+		param.element.classList.add('prama-param');
 		this.element.appendChild(param.element);
 	}
 
@@ -319,8 +345,16 @@ Params.prototype.setParamValue = function (name, value) {
 	if (getValue(param.element) !== value) {
 		var target = param.element.querySelector('input, select, button');
 		target.value = value;
-		if (target.type === 'checkbox') target.checked = !!value;
+		if (target.type === 'checkbox') {
+			target.checked = !!value;
+		}
+
+		var valueEl = param.element.querySelector('.prama-value');
+		if (valueEl) {
+			valueEl.innerHTML = value;
+		}
 	}
+
 
 	this.emit('change', param.name, param.value, param);
 }

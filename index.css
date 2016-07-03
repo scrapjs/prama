@@ -1,11 +1,192 @@
-.prams {
-
+.prama {
+	font-family: sans-serif;
 }
 
-.pram {
-
+.prama * {
+	box-sizing: border-box;
 }
 
-.pram-label {
+.prama-title {
+	text-align: center;
+}
 
+.prama-param {
+	margin-bottom: 1rem;
+}
+
+.prama label {
+	display: inline-block;
+	width: 20%;
+	vertical-align: middle;
+	line-height: 2rem;
+	min-height: 2rem;
+}
+
+.prama-input {
+	font-size: 1rem;
+}
+
+.prama textarea,
+.prama input:not([type]),
+.prama input[type="text"],
+.prama input[type="number"],
+.prama input[type="range"],
+.prama select,
+.prama-value,
+.prama input[type="checkbox"],
+.prama input[type="radio"],
+.prama button,
+.prama fieldset {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	vertical-align: middle;
+	display: inline-block;
+	line-height: 2rem;
+	min-height: 2rem;
+	min-width: 2rem;
+	border: none;
+	margin: 0;
+	border-radius: .2222rem;
+	background: rgb(241, 244, 249);
+}
+
+.prama textarea,
+.prama input:not([type]),
+.prama input[type="text"],
+.prama input[type="number"],
+.prama select,
+.prama-value {
+	width: 50%;
+	padding: 0 .5rem;
+}
+
+.prama input[type="checkbox"],
+.prama input[type="radio"] {
+	cursor: pointer;
+	background: rgb(241, 244, 249);
+	font-weight: bolder;
+	font-size: 1.5rem;
+	line-height: 1.9rem;
+	text-align: center;
+}
+.prama input[type="radio"] {
+	border-radius: 2rem;
+}
+.prama input[type="radio"]:checked:after {
+	content: '●';
+	color: rgb(2, 135, 210);
+}
+.prama input[type="checkbox"]:checked:after {
+	content: '✔';
+	color: rgb(2, 135, 210);
+}
+.prama fieldset {
+	padding: 0;
+	height: auto;
+	background: none;
+	vertical-align: top;
+	border: none;
+	width: 50%;
+}
+.prama fieldset label {
+	width: auto;
+	cursor: pointer;
+	margin-right: 1rem;
+}
+.prama button {
+	background: rgb(2, 135, 210);
+	color: white;
+	padding: 0 1rem;
+	width: 20%;
+}
+
+.prama input[type="range"] {
+	width: 40%;
+}
+.prama-value {
+	width: 10%;
+}
+.prama input[type="range"] {
+	-webkit-appearance: none;
+	height: .5rem;
+	min-height: .5rem;
+}
+.prama input[type="range"]:focus {
+	outline: none;
+}
+.prama input[type="range"]::-webkit-slider-runnable-track {
+	height: .5rem;
+	cursor: pointer;
+	box-shadow: none;
+	background: rgb(241, 244, 249);
+	border-radius: .5rem;
+	border: none;
+	margin: 0;
+}
+.prama input[type="range"]::-webkit-slider-thumb {
+	box-shadow: none;
+	border: none;
+	height: 2rem;
+	width: 2rem;
+	border-radius: 2rem;
+	background: rgb(2, 135, 210);
+	cursor: pointer;
+	-webkit-appearance: none;
+	margin-top: -.75rem;
+}
+.prama input[type="range"]:focus::-webkit-slider-runnable-track {
+	background: rgb(241, 244, 249);
+}
+.prama input[type="range"]::-moz-range-track {
+	height: .5rem;
+	cursor: pointer;
+	box-shadow: none;
+	background: rgb(241, 244, 249);
+	border-radius: .5rem;
+	border: none;
+}
+.prama input[type="range"]::-moz-range-thumb {
+	box-shadow: none;
+	border: none;
+	height: 2rem;
+	width: 2rem;
+	border-radius: 2rem;
+	background: rgb(2, 135, 210);
+	cursor: pointer;
+}
+.prama input[type="range"]::-ms-track {
+	height: .5rem;
+	cursor: pointer;
+	background: transparent;
+	border-color: transparent;
+	color: transparent;
+}
+.prama input[type="range"]::-ms-fill-lower {
+	background: rgb(241, 244, 249);
+	border: none;
+	border-radius: 26px;
+	box-shadow: none;
+}
+.prama input[type="range"]::-ms-fill-upper {
+	background: rgb(241, 244, 249);
+	border: none;
+	border-radius: 26px;
+	box-shadow: none;
+}
+.prama input[type="range"]::-ms-thumb {
+	box-shadow: none;
+	border: none;
+	height: 2rem;
+	width: 2rem;
+	border-radius: 2rem;
+	background: rgb(2, 135, 210);
+	cursor: pointer;
+	height: .5rem;
+}
+.prama input[type="range"]:focus::-ms-fill-lower {
+	background: rgb(241, 244, 249);
+}
+.prama input[type="range"]:focus::-ms-fill-upper {
+	background: rgb(241, 244, 249);
 }

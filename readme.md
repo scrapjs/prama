@@ -2,11 +2,11 @@
 
 # prāṃa [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
-Settings for applications or tests.
+Settings manager for applications or tests.
 
 Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading parameters, settings hierarchy, parameter types etc.
 
-[Example](https://dfcreative.github.io/prama).
+**[Demo](https://dfcreative.github.io/prama)**.
 
 ## Usage
 
@@ -78,22 +78,26 @@ Hook up a callback for any parameter change.
 
 ## Options
 
-### options.history
+### history
 
 Track history of changed params.
 
-### options.load
+### load
 
 Autoload settings from the localStorage.
+
+### ui
+
+### button
 
 
 ## Parameters
 
-### param.name
+### name
 
 Param identifier, esed as a key every here and there. Case-insensitive. May include dashes.
 
-### param.type
+### type
 
 Defines the type of param:
 
@@ -103,6 +107,9 @@ Defines the type of param:
 * text (default)
 * select
 * button
+* radio
+* checkbox-list WIP
+* file WIP
 * multiselect WIP
 * switch WIP
 * color WIP
@@ -110,7 +117,7 @@ Defines the type of param:
 * area WIP
 * output WIP
 * canvas WIP
-* any html input type
+* any html input type: password, email, url, tel, time, date, week,
 
 Undefined type will be guessed based on other options.
 

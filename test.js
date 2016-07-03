@@ -15,7 +15,7 @@ var params = createParams({
 		value: 2
 	},
 	sampleCheckbox: {
-		value: true
+		value: false
 	},
 	sampleToggle: {
 		type: 'toggle',
@@ -24,6 +24,13 @@ var params = createParams({
 	sampleButtom: {
 		type: 'button',
 		value: 'xxx'
+	},
+	radio: {
+		values: [1, 2, 3, 4],
+		default: 1,
+		value: 1,
+		label: 'Radio list',
+		type: 'radio'
 	},
 	customField: {
 		label: 'Custom Field',

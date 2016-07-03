@@ -9,7 +9,7 @@ Define parameters which your component or application depends on and _prama_ wil
 **[Demo](https://dfcreative.github.io/prama)**
 
 <details>
-<summary>Usage</summary>
+<summary><h2>Usage</h2></summary>
 
 [![npm install prama](https://nodei.co/npm/prama.png?mini=true)](https://npmjs.org/package/prama/)
 
@@ -38,7 +38,7 @@ var params = new Params({
 </details>
 
 <details>
-<summary>API</summary>
+<summary><h2>API</h2></summary>
 
 ### Prama(object|list, options?)
 

@@ -13,7 +13,7 @@ var params = createParams({
 		value: 75
 	},
 	sampleRange: {
-		value: [22, 11]
+		value: [11, 22]
 	},
 	sampleSelect: {
 		values: [1,2,3],

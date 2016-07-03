@@ -269,6 +269,9 @@ Params.prototype.setParam = function (name, param, cb) {
 					if (!param.multiple) {
 						html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>`;
 					}
+					else {
+						html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="text" title="${param.value}"/>`;
+					}
 					param.element.insertAdjacentHTML('beforeend', html);
 
 					var input = param.element.querySelector('input');
@@ -279,16 +282,14 @@ Params.prototype.setParam = function (name, param, cb) {
 				case 'checkbox':
 				case 'toggle':
 					param.value = param.value == null ? false : param.value;
-					html += `<input
-						id="${param.name}" type="checkbox" class="prama-input prama-${param.type}" title="${param.value}" ${param.value ? 'checked' : ''}/>
+					html += `<input id="${param.name}" type="checkbox" class="prama-input prama-${param.type}" title="${param.value}" ${param.value ? 'checked' : ''}/>
 					`;
 					param.element.insertAdjacentHTML('beforeend', html);
 
 					break;
 
 				case 'button':
-					html = `<button
-						id="${param.name}" class="prama-input prama-button"
+					html = `<button id="${param.name}" class="prama-input prama-button"
 					>${ param.value }</button>`;
 					param.element.insertAdjacentHTML('beforeend', html);
 					break;
@@ -387,14 +388,13 @@ Params.prototype.setParamValue = function (name, value) {
 
 		//multirange
 		if (target.classList.contains('ghost')) {
-			// value[1];
-			console.log('ghost', value)
-			return
+			target = target.parentNode.querySelector('.original');
 		}
-		else if (target.classList.contains('original')) {
-			console.log('original', value)
-			// v
-			return
+
+		if (target.classList.contains('original')) {
+			target.valueLow = value[0];
+			target.valueHigh = value[1];
+			return;
 		}
 
 		target.value = value;
@@ -411,7 +411,9 @@ function getValue (target) {
 
 	if (target.type === 'number' || target.type === 'range' || target.type === 'multirange' ) {
 		if (target.hasAttribute('multiple')) {
-			console.log(target, target.value);
+			if (target.classList.contains('ghost')) {
+				target = target.parentNode.querySelector('.original');
+			}
 			value = target.value.split(',').map(v => parseFloat(v));
 		}
 		else {

@@ -106,7 +106,7 @@
 .prama input[type="range"] {
 	width: 40%;
 }
-.prama input[type="number"] {
+.prama input[type="range"] ~ input:not(.ghost) {
 	width: 10%;
 	padding-right: 0;
 }

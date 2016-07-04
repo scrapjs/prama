@@ -321,13 +321,15 @@ var insertCSS = require('insert-css');
 module.exports = Params;
 
 
-insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\twidth: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
+insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
 
 
 /**
  * @constructor
  */
 function Params (params, opts) {
+	var this$1 = this;
+
 	if (!(this instanceof Params)) return new Params(params, opts);
 
 	//create content
@@ -346,8 +348,24 @@ function Params (params, opts) {
 	//params cache by names
 	this.params = {};
 
+
+	//load, if defined
+	if (this.session) {
+		var loadedParams = this.load();
+
+		var saveTo;
+		this.on('change', function () {
+			if (saveTo) return;
+			saveTo = setTimeout(function () {
+				this$1.save(this$1.getParams());
+				saveTo = null;
+			}, 100);
+		});
+	}
+
 	//create params from list
-	this.param(params);
+	this.setParams(params, loadedParams);
+
 
 	/*
 	//extend params with the read history state
@@ -400,6 +418,7 @@ function Params (params, opts) {
 
 inherits(Params, Emitter);
 
+
 Object.defineProperties(Params.prototype, {
 	title: {
 		get: function () {
@@ -434,45 +453,31 @@ Params.prototype.updateHistory = function () {
 }
 
 
-/**
- * Universal param method
- */
-Params.prototype.param = function (a, b, c) {
-	if (arguments.length === 1) {
-		//param('name')
-		if (isPrimitive(a)) return this.getParam(a);
-		//param([...])
-		//param({...})
-		return this.setParams(a);
-	}
-	else if (arguments.length) {
-		//param('key', 'value'|opts, cb?)
-		return this.setParam(a, b, c);
-	}
-	else {
-		return this.getParam();
-	}
-};
-
-
 /** Create params based off list */
-Params.prototype.setParams = function (list) {
+Params.prototype.setParams = function (list, loaded) {
 	var this$1 = this;
 
 	if (isPlainObject(list)) {
 		for (var name in list) {
-			if (!isPlainObject(list[name])) {
-				this$1.setParam(name, {
+			if (list[name] instanceof Function || list[name] instanceof HTMLElement) {
+				var item = {
 					create: list[name]
-				});
+				};
 			}
 			else {
-				this$1.setParam(name, list[name]);
+				var item = isPlainObject(list[name]) ? list[name] : { value: list[name] };
 			}
+			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+
+			this$1.setParam(name, item);
 		}
 	}
 	else if (Array.isArray(list)){
-		list.forEach(function (item) { return this$1.setParam(item); });
+		list.forEach(function (item) {
+			var name = item.name;
+			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+			this$1.setParam(item);
+		});
 	}
 
 	return this;
@@ -548,6 +553,8 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	//custom create
 	if (param.create) {
+		if (param.save == null) param.save = false;
+
 		if (param.create instanceof Function) {
 			var html = param.create.call(param, param);
 		}
@@ -623,12 +630,14 @@ Params.prototype.setParam = function (name, param, cb) {
 				break;
 
 			case 'button':
+				if (param.save == null) param.save = false;
 				html = "<button id=\"" + (param.name) + "\" class=\"prama-input prama-button\"\n\t\t\t\t>" + (param.value) + "</button>";
 				break;
 
 			case 'submit':
 			case 'reset':
-				throw 'Unimplemented';
+				if (param.save == null) param.save = false;
+				html = "<input id=\"" + (param.name) + "\" class=\"prama-input prama-button\"\n\t\t\t\tvalue=\"" + (param.value) + "\" title=\"" + (param.title) + "\" type=\"" + (param.type) + "\"/>";
 				break;
 
 			case 'radio':
@@ -663,7 +672,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'textarea' :
 				param.value = param.value == null ? '' : param.value;
-				html += "<textarea rows=\"4\" placeholder=\"" + (param.placeholder || 'value...') + "\" id=\"" + (param.name) + "\" class=\"prama-input prama-textarea\" title=\"" + (param.value) + "\">" + (param.value) + "</textarea>\n\t\t\t\t";
+				html += "<textarea rows=\"3\" placeholder=\"" + (param.placeholder || 'value...') + "\" id=\"" + (param.name) + "\" class=\"prama-input prama-textarea\" title=\"" + (param.value) + "\">" + (param.value) + "</textarea>\n\t\t\t\t";
 
 				break;
 
@@ -733,6 +742,17 @@ Params.prototype.setParam = function (name, param, cb) {
 		}
 	}
 
+	//set serialization
+	if (param.save == null) param.save = true;
+
+	//init param value
+	if (param.type !== 'button' && param.type !== 'submit') {
+		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
+		setTimeout(function () {
+			this$1.setParamValue(param.name, param.value);
+		});
+	}
+
 	return this;
 };
 
@@ -744,7 +764,7 @@ Params.prototype.getParam = function (name) {
 		return el && el.type === 'checkbox' ? el.checked : el && el.value;
 	}
 	else {
-		return this.getParams;
+		return this.getParams();
 	}
 }
 
@@ -755,7 +775,8 @@ Params.prototype.getParams = function (whitelist) {
 	var res = {};
 	for (var name in this.params) {
 		if (!whitelist || (whitelist && whitelist[name] != null)) {
-			res[name] = this$1.params[name];
+			if (!this$1.params[name].save) continue;
+			res[name] = this$1.params[name].value;
 		}
 	}
 	return res;
@@ -800,6 +821,87 @@ Params.prototype.setParamValue = function (name, value) {
 }
 
 
+//save/load params to local storage
+Params.prototype.session = true;
+
+//storage key
+Params.prototype.key = 'prama';
+
+//local storage
+Params.prototype.storage = self.localStorage || self.sessionStorage;
+
+//save params state to local storage
+Params.prototype.save = function (params) {
+	if (!this.storage) return false;
+
+	if (!params) return false;
+
+	//convert to string
+	for (var name in params) {
+		params[name] = toString(params[name]);
+	}
+
+	try {
+		var str = JSON.stringify(params);
+	} catch (e) {
+		console.error(e);
+		return false;
+	}
+
+	if (!str) return false;
+
+	this.storage.setItem(this.key, str);
+
+	return true;
+};
+
+//load params state from local storage
+Params.prototype.load = function () {
+	if (!this.storage) return {};
+
+	var str = this.storage.getItem(this.key);
+	if (!str) return {};
+
+	try {
+		var values = JSON.parse(str);
+	}
+	catch (e) {
+		console.error(e);
+		return {};
+	}
+
+	if (!values) return {};
+
+	//convert from string
+	for (var name in values) {
+		values[name] = fromString(values[name]);
+	}
+
+	return values;
+};
+
+
+
+
+// BLOODY HELPERS
+
+//convert value to string
+function toString (value) {
+	if (value === true) return '✔';
+	if (value === false) return '✘';
+	return value + '';
+}
+
+//get value from string
+function fromString (value) {
+	if (value === '✔' || value === 'true') return true;
+	if (value === '✘' || value === 'false') return false;
+	if (!isNaN(parseFloat(value))) return parseFloat(value);
+	if (/,/.test(value) && !/\s/.test(value)) return value.split(',').map(fromString);
+	return value;
+}
+
+
 //get value from a dom element
 function getValue (target) {
 	var value = target.type === 'checkbox' ? target.checked : target.value;
@@ -823,6 +925,7 @@ function getValue (target) {
 	return value;
 }
 
+//set value to a dom element
 function setValue (target, value) {
 	target.value = value;
 
@@ -844,7 +947,6 @@ function setValue (target, value) {
 		if (input) setValue(input, value);
 	}
 }
-
 
 
 
@@ -2029,7 +2131,7 @@ var insertCss = require('insert-css');
 
 var sb = require('mucss/scrollbar')
 
-insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\twidth: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
+insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
 
 module.exports = Popup;
 
@@ -2798,13 +2900,11 @@ var params = createParams({
 		change: function (value) {
 			if (value === 'number' || value === 'range') {
 				params.setParam('value', {
-					type: 'number',
-					value: 50
+					type: 'number'
 				});
 			}
 			else {
 				params.setParam('value', {
-					value: '',
 					type: 'text',
 					placeholder: 'value...'
 				});
@@ -2827,12 +2927,12 @@ var params = createParams({
 	},
 	values: {
 		label: 'Values',
-		value: '',
+		value: ['a', 'b', 'c'],
 		hidden: true,
 		type: 'textarea',
 		placeholder: 'option 1, option 2, option 3, ...',
 		change: function (v) {
-			var values = v.split(/\s*,\s*|\n/);
+			var values = Array.isArray(v) ? v : v.split(/\s*,\s*|\n/);
 			params.setParam('example', {
 				values: values
 			});
@@ -2896,10 +2996,11 @@ var params = createParams({
 	// 	create: `<h3>Created fields</h3>`
 	// }
 }, {
-	ui: false,
-	history: false,
-	load: false
+	// ui: false,
+	// history: false,
+	// load: false
 });
+
 
 document.body.appendChild(params.element);
 },{"./":2,"xtend/mutable":30}]},{},[31]);

@@ -177,7 +177,7 @@
 	height: 2.4rem;
 	line-height: 2.4rem;
 	padding: 0 1rem;
-	width: 20%;
+	min-width: 20%;
 	font-weight: bold;
 	cursor: pointer;
 }

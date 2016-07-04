@@ -41,8 +41,24 @@ function Params (params, opts) {
 	//params cache by names
 	this.params = {};
 
+
+	//load, if defined
+	if (this.session) {
+		var loadedParams = this.load();
+
+		let saveTo;
+		this.on('change', () => {
+			if (saveTo) return;
+			saveTo = setTimeout(() => {
+				this.save(this.getParams());
+				saveTo = null;
+			}, 100);
+		});
+	}
+
 	//create params from list
-	this.param(params);
+	this.setParams(params, loadedParams);
+
 
 	/*
 	//extend params with the read history state
@@ -95,6 +111,7 @@ function Params (params, opts) {
 
 inherits(Params, Emitter);
 
+
 Object.defineProperties(Params.prototype, {
 	title: {
 		get: function () {
@@ -129,43 +146,29 @@ Params.prototype.updateHistory = function () {
 }
 
 
-/**
- * Universal param method
- */
-Params.prototype.param = function (a, b, c) {
-	if (arguments.length === 1) {
-		//param('name')
-		if (isPrimitive(a)) return this.getParam(a);
-		//param([...])
-		//param({...})
-		return this.setParams(a);
-	}
-	else if (arguments.length) {
-		//param('key', 'value'|opts, cb?)
-		return this.setParam(a, b, c);
-	}
-	else {
-		return this.getParam();
-	}
-};
-
-
 /** Create params based off list */
-Params.prototype.setParams = function (list) {
+Params.prototype.setParams = function (list, loaded) {
 	if (isPlainObject(list)) {
 		for (var name in list) {
-			if (!isPlainObject(list[name])) {
-				this.setParam(name, {
+			if (list[name] instanceof Function || list[name] instanceof HTMLElement) {
+				var item = {
 					create: list[name]
-				});
+				};
 			}
 			else {
-				this.setParam(name, list[name]);
+				var item = isPlainObject(list[name]) ? list[name] : { value: list[name] };
 			}
+			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+
+			this.setParam(name, item);
 		}
 	}
 	else if (Array.isArray(list)){
-		list.forEach((item) => this.setParam(item));
+		list.forEach((item) => {
+			var name = item.name;
+			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+			this.setParam(item);
+		});
 	}
 
 	return this;
@@ -239,6 +242,8 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	//custom create
 	if (param.create) {
+		if (param.save == null) param.save = false;
+
 		if (param.create instanceof Function) {
 			var html = param.create.call(param, param);
 		}
@@ -318,13 +323,16 @@ Params.prototype.setParam = function (name, param, cb) {
 				break;
 
 			case 'button':
+				if (param.save == null) param.save = false;
 				html = `<button id="${param.name}" class="prama-input prama-button"
 				>${ param.value }</button>`;
 				break;
 
 			case 'submit':
 			case 'reset':
-				throw 'Unimplemented';
+				if (param.save == null) param.save = false;
+				html = `<input id="${param.name}" class="prama-input prama-button"
+				value="${ param.value }" title="${param.title}" type="${ param.type }"/>`;
 				break;
 
 			case 'radio':
@@ -359,7 +367,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'textarea' :
 				param.value = param.value == null ? '' : param.value;
-				html += `<textarea rows="4" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
+				html += `<textarea rows="3" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
 				`;
 
 				break;
@@ -431,6 +439,17 @@ Params.prototype.setParam = function (name, param, cb) {
 		}
 	}
 
+	//set serialization
+	if (param.save == null) param.save = true;
+
+	//init param value
+	if (param.type !== 'button' && param.type !== 'submit') {
+		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
+		setTimeout(() => {
+			this.setParamValue(param.name, param.value);
+		});
+	}
+
 	return this;
 };
 
@@ -442,7 +461,7 @@ Params.prototype.getParam = function (name) {
 		return el && el.type === 'checkbox' ? el.checked : el && el.value;
 	}
 	else {
-		return this.getParams;
+		return this.getParams();
 	}
 }
 
@@ -451,7 +470,8 @@ Params.prototype.getParams = function (whitelist) {
 	var res = {};
 	for (var name in this.params) {
 		if (!whitelist || (whitelist && whitelist[name] != null)) {
-			res[name] = this.params[name];
+			if (!this.params[name].save) continue;
+			res[name] = this.params[name].value;
 		}
 	}
 	return res;
@@ -496,6 +516,87 @@ Params.prototype.setParamValue = function (name, value) {
 }
 
 
+//save/load params to local storage
+Params.prototype.session = true;
+
+//storage key
+Params.prototype.key = 'prama';
+
+//local storage
+Params.prototype.storage = self.localStorage || self.sessionStorage;
+
+//save params state to local storage
+Params.prototype.save = function (params) {
+	if (!this.storage) return false;
+
+	if (!params) return false;
+
+	//convert to string
+	for (var name in params) {
+		params[name] = toString(params[name]);
+	}
+
+	try {
+		var str = JSON.stringify(params);
+	} catch (e) {
+		console.error(e);
+		return false;
+	}
+
+	if (!str) return false;
+
+	this.storage.setItem(this.key, str);
+
+	return true;
+};
+
+//load params state from local storage
+Params.prototype.load = function () {
+	if (!this.storage) return {};
+
+	var str = this.storage.getItem(this.key);
+	if (!str) return {};
+
+	try {
+		var values = JSON.parse(str);
+	}
+	catch (e) {
+		console.error(e);
+		return {};
+	}
+
+	if (!values) return {};
+
+	//convert from string
+	for (var name in values) {
+		values[name] = fromString(values[name]);
+	}
+
+	return values;
+};
+
+
+
+
+// BLOODY HELPERS
+
+//convert value to string
+function toString (value) {
+	if (value === true) return '✔';
+	if (value === false) return '✘';
+	return value + '';
+}
+
+//get value from string
+function fromString (value) {
+	if (value === '✔' || value === 'true') return true;
+	if (value === '✘' || value === 'false') return false;
+	if (!isNaN(parseFloat(value))) return parseFloat(value);
+	if (/,/.test(value) && !/\s/.test(value)) return value.split(',').map(fromString);
+	return value;
+}
+
+
 //get value from a dom element
 function getValue (target) {
 	var value = target.type === 'checkbox' ? target.checked : target.value;
@@ -519,6 +620,7 @@ function getValue (target) {
 	return value;
 }
 
+//set value to a dom element
 function setValue (target, value) {
 	target.value = value;
 
@@ -540,7 +642,6 @@ function setValue (target, value) {
 		if (input) setValue(input, value);
 	}
 }
-
 
 
 

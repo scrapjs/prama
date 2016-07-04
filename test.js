@@ -28,13 +28,11 @@ var params = createParams({
 		change: (value) => {
 			if (value === 'number' || value === 'range') {
 				params.setParam('value', {
-					type: 'number',
-					value: 50
+					type: 'number'
 				});
 			}
 			else {
 				params.setParam('value', {
-					value: '',
 					type: 'text',
 					placeholder: 'value...'
 				});
@@ -57,12 +55,12 @@ var params = createParams({
 	},
 	values: {
 		label: 'Values',
-		value: '',
+		value: ['a', 'b', 'c'],
 		hidden: true,
 		type: 'textarea',
 		placeholder: 'option 1, option 2, option 3, ...',
 		change: (v) => {
-			var values = v.split(/\s*,\s*|\n/);
+			var values = Array.isArray(v) ? v : v.split(/\s*,\s*|\n/);
 			params.setParam('example', {
 				values: values
 			});
@@ -126,9 +124,10 @@ var params = createParams({
 	// 	create: `<h3>Created fields</h3>`
 	// }
 }, {
-	ui: false,
-	history: false,
-	load: false
+	// ui: false,
+	// history: false,
+	// load: false
 });
+
 
 document.body.appendChild(params.element);

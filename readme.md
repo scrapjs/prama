@@ -4,7 +4,7 @@
 
 <em>Para</em>meters <em>ma</em>nager for applications or tests.
 
-Define parameters which your component or application depends on and _prama_ will take care of settings menu, settings form, history of changes, saving/loading states, settings hierarchy, parameter types etc.
+Define parameters which your component depends on and _prama_ will take care of settings form, history of changes, saving/loading states, parameter types etc.
 
 **[Demo](https://dfcreative.github.io/prama)**
 
@@ -78,14 +78,17 @@ const params = new Prama([
 		//(optional) ignore any user attempts to input value
 		readonly: false,
 
+		//(optional) place passed styles to param’s `style` property.
+		style: {},
+
 		//(optional) reflect param in cache
 		history: false,
 
-		//(optional) save/restore param value from localStorage to keep smooth experience
-		load: false,
+		//(optional) use param value in serialization, like save/load/toString/toJSON etc.
+		save: false,
 
-		//(optional) place passed styles to param’s `style` property.
-		style: {},
+		//(optional) set default value for param to ignore from save, to get nice querystirng
+		default: false,
 
 		//(optional) will be called on any input, change, click or interaction event
 		change: (value) => {}
@@ -94,7 +97,16 @@ const params = new Prama([
 		create: `Custom html` or (param) => `Custom html`
 	},
 	...
-]);
+],
+
+//options are unnecessary
+{
+	//save/load params between sessions
+	session: true,
+
+	//default storage to use
+	storage: window.localStorage
+});
 
 //Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
 prama.setParam(name, value|options?, onchange?);

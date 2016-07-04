@@ -17,22 +17,11 @@
 .prama-param {
 	margin-bottom: 1rem;
 	position: relative;
-	width: 48%;
+	width: 100%;
+	max-width: 400px;
 	margin-right: 1%;
 	margin-left: 1%;
 	float: left;
-}
-
-@media (max-width: 32rem) {
-	.prama-param {
-		width: 98%;
-		float: none;
-	}
-}
-@media (min-width: 62rem) {
-	.prama-param {
-		width: 31.33%;
-	}
 }
 
 .prama-label {

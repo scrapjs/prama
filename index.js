@@ -314,7 +314,6 @@ var isMobile = require('is-mobile');
 var isPlainObject = require('mutype/is-object');
 var isPrimitive = require('mutype/is-plain');
 var Emitter = require('events');
-var morph = require('morphdom');
 var insertCSS = require('insert-css');
 
 
@@ -322,7 +321,7 @@ var insertCSS = require('insert-css');
 module.exports = Params;
 
 
-insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n}\r\n\r\n.prama-label {\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: middle;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama select,\r\n/*.prama input[type=\"checkbox\"],*/\r\n/*.prama input[type=\"radio\"],*/\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: middle;\r\n\tdisplay: inline-block;\r\n\tline-height: 2rem;\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 50%;\r\n\tpadding: 0 .5rem;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.5rem;\r\n\tline-height: 2rem;\r\n\twidth: 2rem;\r\n\theight: 2rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 50%;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n}\r\n\r\n.prama button {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\tpadding: 0 1rem;\r\n\twidth: 20%;\r\n\tcursor: pointer;\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: 0 0 0 2px rgb(239, 242, 247);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tbackground-color: white;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\tbackground-color: rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n}\r\n\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 40%;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 10%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n.prama input[type=\"range\"] {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: .75rem 0;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\t-webkit-appearance: none;\r\n\tmargin-top: -.75rem;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tpadding: 0;\r\n\t\tmargin: 0;\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: middle;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\tmargin-top: .75rem;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\theight: 1rem;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}");
+insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\twidth: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
 
 
 /**
@@ -462,7 +461,14 @@ Params.prototype.setParams = function (list) {
 
 	if (isPlainObject(list)) {
 		for (var name in list) {
-			this$1.setParam(name, list[name]);
+			if (!isPlainObject(list[name])) {
+				this$1.setParam(name, {
+					create: list[name]
+				});
+			}
+			else {
+				this$1.setParam(name, list[name]);
+			}
 		}
 	}
 	else if (Array.isArray(list)){
@@ -522,25 +528,40 @@ Params.prototype.setParam = function (name, param, cb) {
 		}
 	}
 
-	if (param.label == null) {
-		param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
+	if (param.label === undefined) {
+		if (param.create) {
+			param.label = ''
+		}
+		else {
+			param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
+		}
 	}
 
 
-	var label = "<label for=\"" + (param.name) + "\" class=\"prama-label\">" + (param.label) + "</label>";
+	var label = '';
+	if (param.label != null) {
+		label = "<label for=\"" + (param.name) + "\" class=\"prama-label\">" + (param.label) + "</label>"
+	};
 
 	var el = document.createElement('div');
 	el.classList.add('prama-param');
 
 	//custom create
 	if (param.create) {
-		var html = param.create.call(param, param);
+		if (param.create instanceof Function) {
+			var html = param.create.call(param, param);
+		}
+		else {
+			var html = param.create;
+		}
+
+		el.innerHTML = label;
 
 		if (html instanceof Element) {
 			el.appendChild(html);
 		}
 		else {
-			el.innerHTML = html
+			el.innerHTML += html;
 		}
 	}
 
@@ -569,18 +590,22 @@ Params.prototype.setParam = function (name, param, cb) {
 			case 'number':
 			case 'range':
 			case 'multirange':
-				param.multiple = param.type === 'multirange';
-				param.value = param.value != null ? (typeof param.value === 'number' ? param.value : parseFloat(param.value)) : NaN;
-				if (isNaN(param.value)) param.value = param.max ? param.max / 2 : 50;
-				if (param.multiple && !Array.isArray(param.value)) {
-					param.value = [param.value - 10, param.value + 10];
+				var multiple = param.type === 'multirange';
+				var value = param.value != null ? (typeof param.value === 'number' ? param.value : parseFloat(param.value)) : NaN;
+				if (isNaN(value)) value = param.max ? param.max / 2 : 50;
+				if (multiple) {
+					if (!Array.isArray(param.value)) {
+						param.value = [value, value];
+					}
+				} else {
+					param.value = value;
 				}
 				param.min = param.min != null ? param.min : 0;
-				param.max = param.max != null ? param.max : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
-				param.step = param.step != null ? param.step : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
+				param.max = param.max != null ? param.max : (multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
+				param.step = param.step != null ? param.step : (multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
 
-				html += "<input id=\"" + (param.name) + "\" type=\"range\" class=\"prama-input prama-range prama-value\" value=\"" + (param.value) + "\" min=\"" + (param.min) + "\" max=\"" + (param.max) + "\" step=\"" + (param.step) + "\" title=\"" + (param.value) + "\" " + (param.multiple ? 'multiple' : '') + "/>";
-				if (!param.multiple) {
+				html += "<input id=\"" + (param.name) + "\" type=\"range\" class=\"prama-input prama-range prama-value\" value=\"" + (param.value) + "\" min=\"" + (param.min) + "\" max=\"" + (param.max) + "\" step=\"" + (param.step) + "\" title=\"" + (param.value) + "\" " + (multiple ? 'multiple' : '') + "/>";
+				if (!multiple) {
 					html += "<input id=\"" + (param.name) + "-number\" value=\"" + (param.value) + "\" class=\"prama-input prama-value\" type=\"number\" min=\"" + (param.min) + "\" max=\"" + (param.max) + "\" step=\"" + (param.step) + "\" title=\"" + (param.value) + "\"/>";
 				}
 				else {
@@ -638,7 +663,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'textarea' :
 				param.value = param.value == null ? '' : param.value;
-				html += "<textarea placeholder=\"" + (param.placeholder || 'value...') + "\" id=\"" + (param.name) + "\" class=\"prama-input prama-textarea\" title=\"" + (param.value) + "\">" + (param.value) + "</textarea>\n\t\t\t\t";
+				html += "<textarea rows=\"4\" placeholder=\"" + (param.placeholder || 'value...') + "\" id=\"" + (param.name) + "\" class=\"prama-input prama-textarea\" title=\"" + (param.value) + "\">" + (param.value) + "</textarea>\n\t\t\t\t";
 
 				break;
 
@@ -648,42 +673,56 @@ Params.prototype.setParam = function (name, param, cb) {
 
 				break;
 		}
+
+		if (param.help) {
+			html += "<div class=\"prama-help\">" + (param.help) + "</div>";
+		}
+
 		el.innerHTML = label + html;
 	}
 
 	//if new element - just add listeners and place httm
-	if (!param.element) {
+	if (param.element) {
+		param.element.parentNode.replaceChild(el, param.element);
 		param.element = el;
-
-		var inputs = param.element.querySelectorAll('input, select, button');
-
-		[].forEach.call(inputs, function (input) {
-			input.addEventListener('input', function (e) {
-				this$1.setParamValue(param.name, e.target);
-			});
-			input.addEventListener('change', function (e) {
-				this$1.setParamValue(param.name, e.target);
-			});
-			if (param.type === 'button' || param.type === 'submit') {
-				input.addEventListener('click', function (e) {
-					e.preventDefault();
-					this$1.setParamValue(param.name, e.target);
-				});
-			}
-			input.addEventListener('keypress', function (e) {
-				if (e.which === 13) {
-					this$1.setParamValue(param.name, e.target);
-				}
-			});
-		});
-
+	} else {
+		param.element = el;
 		this.element.appendChild(param.element);
 	}
-	//otherwise morph exising element
-	else {
-		console.log(el)
-		morph(param.element, el, {childrenOnly: true});
+
+	if (param.hidden) {
+		param.element.setAttribute('hidden', true);
 	}
+	else {
+		param.element.removeAttribute('hidden');
+	}
+
+	if (param.type === 'multirange') {
+		var input = param.element.querySelector('input');
+		input && multirange(input);
+	}
+
+	var inputs = param.element.querySelectorAll('input, select, button, textarea, fieldset');
+
+	[].forEach.call(inputs, function (input) {
+		input.addEventListener('input', function (e) {
+			this$1.setParamValue(param.name, e.target);
+		});
+		input.addEventListener('change', function (e) {
+			this$1.setParamValue(param.name, e.target);
+		});
+		if (param.type === 'button' || param.type === 'submit') {
+			input.addEventListener('click', function (e) {
+				e.preventDefault();
+				this$1.setParamValue(param.name, e.target);
+			});
+		}
+		input.addEventListener('keypress', function (e) {
+			if (e.which === 13) {
+				this$1.setParamValue(param.name, e.target);
+			}
+		});
+	});
 
 	//preset style
 	if (param.style) {
@@ -693,12 +732,6 @@ Params.prototype.setParam = function (name, param, cb) {
 			param.element.style[name] = v;
 		}
 	}
-
-	//FIXME: where to place that init?
-	// if (param.multiple) {
-	// 	var input = el.querySelector('input');
-	// 	param.multiple && multirange(input);
-	// }
 
 	return this;
 };
@@ -741,15 +774,17 @@ Params.prototype.setParamValue = function (name, value) {
 
 	param.element.title = value;
 	param.value = value;
+
 	param.change && param.change.call(this, value, param);
 	this.emit('change', param.name, param.value, param);
 
 	//update ui
-	var targets = param.element.querySelectorAll('input, select, button');
+	var targets = param.element.querySelectorAll('input, select, button, textarea, fieldset');
 	[].forEach.call(targets, function (target) {
 		if (target === sourceTarget) return;
 
-		//multirange
+		if (target.type === 'radio') return;
+
 		if (target.classList.contains('ghost')) {
 			target = target.parentNode.querySelector('.original');
 		}
@@ -760,10 +795,7 @@ Params.prototype.setParamValue = function (name, value) {
 			return;
 		}
 
-		target.value = value;
-		if (target.type === 'checkbox') {
-			target.checked = !!value;
-		}
+		setValue(target, value);
 	});
 }
 
@@ -789,6 +821,28 @@ function getValue (target) {
 	}
 
 	return value;
+}
+
+function setValue (target, value) {
+	target.value = value;
+
+	if (target.type === 'checkbox' || target.type === 'radio') {
+		target.checked = !!value;
+	}
+
+	if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') {
+		target.innerHTML = value;
+	}
+
+	//FIXME: seems that select gets updated by setting it’s `value`
+	// if (target.tagName === 'SELECT') {
+	// 	target.querySelector(`option[value=""`)
+	// }
+
+	if (target.tagName === 'FIELDSET') {
+		var input = target.querySelector(("input[value=\"" + value + "\"]"));
+		if (input) setValue(input, value);
+	}
 }
 
 
@@ -861,7 +915,7 @@ function multirange (input) {
 
 	update();
 }
-},{"events":1,"inherits":5,"insert-css":6,"is-mobile":7,"morphdom":8,"mutype/is-object":24,"mutype/is-plain":25,"popoff":28,"xtend/mutable":31}],3:[function(require,module,exports){
+},{"events":1,"inherits":5,"insert-css":6,"is-mobile":7,"mutype/is-object":23,"mutype/is-plain":24,"popoff":27,"xtend/mutable":30}],3:[function(require,module,exports){
 var margins = require('mucss/margin');
 var paddings = require('mucss/padding');
 var offsets = require('mucss/offset');
@@ -1024,7 +1078,7 @@ function toFloat(value){
 
 	return value;
 }
-},{"mucss/border":9,"mucss/is-fixed":13,"mucss/margin":14,"mucss/offset":15,"mucss/padding":16}],4:[function(require,module,exports){
+},{"mucss/border":8,"mucss/is-fixed":12,"mucss/margin":13,"mucss/offset":14,"mucss/padding":15}],4:[function(require,module,exports){
 /** generate unique id for selector */
 var counter = Date.now() % 1e9;
 
@@ -1118,580 +1172,6 @@ function isMobile (ua) {
 }
 
 },{}],8:[function(require,module,exports){
-// Create a range object for efficently rendering strings to elements.
-var range;
-
-var testEl = (typeof document !== 'undefined') ?
-    document.body || document.createElement('div') :
-    {};
-
-var XHTML = 'http://www.w3.org/1999/xhtml';
-var ELEMENT_NODE = 1;
-var TEXT_NODE = 3;
-var COMMENT_NODE = 8;
-
-// Fixes <https://github.com/patrick-steele-idem/morphdom/issues/32>
-// (IE7+ support) <=IE7 does not support el.hasAttribute(name)
-var hasAttributeNS;
-
-if (testEl.hasAttributeNS) {
-    hasAttributeNS = function(el, namespaceURI, name) {
-        return el.hasAttributeNS(namespaceURI, name);
-    };
-} else if (testEl.hasAttribute) {
-    hasAttributeNS = function(el, namespaceURI, name) {
-        return el.hasAttribute(name);
-    };
-} else {
-    hasAttributeNS = function(el, namespaceURI, name) {
-        return !!el.getAttributeNode(name);
-    };
-}
-
-function empty(o) {
-    for (var k in o) {
-        if (o.hasOwnProperty(k)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function toElement(str) {
-    if (!range && document.createRange) {
-        range = document.createRange();
-        range.selectNode(document.body);
-    }
-
-    var fragment;
-    if (range && range.createContextualFragment) {
-        fragment = range.createContextualFragment(str);
-    } else {
-        fragment = document.createElement('body');
-        fragment.innerHTML = str;
-    }
-    return fragment.childNodes[0];
-}
-
-var specialElHandlers = {
-    /**
-     * Needed for IE. Apparently IE doesn't think that "selected" is an
-     * attribute when reading over the attributes using selectEl.attributes
-     */
-    OPTION: function(fromEl, toEl) {
-        fromEl.selected = toEl.selected;
-        if (fromEl.selected) {
-            fromEl.setAttribute('selected', '');
-        } else {
-            fromEl.removeAttribute('selected', '');
-        }
-    },
-    /**
-     * The "value" attribute is special for the <input> element since it sets
-     * the initial value. Changing the "value" attribute without changing the
-     * "value" property will have no effect since it is only used to the set the
-     * initial value.  Similar for the "checked" attribute, and "disabled".
-     */
-    INPUT: function(fromEl, toEl) {
-        fromEl.checked = toEl.checked;
-        if (fromEl.checked) {
-            fromEl.setAttribute('checked', '');
-        } else {
-            fromEl.removeAttribute('checked');
-        }
-
-        if (fromEl.value !== toEl.value) {
-            fromEl.value = toEl.value;
-        }
-
-        if (!hasAttributeNS(toEl, null, 'value')) {
-            fromEl.removeAttribute('value');
-        }
-
-        fromEl.disabled = toEl.disabled;
-        if (fromEl.disabled) {
-            fromEl.setAttribute('disabled', '');
-        } else {
-            fromEl.removeAttribute('disabled');
-        }
-    },
-
-    TEXTAREA: function(fromEl, toEl) {
-        var newValue = toEl.value;
-        if (fromEl.value !== newValue) {
-            fromEl.value = newValue;
-        }
-
-        if (fromEl.firstChild) {
-            fromEl.firstChild.nodeValue = newValue;
-        }
-    }
-};
-
-function noop() {}
-
-/**
- * Returns true if two node's names and namespace URIs are the same.
- *
- * @param {Element} a
- * @param {Element} b
- * @return {boolean}
- */
-var compareNodeNames = function(a, b) {
-    return a.nodeName === b.nodeName &&
-           a.namespaceURI === b.namespaceURI;
-};
-
-/**
- * Create an element, optionally with a known namespace URI.
- *
- * @param {string} name the element name, e.g. 'div' or 'svg'
- * @param {string} [namespaceURI] the element's namespace URI, i.e. the value of
- * its `xmlns` attribute or its inferred namespace.
- *
- * @return {Element}
- */
-function createElementNS(name, namespaceURI) {
-    return !namespaceURI || namespaceURI === XHTML ?
-        document.createElement(name) :
-        document.createElementNS(namespaceURI, name);
-}
-
-/**
- * Loop over all of the attributes on the target node and make sure the original
- * DOM node has the same attributes. If an attribute found on the original node
- * is not on the new node then remove it from the original node.
- *
- * @param  {Element} fromNode
- * @param  {Element} toNode
- */
-function morphAttrs(fromNode, toNode) {
-    var attrs = toNode.attributes;
-    var i;
-    var attr;
-    var attrName;
-    var attrNamespaceURI;
-    var attrValue;
-    var fromValue;
-
-    for (i = attrs.length - 1; i >= 0; i--) {
-        attr = attrs[i];
-        attrName = attr.name;
-        attrValue = attr.value;
-        attrNamespaceURI = attr.namespaceURI;
-
-        if (attrNamespaceURI) {
-            attrName = attr.localName || attrName;
-            fromValue = fromNode.getAttributeNS(attrNamespaceURI, attrName);
-        } else {
-            fromValue = fromNode.getAttribute(attrName);
-        }
-
-        if (fromValue !== attrValue) {
-            if (attrNamespaceURI) {
-                fromNode.setAttributeNS(attrNamespaceURI, attrName, attrValue);
-            } else {
-                fromNode.setAttribute(attrName, attrValue);
-            }
-        }
-    }
-
-    // Remove any extra attributes found on the original DOM element that
-    // weren't found on the target element.
-    attrs = fromNode.attributes;
-
-    for (i = attrs.length - 1; i >= 0; i--) {
-        attr = attrs[i];
-        if (attr.specified !== false) {
-            attrName = attr.name;
-            attrNamespaceURI = attr.namespaceURI;
-
-            if (!hasAttributeNS(toNode, attrNamespaceURI, attrNamespaceURI ? attrName = attr.localName || attrName : attrName)) {
-                fromNode.removeAttributeNode(attr);
-            }
-        }
-    }
-}
-
-/**
- * Copies the children of one DOM element to another DOM element
- */
-function moveChildren(fromEl, toEl) {
-    var curChild = fromEl.firstChild;
-    while (curChild) {
-        var nextChild = curChild.nextSibling;
-        toEl.appendChild(curChild);
-        curChild = nextChild;
-    }
-    return toEl;
-}
-
-function defaultGetNodeKey(node) {
-    return node.id;
-}
-
-function morphdom(fromNode, toNode, options) {
-    if (!options) {
-        options = {};
-    }
-
-    if (typeof toNode === 'string') {
-        if (fromNode.nodeName === '#document' || fromNode.nodeName === 'HTML') {
-            var toNodeHtml = toNode;
-            toNode = document.createElement('html');
-            toNode.innerHTML = toNodeHtml;
-        } else {
-            toNode = toElement(toNode);
-        }
-    }
-
-    // XXX optimization: if the nodes are equal, don't morph them
-    /*
-    if (fromNode.isEqualNode(toNode)) {
-      return fromNode;
-    }
-    */
-
-    var savedEls = {}; // Used to save off DOM elements with IDs
-    var unmatchedEls = {};
-    var getNodeKey = options.getNodeKey || defaultGetNodeKey;
-    var onBeforeNodeAdded = options.onBeforeNodeAdded || noop;
-    var onNodeAdded = options.onNodeAdded || noop;
-    var onBeforeElUpdated = options.onBeforeElUpdated || options.onBeforeMorphEl || noop;
-    var onElUpdated = options.onElUpdated || noop;
-    var onBeforeNodeDiscarded = options.onBeforeNodeDiscarded || noop;
-    var onNodeDiscarded = options.onNodeDiscarded || noop;
-    var onBeforeElChildrenUpdated = options.onBeforeElChildrenUpdated || options.onBeforeMorphElChildren || noop;
-    var childrenOnly = options.childrenOnly === true;
-    var movedEls = [];
-
-    function removeNodeHelper(node, nestedInSavedEl) {
-        var id = getNodeKey(node);
-        // If the node has an ID then save it off since we will want
-        // to reuse it in case the target DOM tree has a DOM element
-        // with the same ID
-        if (id) {
-            savedEls[id] = node;
-        } else if (!nestedInSavedEl) {
-            // If we are not nested in a saved element then we know that this node has been
-            // completely discarded and will not exist in the final DOM.
-            onNodeDiscarded(node);
-        }
-
-        if (node.nodeType === ELEMENT_NODE) {
-            var curChild = node.firstChild;
-            while (curChild) {
-                removeNodeHelper(curChild, nestedInSavedEl || id);
-                curChild = curChild.nextSibling;
-            }
-        }
-    }
-
-    function walkDiscardedChildNodes(node) {
-        if (node.nodeType === ELEMENT_NODE) {
-            var curChild = node.firstChild;
-            while (curChild) {
-
-
-                if (!getNodeKey(curChild)) {
-                    // We only want to handle nodes that don't have an ID to avoid double
-                    // walking the same saved element.
-
-                    onNodeDiscarded(curChild);
-
-                    // Walk recursively
-                    walkDiscardedChildNodes(curChild);
-                }
-
-                curChild = curChild.nextSibling;
-            }
-        }
-    }
-
-    function removeNode(node, parentNode, alreadyVisited) {
-        if (onBeforeNodeDiscarded(node) === false) {
-            return;
-        }
-
-        parentNode.removeChild(node);
-        if (alreadyVisited) {
-            if (!getNodeKey(node)) {
-                onNodeDiscarded(node);
-                walkDiscardedChildNodes(node);
-            }
-        } else {
-            removeNodeHelper(node);
-        }
-    }
-
-    function morphEl(fromEl, toEl, alreadyVisited, childrenOnly) {
-        var toElKey = getNodeKey(toEl);
-        if (toElKey) {
-            // If an element with an ID is being morphed then it is will be in the final
-            // DOM so clear it out of the saved elements collection
-            delete savedEls[toElKey];
-        }
-
-        if (!childrenOnly) {
-            if (onBeforeElUpdated(fromEl, toEl) === false) {
-                return;
-            }
-
-            morphAttrs(fromEl, toEl);
-            onElUpdated(fromEl);
-
-            if (onBeforeElChildrenUpdated(fromEl, toEl) === false) {
-                return;
-            }
-        }
-
-        if (fromEl.nodeName !== 'TEXTAREA') {
-            var curToNodeChild = toEl.firstChild;
-            var curFromNodeChild = fromEl.firstChild;
-            var curToNodeId;
-
-            var fromNextSibling;
-            var toNextSibling;
-            var savedEl;
-            var unmatchedEl;
-
-            outer: while (curToNodeChild) {
-                toNextSibling = curToNodeChild.nextSibling;
-                curToNodeId = getNodeKey(curToNodeChild);
-
-                while (curFromNodeChild) {
-                    var curFromNodeId = getNodeKey(curFromNodeChild);
-                    fromNextSibling = curFromNodeChild.nextSibling;
-
-                    if (!alreadyVisited) {
-                        if (curFromNodeId && (unmatchedEl = unmatchedEls[curFromNodeId])) {
-                            unmatchedEl.parentNode.replaceChild(curFromNodeChild, unmatchedEl);
-                            morphEl(curFromNodeChild, unmatchedEl, alreadyVisited);
-                            curFromNodeChild = fromNextSibling;
-                            continue;
-                        }
-                    }
-
-                    var curFromNodeType = curFromNodeChild.nodeType;
-
-                    if (curFromNodeType === curToNodeChild.nodeType) {
-                        var isCompatible = false;
-
-                        // Both nodes being compared are Element nodes
-                        if (curFromNodeType === ELEMENT_NODE) {
-                            if (compareNodeNames(curFromNodeChild, curToNodeChild)) {
-                                // We have compatible DOM elements
-                                if (curFromNodeId || curToNodeId) {
-                                    // If either DOM element has an ID then we
-                                    // handle those differently since we want to
-                                    // match up by ID
-                                    if (curToNodeId === curFromNodeId) {
-                                        isCompatible = true;
-                                    }
-                                } else {
-                                    isCompatible = true;
-                                }
-                            }
-
-                            if (isCompatible) {
-                                // We found compatible DOM elements so transform
-                                // the current "from" node to match the current
-                                // target DOM node.
-                                morphEl(curFromNodeChild, curToNodeChild, alreadyVisited);
-                            }
-                        // Both nodes being compared are Text or Comment nodes
-                    } else if (curFromNodeType === TEXT_NODE || curFromNodeType == COMMENT_NODE) {
-                            isCompatible = true;
-                            // Simply update nodeValue on the original node to
-                            // change the text value
-                            curFromNodeChild.nodeValue = curToNodeChild.nodeValue;
-                        }
-
-                        if (isCompatible) {
-                            curToNodeChild = toNextSibling;
-                            curFromNodeChild = fromNextSibling;
-                            continue outer;
-                        }
-                    }
-
-                    // No compatible match so remove the old node from the DOM
-                    // and continue trying to find a match in the original DOM
-                    removeNode(curFromNodeChild, fromEl, alreadyVisited);
-                    curFromNodeChild = fromNextSibling;
-                }
-
-                if (curToNodeId) {
-                    if ((savedEl = savedEls[curToNodeId])) {
-                        morphEl(savedEl, curToNodeChild, true);
-                        // We want to append the saved element instead
-                        curToNodeChild = savedEl;
-                    } else {
-                        // The current DOM element in the target tree has an ID
-                        // but we did not find a match in any of the
-                        // corresponding siblings. We just put the target
-                        // element in the old DOM tree but if we later find an
-                        // element in the old DOM tree that has a matching ID
-                        // then we will replace the target element with the
-                        // corresponding old element and morph the old element
-                        unmatchedEls[curToNodeId] = curToNodeChild;
-                    }
-                }
-
-                // If we got this far then we did not find a candidate match for
-                // our "to node" and we exhausted all of the children "from"
-                // nodes. Therefore, we will just append the current "to node"
-                // to the end
-                if (onBeforeNodeAdded(curToNodeChild) !== false) {
-                    fromEl.appendChild(curToNodeChild);
-                    onNodeAdded(curToNodeChild);
-                }
-
-                if (curToNodeChild.nodeType === ELEMENT_NODE &&
-                    (curToNodeId || curToNodeChild.firstChild)) {
-                    // The element that was just added to the original DOM may
-                    // have some nested elements with a key/ID that needs to be
-                    // matched up with other elements. We'll add the element to
-                    // a list so that we can later process the nested elements
-                    // if there are any unmatched keyed elements that were
-                    // discarded
-                    movedEls.push(curToNodeChild);
-                }
-
-                curToNodeChild = toNextSibling;
-                curFromNodeChild = fromNextSibling;
-            }
-
-            // We have processed all of the "to nodes". If curFromNodeChild is
-            // non-null then we still have some from nodes left over that need
-            // to be removed
-            while (curFromNodeChild) {
-                fromNextSibling = curFromNodeChild.nextSibling;
-                removeNode(curFromNodeChild, fromEl, alreadyVisited);
-                curFromNodeChild = fromNextSibling;
-            }
-        }
-
-        var specialElHandler = specialElHandlers[fromEl.nodeName];
-        if (specialElHandler) {
-            specialElHandler(fromEl, toEl);
-        }
-    } // END: morphEl(...)
-
-    var morphedNode = fromNode;
-    var morphedNodeType = morphedNode.nodeType;
-    var toNodeType = toNode.nodeType;
-
-    if (!childrenOnly) {
-        // Handle the case where we are given two DOM nodes that are not
-        // compatible (e.g. <div> --> <span> or <div> --> TEXT)
-        if (morphedNodeType === ELEMENT_NODE) {
-            if (toNodeType === ELEMENT_NODE) {
-                if (!compareNodeNames(fromNode, toNode)) {
-                    onNodeDiscarded(fromNode);
-                    morphedNode = moveChildren(fromNode, createElementNS(toNode.nodeName, toNode.namespaceURI));
-                }
-            } else {
-                // Going from an element node to a text node
-                morphedNode = toNode;
-            }
-        } else if (morphedNodeType === TEXT_NODE || morphedNodeType === COMMENT_NODE) { // Text or comment node
-            if (toNodeType === morphedNodeType) {
-                morphedNode.nodeValue = toNode.nodeValue;
-                return morphedNode;
-            } else {
-                // Text node to something else
-                morphedNode = toNode;
-            }
-        }
-    }
-
-    if (morphedNode === toNode) {
-        // The "to node" was not compatible with the "from node" so we had to
-        // toss out the "from node" and use the "to node"
-        onNodeDiscarded(fromNode);
-    } else {
-        morphEl(morphedNode, toNode, false, childrenOnly);
-
-        /**
-         * What we will do here is walk the tree for the DOM element that was
-         * moved from the target DOM tree to the original DOM tree and we will
-         * look for keyed elements that could be matched to keyed elements that
-         * were earlier discarded.  If we find a match then we will move the
-         * saved element into the final DOM tree.
-         */
-        var handleMovedEl = function(el) {
-            var curChild = el.firstChild;
-            while (curChild) {
-                var nextSibling = curChild.nextSibling;
-
-                var key = getNodeKey(curChild);
-                if (key) {
-                    var savedEl = savedEls[key];
-                    if (savedEl && compareNodeNames(curChild, savedEl)) {
-                        curChild.parentNode.replaceChild(savedEl, curChild);
-                        // true: already visited the saved el tree
-                        morphEl(savedEl, curChild, true);
-                        curChild = nextSibling;
-                        if (empty(savedEls)) {
-                            return false;
-                        }
-                        continue;
-                    }
-                }
-
-                if (curChild.nodeType === ELEMENT_NODE) {
-                    handleMovedEl(curChild);
-                }
-
-                curChild = nextSibling;
-            }
-        };
-
-        // The loop below is used to possibly match up any discarded
-        // elements in the original DOM tree with elemenets from the
-        // target tree that were moved over without visiting their
-        // children
-        if (!empty(savedEls)) {
-            handleMovedElsLoop:
-            while (movedEls.length) {
-                var movedElsTemp = movedEls;
-                movedEls = [];
-                for (var i=0; i<movedElsTemp.length; i++) {
-                    if (handleMovedEl(movedElsTemp[i]) === false) {
-                        // There are no more unmatched elements so completely end
-                        // the loop
-                        break handleMovedElsLoop;
-                    }
-                }
-            }
-        }
-
-        // Fire the "onNodeDiscarded" event for any saved elements
-        // that never found a new home in the morphed DOM
-        for (var savedElId in savedEls) {
-            if (savedEls.hasOwnProperty(savedElId)) {
-                var savedEl = savedEls[savedElId];
-                onNodeDiscarded(savedEl);
-                walkDiscardedChildNodes(savedEl);
-            }
-        }
-    }
-
-    if (!childrenOnly && morphedNode !== fromNode && fromNode.parentNode) {
-        // If we had to swap out the from node with a new node because the old
-        // node was not compatible with the target node then we need to
-        // replace the old DOM node in the original DOM tree. This is only
-        // possible if the original DOM node was part of a DOM tree which
-        // we know is the case if it has a parent node.
-        fromNode.parentNode.replaceChild(morphedNode, fromNode);
-    }
-
-    return morphedNode;
-}
-
-module.exports = morphdom;
-
-},{}],9:[function(require,module,exports){
 /**
  * Parse element’s borders
  *
@@ -1718,7 +1198,7 @@ module.exports = function(el){
 		parse(style.borderBottomWidth)
 	);
 };
-},{"./parse-value":17,"./rect":19}],10:[function(require,module,exports){
+},{"./parse-value":16,"./rect":18}],9:[function(require,module,exports){
 /**
  * Get or set element’s style, prefix-agnostic.
  *
@@ -1777,13 +1257,13 @@ function prefixize(name){
 	if (fakeStyle[prefix + uName] !== undefined) return prefix + uName;
 	return '';
 }
-},{"./fake-element":11,"./prefix":18}],11:[function(require,module,exports){
+},{"./fake-element":10,"./prefix":17}],10:[function(require,module,exports){
 /** Just a fake element to test styles
  * @module mucss/fake-element
  */
 
 module.exports = document.createElement('div');
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * Window scrollbar detector.
  *
@@ -1797,7 +1277,7 @@ exports.x = function () {
 exports.y = function () {
 	return window.innerWidth > document.documentElement.clientWidth;
 };
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * Detect whether element is placed to fixed container or is fixed itself.
  *
@@ -1822,7 +1302,7 @@ module.exports = function (el) {
 	}
 	return false;
 };
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * Get margins of an element.
  * @module mucss/margins
@@ -1851,7 +1331,7 @@ module.exports = function(el){
 		parse(style.marginBottom)
 	);
 };
-},{"./parse-value":17,"./rect":19}],15:[function(require,module,exports){
+},{"./parse-value":16,"./rect":18}],14:[function(require,module,exports){
 /**
  * Calculate absolute offsets of an element, relative to the document.
  *
@@ -1930,7 +1410,7 @@ function offsets (el) {
 
 	return result;
 };
-},{"./has-scroll":12,"./is-fixed":13,"./rect":19,"./scrollbar":20,"./translate":21}],16:[function(require,module,exports){
+},{"./has-scroll":11,"./is-fixed":12,"./rect":18,"./scrollbar":19,"./translate":20}],15:[function(require,module,exports){
 /**
  * Caclulate paddings of an element.
  * @module  mucss/paddings
@@ -1961,7 +1441,7 @@ module.exports = function(el){
 		parse(style.paddingBottom)
 	);
 };
-},{"./parse-value":17,"./rect":19}],17:[function(require,module,exports){
+},{"./parse-value":16,"./rect":18}],16:[function(require,module,exports){
 /**
  * Returns parsed css value.
  *
@@ -1977,7 +1457,7 @@ module.exports = function (str){
 };
 
 //FIXME: add parsing units
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Vendor prefixes
  * Method of http://davidwalsh.name/vendor-prefix
@@ -2007,7 +1487,7 @@ else {
 		js: pre[0].toUpperCase() + pre.substr(1)
 	};
 }
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Simple rect constructor.
  * It is just faster and smaller than constructing an object.
@@ -2031,7 +1511,7 @@ module.exports = function Rect (l,t,r,b) {
 	this.width=Math.abs(this.right - this.left);
 	this.height=Math.abs(this.bottom - this.top);
 };
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * Calculate scrollbar width.
  *
@@ -2056,7 +1536,7 @@ module.exports = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
 // Delete fake DIV
 document.documentElement.removeChild(scrollDiv);
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * Parse translate3d
  *
@@ -2083,15 +1563,15 @@ module.exports = function (el) {
 		return parseValue(value);
 	});
 };
-},{"./css":10,"./parse-value":17}],22:[function(require,module,exports){
+},{"./css":9,"./parse-value":16}],21:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'boolean' || a instanceof Boolean;
 }
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'number' || a instanceof Number;
 }
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * @module mutype/is-object
  */
@@ -2103,7 +1583,7 @@ module.exports = function(o){
 	// return obj === Object(obj);
 	return !!o && typeof o === 'object' && o.constructor === Object;
 };
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var isString = require('./is-string'),
 	isNumber = require('./is-number'),
 	isBool = require('./is-bool');
@@ -2111,11 +1591,11 @@ var isString = require('./is-string'),
 module.exports = function isPlain(a){
 	return !a || isString(a) || isNumber(a) || isBool(a);
 };
-},{"./is-bool":22,"./is-number":23,"./is-string":26}],26:[function(require,module,exports){
+},{"./is-bool":21,"./is-number":22,"./is-string":25}],25:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'string' || a instanceof String;
 }
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /**
 * @module  placer
 *
@@ -2534,7 +2014,7 @@ function getParentRect (target) {
 
 	return rect;
 }
-},{"aligner":3,"mucss/border":9,"mucss/css":10,"mucss/has-scroll":12,"mucss/is-fixed":13,"mucss/margin":14,"mucss/offset":15,"mucss/parse-value":17,"mucss/scrollbar":20,"soft-extend":30}],28:[function(require,module,exports){
+},{"aligner":3,"mucss/border":8,"mucss/css":9,"mucss/has-scroll":11,"mucss/is-fixed":12,"mucss/margin":13,"mucss/offset":14,"mucss/parse-value":16,"mucss/scrollbar":19,"soft-extend":29}],27:[function(require,module,exports){
 /**
  * @module  popup
  */
@@ -2549,7 +2029,7 @@ var insertCss = require('insert-css');
 
 var sb = require('mucss/scrollbar')
 
-insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n}\r\n\r\n.prama-label {\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: middle;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama select,\r\n/*.prama input[type=\"checkbox\"],*/\r\n/*.prama input[type=\"radio\"],*/\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: middle;\r\n\tdisplay: inline-block;\r\n\tline-height: 2rem;\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 50%;\r\n\tpadding: 0 .5rem;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.5rem;\r\n\tline-height: 2rem;\r\n\twidth: 2rem;\r\n\theight: 2rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 50%;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n}\r\n\r\n.prama button {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\tpadding: 0 1rem;\r\n\twidth: 20%;\r\n\tcursor: pointer;\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: middle;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: 0 0 0 2px rgb(239, 242, 247);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tbackground-color: white;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\tbackground-color: rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n}\r\n\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 40%;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 10%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n.prama input[type=\"range\"] {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: .75rem 0;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\t-webkit-appearance: none;\r\n\tmargin-top: -.75rem;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tpadding: 0;\r\n\t\tmargin: 0;\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: middle;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\tmargin-top: .75rem;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\theight: 1rem;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}");
+insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\twidth: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
 
 module.exports = Popup;
 
@@ -3127,7 +2607,7 @@ Popup.prototype.animend = function (cb) {
 		cb.call(that);
 	}
 }
-},{"./overlay":29,"events":1,"get-uid":4,"inherits":5,"insert-css":6,"mucss/scrollbar":20,"placer":27,"xtend/mutable":31}],29:[function(require,module,exports){
+},{"./overlay":28,"events":1,"get-uid":4,"inherits":5,"insert-css":6,"mucss/scrollbar":19,"placer":26,"xtend/mutable":30}],28:[function(require,module,exports){
 /**
  * @module  popoff/overlay
  *
@@ -3244,7 +2724,7 @@ Overlay.prototype.hide = function () {
 
 	return this;
 };
-},{"events":1,"inherits":5,"xtend/mutable":31}],30:[function(require,module,exports){
+},{"events":1,"inherits":5,"xtend/mutable":30}],29:[function(require,module,exports){
 /**
  * Append all not-existing props to the initial object
  *
@@ -3268,7 +2748,7 @@ module.exports = function(){
 
 	return res;
 };
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -3289,11 +2769,18 @@ function extend(target) {
     return target
 }
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
+var extend = require('xtend/mutable');
 var createParams = require('./');
 
 var params = createParams({
-	sampleText: {
+	title: {
+		label: '',
+		create: "<header>\n\t\t\t<h1>Prama demo</h1>\n\t\t</header>",
+		help: ''
+	},
+
+	name: {
 		label: 'Field name',
 		value: 'Field',
 		placeholder: 'Field name...',
@@ -3303,21 +2790,67 @@ var params = createParams({
 			});
 		}
 	},
-	sampleType: {
+	type: {
+		type: 'list',
 		label: 'Type',
-		values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch'],
+		values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch', 'button'],
 		value: 'text',
 		change: function (value) {
+			if (value === 'number' || value === 'range') {
+				params.setParam('value', {
+					type: 'number',
+					value: 50
+				});
+			}
+			else {
+				params.setParam('value', {
+					value: '',
+					type: 'text',
+					placeholder: 'value...'
+				});
+			}
+			//show values list
+			if (value === 'select' || value === 'switch') {
+				params.setParam('values', {
+					hidden: false
+				});
+			}
+			else {
+				params.setParam('values', {
+					hidden: true
+				});
+			}
 			params.setParam('example', {
 				type: value
 			});
 		}
 	},
-	sampleNumber: {
+	values: {
+		label: 'Values',
+		value: '',
+		hidden: true,
+		type: 'textarea',
+		placeholder: 'option 1, option 2, option 3, ...',
+		change: function (v) {
+			var values = v.split(/\s*,\s*|\n/);
+			params.setParam('example', {
+				values: values
+			});
+		}
+	},
+	value: {
 		label: 'Value',
-		value: 75,
+		value: '',
 		change: function (v) {
 			params.setParam('example', v);
+		}
+	},
+	help: {
+		label: 'Help text',
+		placeholder: 'Help text here...',
+		type: 'textarea',
+		change: function (v) {
+			params.setParam('example', {help: v});
 		}
 	},
 	//TODO: make dependent on multirange/range type
@@ -3325,44 +2858,48 @@ var params = createParams({
 	// 	label: 'Range',
 	// 	value: [11, 22]
 	// },
-	// sampleToggle: {
-	// 	label: 'Multiple',
-	// 	value: true,
-	// 	disabled: true
+	isHidden: {
+		label: 'Hidden',
+		value: false,
+		change: function (value) { return params.setParam('example', {hidden: value}); }
+	},
+	// isDisabled: {
+	// 	label: 'Disabled',
+	// 	value: false,
+	// 	change: value => params.setParam('example', {hidden: value})
 	// },
-	sampleButton: {
+	save: {
 		label: '',
 		type: 'button',
-		value: 'Add field'
+		value: 'Add field',
+		style: {},
+		change: function (v) {
+			var p = extend({}, params.params.example);
+			p.element = null;
+			params.setParam('example-' + Object.keys(params.params).length, p);
+			params.setParam('name', {
+				value: ''
+			});
+		}
 	},
-	radio: {
-		values: [1, 2, 3, 4],
-		default: 1,
-		value: 1,
-		label: 'Switch',
-		type: 'radio'
-	},
-	customField: {
-		label: 'Custom Field',
-		style: {
-			marginTop: '4rem',
-			textAlign: 'center'
-		},
+	previewTitle: {
 		create: function () {
 			//return an html element with bound events
-			return '<h3>Result:</h3>'
+			return '<h3>Preview</h3>'
 		}
 	},
 	example: {
 		type: 'text',
 		label: 'Field'
-	}
+	},
+	// divider: {
+	// 	create: `<h3>Created fields</h3>`
+	// }
 }, {
-	title: 'Settings',
 	ui: false,
 	history: false,
 	load: false
 });
 
 document.body.appendChild(params.element);
-},{"./":2}]},{},[32]);
+},{"./":2,"xtend/mutable":30}]},{},[31]);

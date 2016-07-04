@@ -33,6 +33,9 @@ var params = createParams({
 		}
 	}
 });
+
+//display settings form
+container.appendChild(params.element);
 ```
 
 ## API
@@ -99,7 +102,6 @@ const params = new Prama([
 	...
 ],
 
-//options are unnecessary
 {
 	//save/load params between sessions
 	session: true,

@@ -400,7 +400,7 @@ Params.prototype.setParam = function (name, param, cb) {
 		input && multirange(input);
 	}
 
-	var inputs = param.element.querySelectorAll('input, select, button, textarea');
+	var inputs = param.element.querySelectorAll('input, select, button, textarea, fieldset');
 
 	[].forEach.call(inputs, (input) => {
 		input.addEventListener('input', e => {
@@ -475,7 +475,7 @@ Params.prototype.setParamValue = function (name, value) {
 	this.emit('change', param.name, param.value, param);
 
 	//update ui
-	var targets = param.element.querySelectorAll('input, select, button, textarea');
+	var targets = param.element.querySelectorAll('input, select, button, textarea, fieldset');
 	[].forEach.call(targets, target => {
 		if (target === sourceTarget) return;
 
@@ -522,11 +522,22 @@ function getValue (target) {
 function setValue (target, value) {
 	target.value = value;
 
-	if (target.type === 'checkbox') {
+	if (target.type === 'checkbox' || target.type === 'radio') {
 		target.checked = !!value;
 	}
+
 	if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') {
 		target.innerHTML = value;
+	}
+
+	//FIXME: seems that select gets updated by setting it’s `value`
+	// if (target.tagName === 'SELECT') {
+	// 	target.querySelector(`option[value=""`)
+	// }
+
+	if (target.tagName === 'FIELDSET') {
+		var input = target.querySelector(`input[value="${value}"]`);
+		if (input) setValue(input, value);
 	}
 }
 

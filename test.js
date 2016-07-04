@@ -24,19 +24,12 @@ var params = createParams({
 		type: 'list',
 		label: 'Type',
 		values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch', 'button'],
-		value: 'multirange',
+		value: 'text',
 		change: (value) => {
 			if (value === 'number' || value === 'range') {
 				params.setParam('value', {
 					type: 'number',
-					value: 50,
-				});
-			}
-			else if (value === 'select' || value === 'switch') {
-				params.setParam('value', {
-					value: '',
-					type: 'textarea',
-					placeholder: 'option 1, option 2, option 3, ...'
+					value: 50
 				});
 			}
 			else {
@@ -46,8 +39,32 @@ var params = createParams({
 					placeholder: 'value...'
 				});
 			}
+			//show values list
+			if (value === 'select' || value === 'switch') {
+				params.setParam('values', {
+					hidden: false
+				});
+			}
+			else {
+				params.setParam('values', {
+					hidden: true
+				});
+			}
 			params.setParam('example', {
 				type: value
+			});
+		}
+	},
+	values: {
+		label: 'Values',
+		value: '',
+		hidden: true,
+		type: 'textarea',
+		placeholder: 'option 1, option 2, option 3, ...',
+		change: (v) => {
+			var values = v.split(/\s*,\s*|\n/);
+			params.setParam('example', {
+				values: values
 			});
 		}
 	},

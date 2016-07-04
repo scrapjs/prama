@@ -29,7 +29,7 @@ var params = createParams({
 		value: 'Sign Up',
 		type: 'submit',
 		change: function () => {
-			params.getParams();
+			var qs = params.toString();
 		}
 	}
 });
@@ -39,7 +39,7 @@ var params = createParams({
 
 ### new Prama(object|list, options?)
 
-Create prama instance based off array or object with keys standing for param names and options.
+Create prama instance based off array or object with keys standing for param names and values for param options.
 
 ```js
 const Prama = require('prama');
@@ -63,26 +63,14 @@ const params = new Prama([
 		//(optional) for select or switch types
 		values: [] or {},
 
-		//(optional) input attributes
+		//(optional) <input> attributes
 		min: 0,
 		max: 100,
 		step: 1,
 		title: this.label,
 
-		//(optional) used to avoid over-serialization
-		default: this.value,
-
-		//(optional) order of placement
-		order: 0,
-
-		//(optional) whether page reload is required if param changed
-		reload: false,
-
 		//(optional) short message to explain the meaning of the param
 		help: false,
-
-		//(optional) whether we need to disable param, useful in case of dependent params
-		disabled: false,
 
 		//(optional) set hidden attribute for a field
 		hidden: false,
@@ -93,7 +81,7 @@ const params = new Prama([
 		//(optional) reflect param in cache
 		history: false,
 
-		//(optional) save/load param value to localStorage to keep session
+		//(optional) save/restore param value from localStorage to keep smooth experience
 		load: false,
 
 		//(optional) place passed styles to param’s `style` property.
@@ -103,7 +91,7 @@ const params = new Prama([
 		change: (value) => {}
 
 		//(optional) for custom param return custom html
-		create: () => {}
+		create: `Custom html` or (param) => `Custom html`
 	},
 	...
 ]);
@@ -111,24 +99,19 @@ const params = new Prama([
 //Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
 prama.setParam(name, value|options?, onchange?);
 
-//Add/set params based off object or array of params.
-prama.setParams(object|array);
-
 //Get value of a single param with `name`.
 prama.getParam(name);
+
+//Add/set params based off object or array of params.
+prama.setParams(object|array);
 
 //Get object with values of all params.
 prama.getParams(whitelist?);
 
-//Universal param getter/setter, including methods above
-prama.param(object|array?);
-prama.param(name?, value|options?, callback?);
-
 //Hook up a callback for any parameter change.
 prama.on('change', (name, value, opts) => {});
 
-
-//Form element, use if `ui === false`
+//Form element to insert to page
 prama.element;
 ```
 

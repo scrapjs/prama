@@ -150,13 +150,22 @@ Params.prototype.updateHistory = function () {
 Params.prototype.setParams = function (list, loaded) {
 	if (isPlainObject(list)) {
 		for (var name in list) {
-			if (list[name] instanceof Function || list[name] instanceof HTMLElement) {
-				var item = {
-					create: list[name]
+			var item = list[name];
+
+			//function initializing param
+			if (item instanceof Function) {
+				this.once('set', () => {
+					this.setParam(name, item.call(this));
+				});
+			}
+			//
+			else if (item instanceof HTMLElement) {
+				item = {
+					create: item
 				};
 			}
 			else {
-				var item = isPlainObject(list[name]) ? list[name] : { value: list[name] };
+				item = isPlainObject(item) ? item : { value: item };
 			}
 			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
 
@@ -165,11 +174,19 @@ Params.prototype.setParams = function (list, loaded) {
 	}
 	else if (Array.isArray(list)){
 		list.forEach((item) => {
+			if (item instanceof Function) {
+				this.once('set', () => {
+					this.setParam(item.call(this));
+				});
+				return;
+			}
 			var name = item.name;
 			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
 			this.setParam(item);
 		});
 	}
+
+	this.emit('set');
 
 	return this;
 }
@@ -230,7 +247,6 @@ Params.prototype.setParam = function (name, param, cb) {
 			param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
 		}
 	}
-
 
 	var label = '';
 	if (param.label != null) {
@@ -445,6 +461,7 @@ Params.prototype.setParam = function (name, param, cb) {
 	//init param value
 	if (param.type !== 'button' && param.type !== 'submit') {
 		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
+		//FIXME: we cannot call this here, because it invokes `change`, which can affect other fields and in result init the whole form in wrong order.
 		setTimeout(() => {
 			this.setParamValue(param.name, param.value);
 		});
@@ -456,9 +473,7 @@ Params.prototype.setParam = function (name, param, cb) {
 //return value of defined param
 Params.prototype.getParam = function (name) {
 	if (arguments.length) {
-		var el = this.paramsEl.querySelector('#' + name.toLowerCase());
-
-		return el && el.type === 'checkbox' ? el.checked : el && el.value;
+		return this.params[name].value;
 	}
 	else {
 		return this.getParams();
@@ -544,7 +559,6 @@ Params.prototype.save = function (params) {
 	}
 
 	if (!str) return false;
-
 	this.storage.setItem(this.key, str);
 
 	return true;
@@ -591,8 +605,10 @@ function toString (value) {
 function fromString (value) {
 	if (value === '✔' || value === 'true') return true;
 	if (value === '✘' || value === 'false') return false;
+	if (/\,/.test(value) && !/\s/.test(value)) {
+		return value.split(',').map(fromString);
+	}
 	if (!isNaN(parseFloat(value))) return parseFloat(value);
-	if (/,/.test(value) && !/\s/.test(value)) return value.split(',').map(fromString);
 	return value;
 }
 

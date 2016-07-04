@@ -1,19 +1,27 @@
 var extend = require('xtend/mutable');
 var createParams = require('./');
 
+
+var meta = document.createElement('meta');
+meta.setAttribute('name', 'viewport');
+meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+document.head.appendChild(meta);
+
+
 var params = createParams({
 	title: {
-		label: '',
+		label: null,
+		style: {minWidth: '99%', textAlign:'center'},
 		create: `<header>
 			<h1>Prama demo</h1>
 		</header>`,
-		help: ''
 	},
 
-	name: {
+	label: {
 		label: 'Field name',
 		value: 'Field',
 		placeholder: 'Field name...',
+		help: 'Look at preview below',
 		change: function (value) {
 			this.setParam('example', {
 				label: value
@@ -70,6 +78,10 @@ var params = createParams({
 		label: 'Value',
 		value: '',
 		change: (v) => {
+			if (params.params.example.type === 'multirange') {
+				v =  Array.isArray(v) ? v : v.split(/\s*,\s*|\n/);
+			}
+
 			params.setParam('example', v);
 		}
 	},
@@ -111,14 +123,20 @@ var params = createParams({
 		}
 	},
 	previewTitle: {
+		label: null,
+		style: {minWidth: '99%', textAlign: 'center'},
 		create: () => {
 			//return an html element with bound events
 			return '<h3>Preview</h3>'
 		}
 	},
-	example: {
-		type: 'text',
-		label: 'Field'
+	example: function () {
+		return {
+			save: false,
+			type: this.getParam('type'),
+			label: this.getParam('label'),
+			value: this.getParam('value')
+		};
 	},
 	// divider: {
 	// 	create: `<h3>Created fields</h3>`

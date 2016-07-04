@@ -49,7 +49,7 @@ const params = new Prama([
 		//identifier, used as a key every here and there. Case-insensitive.
 		name: 'my-param',
 
-		//checkbox/toggle, number, range/multirange, select, button, radio/switch
+		//checkbox/toggle, number, range/multirange, select, button/submit, radio/switch
 		//any default input type: password, email, url, tel, time, date, week
 		//undefined type will be guessed from other options
 		type: 'text',
@@ -84,29 +84,29 @@ const params = new Prama([
 		//(optional) whether we need to disable param, useful in case of dependent params
 		disabled: false,
 
+		//(optional) set hidden attribute for a field
+		hidden: false,
+
 		//(optional) ignore any user attempts to input value
 		readonly: false,
+
+		//(optional) reflect param in cache
+		history: false,
+
+		//(optional) save/load param value to localStorage to keep session
+		load: false,
 
 		//(optional) place passed styles to param’s `style` property.
 		style: {},
 
-		//(optional) will be called on any input or change event
+		//(optional) will be called on any input, change, click or interaction event
 		change: (value) => {}
 
 		//(optional) for custom param return custom html
 		create: () => {}
 	},
 	...
-], {
-	//track history of changes
-	history: true,
-
-	//load last state from localStorage
-	load: true,
-
-	//show button at the page exhibiting settings page
-	ui: true
-});
+]);
 
 //Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
 prama.setParam(name, value|options?, onchange?);

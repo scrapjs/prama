@@ -7,7 +7,6 @@
     "brfs": "^1.4.3",
     "inherits": "^2.0.1",
     "insert-css": "^1.0.0",
-    "morphdom": "^1.4.3",
     "mutype": "^0.3.9",
     "popoff": "^2.0.6",
     "xtend": "^4.0.1"

@@ -1,7 +1,16 @@
+var extend = require('xtend/mutable');
 var createParams = require('./');
 
 var params = createParams({
-	sampleText: {
+	title: {
+		label: '',
+		create: `<header>
+			<h1>Prama demo</h1>
+		</header>`,
+		help: ''
+	},
+
+	name: {
 		label: 'Field name',
 		value: 'Field',
 		placeholder: 'Field name...',
@@ -11,21 +20,50 @@ var params = createParams({
 			});
 		}
 	},
-	sampleType: {
+	type: {
+		type: 'list',
 		label: 'Type',
-		values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch'],
-		value: 'text',
+		values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch', 'button'],
+		value: 'multirange',
 		change: (value) => {
+			if (value === 'number' || value === 'range') {
+				params.setParam('value', {
+					type: 'number',
+					value: 50,
+				});
+			}
+			else if (value === 'select' || value === 'switch') {
+				params.setParam('value', {
+					value: '',
+					type: 'textarea',
+					placeholder: 'option 1, option 2, option 3, ...'
+				});
+			}
+			else {
+				params.setParam('value', {
+					value: '',
+					type: 'text',
+					placeholder: 'value...'
+				});
+			}
 			params.setParam('example', {
 				type: value
 			});
 		}
 	},
-	sampleNumber: {
+	value: {
 		label: 'Value',
-		value: 75,
+		value: '',
 		change: (v) => {
 			params.setParam('example', v);
+		}
+	},
+	help: {
+		label: 'Help text',
+		placeholder: 'Help text here...',
+		type: 'textarea',
+		change: (v) => {
+			params.setParam('example', {help: v});
 		}
 	},
 	//TODO: make dependent on multirange/range type
@@ -33,40 +71,44 @@ var params = createParams({
 	// 	label: 'Range',
 	// 	value: [11, 22]
 	// },
-	// sampleToggle: {
-	// 	label: 'Multiple',
-	// 	value: true,
-	// 	disabled: true
+	isHidden: {
+		label: 'Hidden',
+		value: false,
+		change: value => params.setParam('example', {hidden: value})
+	},
+	// isDisabled: {
+	// 	label: 'Disabled',
+	// 	value: false,
+	// 	change: value => params.setParam('example', {hidden: value})
 	// },
-	sampleButton: {
+	save: {
 		label: '',
 		type: 'button',
-		value: 'Add field'
+		value: 'Add field',
+		style: {},
+		change: (v) => {
+			var p = extend({}, params.params.example);
+			p.element = null;
+			params.setParam('example-' + Object.keys(params.params).length, p);
+			params.setParam('name', {
+				value: ''
+			});
+		}
 	},
-	radio: {
-		values: [1, 2, 3, 4],
-		default: 1,
-		value: 1,
-		label: 'Switch',
-		type: 'radio'
-	},
-	customField: {
-		label: 'Custom Field',
-		style: {
-			marginTop: '4rem',
-			textAlign: 'center'
-		},
+	previewTitle: {
 		create: () => {
 			//return an html element with bound events
-			return '<h3>Result:</h3>'
+			return '<h3>Preview</h3>'
 		}
 	},
 	example: {
 		type: 'text',
 		label: 'Field'
-	}
+	},
+	// divider: {
+	// 	create: `<h3>Created fields</h3>`
+	// }
 }, {
-	title: 'Settings',
 	ui: false,
 	history: false,
 	load: false

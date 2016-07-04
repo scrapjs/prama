@@ -9,7 +9,6 @@ const isMobile = require('is-mobile');
 const isPlainObject = require('mutype/is-object');
 const isPrimitive = require('mutype/is-plain');
 const Emitter = require('events');
-const morph = require('morphdom');
 const insertCSS = require('insert-css');
 const fs = require('fs');
 
@@ -155,7 +154,14 @@ Params.prototype.param = function (a, b, c) {
 Params.prototype.setParams = function (list) {
 	if (isPlainObject(list)) {
 		for (var name in list) {
-			this.setParam(name, list[name]);
+			if (!isPlainObject(list[name])) {
+				this.setParam(name, {
+					create: list[name]
+				});
+			}
+			else {
+				this.setParam(name, list[name]);
+			}
 		}
 	}
 	else if (Array.isArray(list)){
@@ -213,25 +219,40 @@ Params.prototype.setParam = function (name, param, cb) {
 		}
 	}
 
-	if (param.label == null) {
-		param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
+	if (param.label === undefined) {
+		if (param.create) {
+			param.label = ''
+		}
+		else {
+			param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
+		}
 	}
 
 
-	var label = `<label for="${param.name}" class="prama-label">${param.label}</label>`;
+	var label = '';
+	if (param.label != null) {
+		label = `<label for="${param.name}" class="prama-label">${param.label}</label>`
+	};
 
 	var el = document.createElement('div');
 	el.classList.add('prama-param');
 
 	//custom create
 	if (param.create) {
-		var html = param.create.call(param, param);
+		if (param.create instanceof Function) {
+			var html = param.create.call(param, param);
+		}
+		else {
+			var html = param.create;
+		}
+
+		el.innerHTML = label;
 
 		if (html instanceof Element) {
 			el.appendChild(html);
 		}
 		else {
-			el.innerHTML = html
+			el.innerHTML += html;
 		}
 	}
 
@@ -261,18 +282,22 @@ Params.prototype.setParam = function (name, param, cb) {
 			case 'number':
 			case 'range':
 			case 'multirange':
-				param.multiple = param.type === 'multirange';
-				param.value = param.value != null ? (typeof param.value === 'number' ? param.value : parseFloat(param.value)) : NaN;
-				if (isNaN(param.value)) param.value = param.max ? param.max / 2 : 50;
-				if (param.multiple && !Array.isArray(param.value)) {
-					param.value = [param.value - 10, param.value + 10];
+				var multiple = param.type === 'multirange';
+				var value = param.value != null ? (typeof param.value === 'number' ? param.value : parseFloat(param.value)) : NaN;
+				if (isNaN(value)) value = param.max ? param.max / 2 : 50;
+				if (multiple) {
+					if (!Array.isArray(param.value)) {
+						param.value = [value, value];
+					}
+				} else {
+					param.value = value;
 				}
 				param.min = param.min != null ? param.min : 0;
-				param.max = param.max != null ? param.max : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
-				param.step = param.step != null ? param.step : (param.multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
+				param.max = param.max != null ? param.max : (multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? 1 : 100;
+				param.step = param.step != null ? param.step : (multiple ? Math.max.apply(Math, param.value) : param.value) < 1 ? .01 : 1;
 
-				html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}" ${param.multiple ? 'multiple' : ''}/>`;
-				if (!param.multiple) {
+				html += `<input id="${param.name}" type="range" class="prama-input prama-range prama-value" value="${param.value}" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}" ${multiple ? 'multiple' : ''}/>`;
+				if (!multiple) {
 					html += `<input id="${param.name}-number" value="${param.value}" class="prama-input prama-value" type="number" min="${param.min}" max="${param.max}" step="${param.step}" title="${param.value}"/>`;
 				}
 				else {
@@ -334,7 +359,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'textarea' :
 				param.value = param.value == null ? '' : param.value;
-				html += `<textarea placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
+				html += `<textarea rows="4" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
 				`;
 
 				break;
@@ -346,42 +371,56 @@ Params.prototype.setParam = function (name, param, cb) {
 
 				break;
 		}
+
+		if (param.help) {
+			html += `<div class="prama-help">${param.help}</div>`;
+		}
+
 		el.innerHTML = label + html;
 	}
 
 	//if new element - just add listeners and place httm
-	if (!param.element) {
+	if (param.element) {
+		param.element.parentNode.replaceChild(el, param.element);
 		param.element = el;
-
-		var inputs = param.element.querySelectorAll('input, select, button');
-
-		[].forEach.call(inputs, (input) => {
-			input.addEventListener('input', e => {
-				this.setParamValue(param.name, e.target);
-			});
-			input.addEventListener('change', e => {
-				this.setParamValue(param.name, e.target);
-			});
-			if (param.type === 'button' || param.type === 'submit') {
-				input.addEventListener('click', e => {
-					e.preventDefault();
-					this.setParamValue(param.name, e.target);
-				});
-			}
-			input.addEventListener('keypress', e => {
-				if (e.which === 13) {
-					this.setParamValue(param.name, e.target);
-				}
-			});
-		});
-
+	} else {
+		param.element = el;
 		this.element.appendChild(param.element);
 	}
-	//otherwise morph exising element
-	else {
-		console.log(el)
-		morph(param.element, el, {childrenOnly: true});
+
+	if (param.hidden) {
+		param.element.setAttribute('hidden', true);
 	}
+	else {
+		param.element.removeAttribute('hidden');
+	}
+
+	if (param.type === 'multirange') {
+		var input = param.element.querySelector('input');
+		input && multirange(input);
+	}
+
+	var inputs = param.element.querySelectorAll('input, select, button, textarea');
+
+	[].forEach.call(inputs, (input) => {
+		input.addEventListener('input', e => {
+			this.setParamValue(param.name, e.target);
+		});
+		input.addEventListener('change', e => {
+			this.setParamValue(param.name, e.target);
+		});
+		if (param.type === 'button' || param.type === 'submit') {
+			input.addEventListener('click', e => {
+				e.preventDefault();
+				this.setParamValue(param.name, e.target);
+			});
+		}
+		input.addEventListener('keypress', e => {
+			if (e.which === 13) {
+				this.setParamValue(param.name, e.target);
+			}
+		});
+	});
 
 	//preset style
 	if (param.style) {
@@ -391,12 +430,6 @@ Params.prototype.setParam = function (name, param, cb) {
 			param.element.style[name] = v;
 		}
 	}
-
-	//FIXME: where to place that init?
-	// if (param.multiple) {
-	// 	var input = el.querySelector('input');
-	// 	param.multiple && multirange(input);
-	// }
 
 	return this;
 };
@@ -437,15 +470,17 @@ Params.prototype.setParamValue = function (name, value) {
 
 	param.element.title = value;
 	param.value = value;
+
 	param.change && param.change.call(this, value, param);
 	this.emit('change', param.name, param.value, param);
 
 	//update ui
-	var targets = param.element.querySelectorAll('input, select, button');
+	var targets = param.element.querySelectorAll('input, select, button, textarea');
 	[].forEach.call(targets, target => {
 		if (target === sourceTarget) return;
 
-		//multirange
+		if (target.type === 'radio') return;
+
 		if (target.classList.contains('ghost')) {
 			target = target.parentNode.querySelector('.original');
 		}
@@ -456,10 +491,7 @@ Params.prototype.setParamValue = function (name, value) {
 			return;
 		}
 
-		target.value = value;
-		if (target.type === 'checkbox') {
-			target.checked = !!value;
-		}
+		setValue(target, value);
 	});
 }
 
@@ -485,6 +517,17 @@ function getValue (target) {
 	}
 
 	return value;
+}
+
+function setValue (target, value) {
+	target.value = value;
+
+	if (target.type === 'checkbox') {
+		target.checked = !!value;
+	}
+	if (target.tagName === 'TEXTAREA' || target.tagName === 'BUTTON') {
+		target.innerHTML = value;
+	}
 }
 
 

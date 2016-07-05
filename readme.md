@@ -105,9 +105,12 @@ const params = new Prama([
 	//pass `false` to place manually, see `prama.element`, `prama.button`
 	container: document.body,
 
-	//popup settings
-	type: 'modal',
-	side: 'center',
+	//popup settings, see popoff package for available options
+	popup: {
+		type: 'modal',
+		side: 'center',
+		...
+	},
 
 	//svg to use for a menu icon
 	icon: `./gears.svg`,

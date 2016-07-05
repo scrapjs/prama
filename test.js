@@ -9,7 +9,8 @@ meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit
 document.head.appendChild(meta);
 
 insertCSS(`
-	@media (min-width: 42rem) {
+	body {
+		margin: 0;
 	}
 	.prama {
 		max-width: 900px;
@@ -26,7 +27,11 @@ insertCSS(`
 //prepare demo params
 var demoParams = createParams([
 ], {
-	title: 'Example settings'
+	title: 'Example settings',
+	popup: {
+		type: 'sidebar',
+		side: 'right'
+	}
 });
 
 //create main form

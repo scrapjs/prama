@@ -30,8 +30,8 @@
 .prama-label {
 	font-size: .95rem;
 	display: inline-block;
-	width: 17%;
-	margin-right: 3%;
+	width: calc(20% - 1rem);
+	margin-right: 1rem;
 	vertical-align: top;
 	line-height: 1.2rem;
 	padding-top: .42em;
@@ -100,7 +100,7 @@
 	min-width: 2rem;
 	border: none;
 	margin: 0;
-	border-radius: .2222rem;
+	border-radius: .1111rem;
 }
 
 .prama textarea,
@@ -144,9 +144,9 @@
 	border-color: rgb(2, 98, 157);
 	font-weight: bolder;
 	font-size: 1.4rem;
-	line-height: 1.6rem;
-	width: 1.6rem;
-	height: 1.6rem;
+	line-height: 1.2rem;
+	width: 1.2rem;
+	height: 1.2rem;
 	vertical-align: middle;
 	text-align: center;
 	margin-top: -.2rem;
@@ -171,7 +171,7 @@
 	height: 2rem;
 	display: inline-block;
 	margin-right: 1rem;
-	min-width: 45%;
+	min-width: 35%;
 }
 
 @media (max-width: 42rem) {
@@ -200,6 +200,19 @@
 .prama input[type="reset"]:active {
 	background: rgb(241, 244, 249);
 	color: rgb(2, 135, 210);
+}
+
+
+.prama-select-arrow {
+	position: absolute;
+    pointer-events: none;
+    right: 0rem;
+    width: 1.6rem;
+    font-size: .666rem;
+    text-align: center;
+    height: 2rem;
+    line-height: 2rem;
+    z-index: 2;
 }
 
 

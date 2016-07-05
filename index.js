@@ -73,11 +73,7 @@ function Params (params, opts) {
 	this.setParams(params, loadedParams);
 
 	//create settings button and popup
-	this.popup = createPopup({
-		type: this.type,
-		side: this.side || 'auto',
-		content: this.element
-	});
+	this.popup = createPopup(this.popup);
 
 	this.button = document.createElement('a');
 	this.button.href = '#settings';
@@ -102,10 +98,9 @@ inherits(Params, Emitter);
 Params.prototype.container;
 
 //popup type
-Params.prototype.type = 'modal';
-
-//popup side
-Params.prototype.side = 'center';
+Params.prototype.popup = {
+	type: 'modal'
+};
 
 //settings button and settings popup
 Params.prototype.icon = fs.readFileSync(__dirname + '/gear.svg');
@@ -275,7 +270,7 @@ Params.prototype.setParam = function (name, param, cb) {
 						html += `<option value="${param.values[name]}" ${param.values[name] === param.value ? 'selected' : ''}>${name}</option>`
 					}
 				}
-				html += `</select>`;
+				html += `</select><span class="prama-select-arrow">▼</span>`;
 
 				break;
 

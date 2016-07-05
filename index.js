@@ -74,7 +74,8 @@ function Params (params, opts) {
 
 	//create settings button and popup
 	this.popup = createPopup({
-		type: 'modal',
+		type: this.type,
+		side: this.side || 'auto',
 		content: this.element
 	});
 
@@ -100,8 +101,19 @@ inherits(Params, Emitter);
 //default container
 Params.prototype.container;
 
+//popup type
+Params.prototype.type = 'modal';
+
+//popup side
+Params.prototype.side = 'center';
+
 //settings button and settings popup
 Params.prototype.icon = fs.readFileSync(__dirname + '/gear.svg');
+
+
+//show/hide popup
+Params.prototype.show = function () {this.popup && this.popup.show(); return this;};
+Params.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
 
 
 /** Create params based off list */

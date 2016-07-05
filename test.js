@@ -1,12 +1,28 @@
 var extend = require('xtend/mutable');
 var createParams = require('./');
+var insertCSS = require('insert-css');
 
 //prepare body
 var meta = document.createElement('meta');
 meta.setAttribute('name', 'viewport');
 meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no');
 document.head.appendChild(meta);
-document.body.style.padding = '0 1rem';
+
+insertCSS(`
+	@media (min-width: 42rem) {
+	}
+	.prama {
+		max-width: 960px;
+		background: rgb(251, 250, 249);
+		border-radius: .5rem;
+		padding: 1rem 0;
+		text-align: left;
+	}
+	.prama-title {
+		text-align: center;
+		letter-spacing: -.05ex;
+	}
+`);
 
 //prepare demo params
 var demoParams = createParams([
@@ -150,7 +166,6 @@ var params = createParams({
 	previewTitle: {
 		label: null,
 		style: {
-			minWidth: '100%',
 			textAlign: 'center',
 			columnSpan: 'all',
 			display: 'block'

@@ -99,13 +99,18 @@ const params = new Prama([
 	...
 ],
 
+//(optional) behavior
 {
+	//container element to place settings form/button
+	//pass `false` to place manually, see `prama.element`, `prama.button`
+	container: document.body,
+
+	//popup settings
+	type: 'modal',
+	side: 'center',
+
 	//svg to use for a menu icon
 	icon: `./gears.svg`,
-
-	//container element or selector to place settings form/button.
-	//Use `false` to avoid autoplacement, see `prama.element`, `prama.button`
-	container: document.body,
 
 	//reflect state in browser hash (to share link)
 	history: false,

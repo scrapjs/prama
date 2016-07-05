@@ -6,7 +6,7 @@
 
 Define parameters which your component depends on and _prama_ will take care of settings form, history of changes, saving/loading states, parameter types etc.
 
-**[Settings constructor](https://dfcreative.github.io/prama)**
+**[Example](https://dfcreative.github.io/prama)**
 
 ## Usage
 

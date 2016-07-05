@@ -1,6 +1,7 @@
 .prama {
 	font-family: sans-serif;
 	text-align: center;
+	padding: 1.6rem 0;
 }
 
 .prama [hidden] {
@@ -12,7 +13,8 @@
 }
 
 .prama-title {
-	margin-bottom: 2rem;
+	margin-top: 0;
+	margin-bottom: 1.6rem;
 }
 
 .prama-param {
@@ -28,8 +30,9 @@
 }
 
 .prama-label {
-	font-size: .95rem;
+	font-size: .857142rem;
 	display: inline-block;
+	width: 17%;
 	width: calc(20% - 1rem);
 	margin-right: 1rem;
 	vertical-align: top;
@@ -134,6 +137,7 @@
 	vertical-align: top;
 	padding-top: .5rem;
 	line-height: 1.5;
+	font-size: 1rem;
 }
 
 .prama input[type="checkbox"],
@@ -193,6 +197,14 @@
 	font-weight: bold;
 	font-size: 1.1rem;
 	cursor: pointer;
+	border-radius: .1666rem;
+	box-shadow: 0 1px 2px -1px rgb(131, 184, 249);
+}
+
+.prama button:hover,
+.prama input[type="submit"]:hover,
+.prama input[type="reset"]:hover {
+	background: rgb(12, 145, 220);
 }
 
 .prama button:active,
@@ -270,8 +282,9 @@
 
 
 .prama input[type="range"] {
-	width: 59%;
-	margin-right: 1%;
+	width: 58%;
+	width: calc(60% - .5rem);
+	margin-right: .5rem;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
@@ -287,7 +300,8 @@
 
 @media (max-width: 42rem) {
 	.prama input[type="range"] {
-		width: 79%;
+		width: 78%;
+		width: calc(80% - .5rem);
 	}
 }
 

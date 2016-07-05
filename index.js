@@ -73,7 +73,9 @@ function Params (params, opts) {
 	this.setParams(params, loadedParams);
 
 	//create settings button and popup
-	this.popup = createPopup(this.popup);
+	this.popup = createPopup(extend(this.popup, {
+		content: this.element
+	}));
 
 	this.button = document.createElement('a');
 	this.button.href = '#settings';

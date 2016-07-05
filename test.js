@@ -12,11 +12,10 @@ insertCSS(`
 	body {
 		margin: 0;
 	}
-	.prama {
+	body > .prama {
 		max-width: 900px;
 		background: rgb(251, 250, 249);
 		border-radius: .5rem;
-		padding: 1rem 0;
 	}
 	.prama-title {
 		text-align: center;
@@ -27,10 +26,11 @@ insertCSS(`
 //prepare demo params
 var demoParams = createParams([
 ], {
-	title: 'Example settings',
+	title: 'Settings',
 	popup: {
 		type: 'sidebar',
-		side: 'right'
+		side: 'right',
+		shift: 100
 	}
 });
 

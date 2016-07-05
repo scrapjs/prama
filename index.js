@@ -1,4 +1,1860 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict'
+
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+function init () {
+  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  for (var i = 0, len = code.length; i < len; ++i) {
+    lookup[i] = code[i]
+    revLookup[code.charCodeAt(i)] = i
+  }
+
+  revLookup['-'.charCodeAt(0)] = 62
+  revLookup['_'.charCodeAt(0)] = 63
+}
+
+init()
+
+function toByteArray (b64) {
+  var i, j, l, tmp, placeHolders, arr
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // the number of equal signs (place holders)
+  // if there are two placeholders, than the two characters before it
+  // represent one byte
+  // if there is only one, then the three characters before it represent 2 bytes
+  // this is just a cheap hack to not do indexOf twice
+  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+
+  // base64 is 4/3 + up to two characters of the original data
+  arr = new Arr(len * 3 / 4 - placeHolders)
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  l = placeHolders > 0 ? len - 4 : len
+
+  var L = 0
+
+  for (i = 0, j = 0; i < l; i += 4, j += 3) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
+    arr[L++] = (tmp >> 16) & 0xFF
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  if (placeHolders === 2) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[L++] = tmp & 0xFF
+  } else if (placeHolders === 1) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var output = ''
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    output += lookup[tmp >> 2]
+    output += lookup[(tmp << 4) & 0x3F]
+    output += '=='
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
+    output += lookup[tmp >> 10]
+    output += lookup[(tmp >> 4) & 0x3F]
+    output += lookup[(tmp << 2) & 0x3F]
+    output += '='
+  }
+
+  parts.push(output)
+
+  return parts.join('')
+}
+
+},{}],2:[function(require,module,exports){
+(function (global){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
+'use strict'
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+var isArray = require('isarray')
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * Due to various browser bugs, sometimes the Object implementation will be used even
+ * when the browser supports typed arrays.
+ *
+ * Note:
+ *
+ *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
+ *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ *
+ *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *
+ *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *     incorrect length in some situations.
+
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
+ * get the Object implementation, which is slower but behaves correctly.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
+  ? global.TYPED_ARRAY_SUPPORT
+  : typedArraySupport()
+
+/*
+ * Export kMaxLength after typed array support is determined.
+ */
+exports.kMaxLength = kMaxLength()
+
+function typedArraySupport () {
+  try {
+    var arr = new Uint8Array(1)
+    arr.foo = function () { return 42 }
+    return arr.foo() === 42 && // typed array instances can be augmented
+        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
+        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+  } catch (e) {
+    return false
+  }
+}
+
+function kMaxLength () {
+  return Buffer.TYPED_ARRAY_SUPPORT
+    ? 0x7fffffff
+    : 0x3fffffff
+}
+
+function createBuffer (that, length) {
+  if (kMaxLength() < length) {
+    throw new RangeError('Invalid typed array length')
+  }
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(length)
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    if (that === null) {
+      that = new Buffer(length)
+    }
+    that.length = length
+  }
+
+  return that
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
+    return new Buffer(arg, encodingOrOffset, length)
+  }
+
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new Error(
+        'If encoding is specified then the first argument must be a string'
+      )
+    }
+    return allocUnsafe(this, arg)
+  }
+  return from(this, arg, encodingOrOffset, length)
+}
+
+Buffer.poolSize = 8192 // not used by this implementation
+
+// TODO: Legacy, not needed anymore. Remove in next major version.
+Buffer._augment = function (arr) {
+  arr.__proto__ = Buffer.prototype
+  return arr
+}
+
+function from (that, value, encodingOrOffset, length) {
+  if (typeof value === 'number') {
+    throw new TypeError('"value" argument must not be a number')
+  }
+
+  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
+    return fromArrayBuffer(that, value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'string') {
+    return fromString(that, value, encodingOrOffset)
+  }
+
+  return fromObject(that, value)
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(null, value, encodingOrOffset, length)
+}
+
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype
+  Buffer.__proto__ = Uint8Array
+  if (typeof Symbol !== 'undefined' && Symbol.species &&
+      Buffer[Symbol.species] === Buffer) {
+    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+    Object.defineProperty(Buffer, Symbol.species, {
+      value: null,
+      configurable: true
+    })
+  }
+}
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be a number')
+  }
+}
+
+function alloc (that, size, fill, encoding) {
+  assertSize(size)
+  if (size <= 0) {
+    return createBuffer(that, size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(that, size).fill(fill, encoding)
+      : createBuffer(that, size).fill(fill)
+  }
+  return createBuffer(that, size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(null, size, fill, encoding)
+}
+
+function allocUnsafe (that, size) {
+  assertSize(size)
+  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < size; i++) {
+      that[i] = 0
+    }
+  }
+  return that
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(null, size)
+}
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(null, size)
+}
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8'
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('"encoding" must be a valid string encoding')
+  }
+
+  var length = byteLength(string, encoding) | 0
+  that = createBuffer(that, length)
+
+  that.write(string, encoding)
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = checked(array.length) | 0
+  that = createBuffer(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function fromArrayBuffer (that, array, byteOffset, length) {
+  array.byteLength // this throws if `array` is not a valid ArrayBuffer
+
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('\'offset\' is out of bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('\'length\' is out of bounds')
+  }
+
+  if (length === undefined) {
+    array = new Uint8Array(array, byteOffset)
+  } else {
+    array = new Uint8Array(array, byteOffset, length)
+  }
+
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = array
+    that.__proto__ = Buffer.prototype
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that = fromArrayLike(that, array)
+  }
+  return that
+}
+
+function fromObject (that, obj) {
+  if (Buffer.isBuffer(obj)) {
+    var len = checked(obj.length) | 0
+    that = createBuffer(that, len)
+
+    if (that.length === 0) {
+      return that
+    }
+
+    obj.copy(that, 0, 0, len)
+    return that
+  }
+
+  if (obj) {
+    if ((typeof ArrayBuffer !== 'undefined' &&
+        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
+      if (typeof obj.length !== 'number' || isnan(obj.length)) {
+        return createBuffer(that, 0)
+      }
+      return fromArrayLike(that, obj)
+    }
+
+    if (obj.type === 'Buffer' && isArray(obj.data)) {
+      return fromArrayLike(that, obj.data)
+    }
+  }
+
+  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength()) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0
+  }
+  return Buffer.alloc(+length)
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return !!(b != null && b._isBuffer)
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'binary':
+    case 'base64':
+    case 'raw':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; i++) {
+      length += list[i].length
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length)
+  var pos = 0
+  for (i = 0; i < list.length; i++) {
+    var buf = list[i]
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos)
+    pos += buf.length
+  }
+  return buffer
+}
+
+function byteLength (string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length
+  }
+  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
+      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    string = '' + string
+  }
+
+  var len = string.length
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'binary':
+      // Deprecated
+      case 'raw':
+      case 'raws':
+        return len
+      case 'utf8':
+      case 'utf-8':
+      case undefined:
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var this$1 = this;
+
+  var loweredCase = false
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0
+  start >>>= 0
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this$1, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this$1, start, end)
+
+      case 'ascii':
+        return asciiSlice(this$1, start, end)
+
+      case 'binary':
+        return binarySlice(this$1, start, end)
+
+      case 'base64':
+        return base64Slice(this$1, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this$1, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
+// Buffer instances.
+Buffer.prototype._isBuffer = true
+
+function swap (b, n, m) {
+  var i = b[n]
+  b[n] = b[m]
+  b[m] = i
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var this$1 = this;
+
+  var len = this.length
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this$1, i, i + 1)
+  }
+  return this
+}
+
+Buffer.prototype.swap32 = function swap32 () {
+  var this$1 = this;
+
+  var len = this.length
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this$1, i, i + 3)
+    swap(this$1, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length | 0
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
+    if (this.length > max) str += ' ... '
+  }
+  return '<Buffer ' + str + '>'
+}
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (!Buffer.isBuffer(target)) {
+    throw new TypeError('Argument must be a Buffer')
+  }
+
+  if (start === undefined) {
+    start = 0
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0
+  }
+  if (thisStart === undefined) {
+    thisStart = 0
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0
+  end >>>= 0
+  thisStart >>>= 0
+  thisEnd >>>= 0
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart
+  var y = end - start
+  var len = Math.min(x, y)
+
+  var thisCopy = this.slice(thisStart, thisEnd)
+  var targetCopy = target.slice(start, end)
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i]
+      y = targetCopy[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding) {
+  var indexSize = 1
+  var arrLength = arr.length
+  var valLength = val.length
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase()
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2
+      arrLength /= 2
+      valLength /= 2
+      byteOffset /= 2
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var foundIndex = -1
+  for (var i = 0; byteOffset + i < arrLength; i++) {
+    if (read(arr, byteOffset + i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+      if (foundIndex === -1) foundIndex = i
+      if (i - foundIndex + 1 === valLength) return (byteOffset + foundIndex) * indexSize
+    } else {
+      if (foundIndex !== -1) i -= i - foundIndex
+      foundIndex = -1
+    }
+  }
+  return -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset >>= 0
+
+  if (this.length === 0) return -1
+  if (byteOffset >= this.length) return -1
+
+  // Negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = Math.max(this.length + byteOffset, 0)
+
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  if (Buffer.isBuffer(val)) {
+    // special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(this, val, byteOffset, encoding)
+  }
+  if (typeof val === 'number') {
+    if (Buffer.TYPED_ARRAY_SUPPORT && Uint8Array.prototype.indexOf === 'function') {
+      return Uint8Array.prototype.indexOf.call(this, val, byteOffset)
+    }
+    return arrayIndexOf(this, [ val ], byteOffset, encoding)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  if (strLen % 2 !== 0) throw new Error('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; i++) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (isNaN(parsed)) return i
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function binaryWrite (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  var this$1 = this;
+
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0
+    if (isFinite(length)) {
+      length = length | 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this$1, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this$1, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this$1, string, offset, length)
+
+      case 'binary':
+        return binaryWrite(this$1, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this$1, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this$1, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function binarySlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; i++) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var this$1 = this;
+
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    newBuf = this.subarray(start, end)
+    newBuf.__proto__ = Buffer.prototype
+  } else {
+    var sliceLen = end - start
+    newBuf = new Buffer(sliceLen, undefined)
+    for (var i = 0; i < sliceLen; i++) {
+      newBuf[i] = this$1[i + start]
+    }
+  }
+
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this$1[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this$1[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this$1[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this$1[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this$1[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  value = +value
+  offset = offset | 0
+  byteLength = byteLength | 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this$1[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+function objectWriteUInt16 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; i++) {
+    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+      (littleEndian ? i : 1 - i) * 8
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+function objectWriteUInt32 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffffffff + value + 1
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; i++) {
+    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset + 3] = (value >>> 24)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 1] = (value >>> 8)
+    this[offset] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this$1[offset + i - 1] !== 0) {
+      sub = 1
+    }
+    this$1[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  var this$1 = this;
+
+  value = +value
+  offset = offset | 0
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this$1[offset + i + 1] !== 0) {
+      sub = 1
+    }
+    this$1[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+  } else {
+    objectWriteUInt16(this, value, offset, true)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8)
+    this[offset + 1] = (value & 0xff)
+  } else {
+    objectWriteUInt16(this, value, offset, false)
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff)
+    this[offset + 1] = (value >>> 8)
+    this[offset + 2] = (value >>> 16)
+    this[offset + 3] = (value >>> 24)
+  } else {
+    objectWriteUInt32(this, value, offset, true)
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset | 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24)
+    this[offset + 1] = (value >>> 16)
+    this[offset + 2] = (value >>> 8)
+    this[offset + 3] = (value & 0xff)
+  } else {
+    objectWriteUInt32(this, value, offset, false)
+  }
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  var this$1 = this;
+
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+  var i
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; i--) {
+      target[i + targetStart] = this$1[i + start]
+    }
+  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    // ascending copy from start
+    for (i = 0; i < len; i++) {
+      target[i + targetStart] = this$1[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  var this$1 = this;
+
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start
+      start = 0
+      end = this.length
+    } else if (typeof end === 'string') {
+      encoding = end
+      end = this.length
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0)
+      if (code < 256) {
+        val = code
+      }
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0
+  end = end === undefined ? this.length : end >>> 0
+
+  if (!val) val = 0
+
+  var i
+  if (typeof val === 'number') {
+    for (i = start; i < end; i++) {
+      this$1[i] = val
+    }
+  } else {
+    var bytes = Buffer.isBuffer(val)
+      ? val
+      : utf8ToBytes(new Buffer(val, encoding).toString())
+    var len = bytes.length
+    for (i = 0; i < end - start; i++) {
+      this$1[i + start] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; i++) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; i++) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+function isnan (val) {
+  return val !== val // eslint-disable-line no-self-compare
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"base64-js":1,"ieee754":4,"isarray":5}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -302,7 +2158,101 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],2:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+},{}],5:[function(require,module,exports){
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+},{}],6:[function(require,module,exports){
+(function (Buffer){
 /**
  * @module  biloba
  */
@@ -316,12 +2266,13 @@ var isPrimitive = require('mutype/is-plain');
 var Emitter = require('events');
 var insertCSS = require('insert-css');
 
+var qs = require('qs');
 
 
 module.exports = Params;
 
 
-insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
+insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n\ttext-align: center;\r\n}\r\n\r\n.prama [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\tmargin-bottom: 2rem;\r\n}\r\n\r\n.prama-param {\r\n\ttext-align: left;\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n\twidth: 100%;\r\n\tmax-width: 420px;\r\n\tmargin-right: auto;\r\n    margin-left: auto;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 17%;\r\n\tmargin-right: 3%;\r\n\tvertical-align: top;\r\n\tline-height: 1.2rem;\r\n\tpadding-top: .42em;\r\n\theight: 2rem;\r\n\ttext-align: right;\r\n}\r\n\r\n.prama-label + * {\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\ttext-align: left;\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 80%;\r\n\tmargin-left: 20%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\twidth: 100%;\r\n\t\tmargin-left: 0;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 80%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: middle;\r\n\ttext-align: center;\r\n\tmargin-top: -.2rem;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 80%;\r\n\tline-height: 2rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 40%;\r\n\tfont-weight: bold;\r\n\tfont-size: 1.1rem;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 59%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n\r\n\r\n\r\n.prama-container > .prama-settings-button {\r\n\ttop: 0;\r\n\tright: 0;\r\n\twidth: 3.2rem;\r\n\theight: 3.2rem;\r\n\tline-height: 3.2rem;\r\n\ttext-align: center;\r\n\tdisplay: block;\r\n\tposition: absolute;\r\n\tz-index: 2;\r\n}\r\n\r\n.prama-settings-button i {\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n}\r\n\r\n.prama-settings-button svg {\r\n\tmargin-bottom: .52rem;\r\n\tmax-width: 100%;\r\n\tmax-height: 100%;\r\n}\r\n");
 
 
 /**
@@ -332,18 +2283,29 @@ function Params (params, opts) {
 
 	if (!(this instanceof Params)) return new Params(params, opts);
 
+	extend(this, opts);
+
 	//create content
 	this.element = document.createElement('form');
 	this.element.classList.add('prama');
 
+	//ensure container, unless it is explicitly false
+	if (!this.container && this.container !== false && this.container !== null) {
+		this.container = document.body || document.documentElement;
+	}
+
+	if (this.container) {
+		this.container.classList.add('prama-container');
+	}
+
+	//create title
 	this.titleElement = document.createElement('h2');
 	this.titleElement.classList.add('prama-title');
-	this.titleElement.innerHTML = this.title;
-	this.titleElement.setAttribute('hidden', true);
-	this.element.appendChild(this.titleElement);
 
-	extend(this, opts);
-
+	if (this.title || this.title === '') {
+		this.titleElement.innerHTML = this.title;
+		this.element.appendChild(this.titleElement);
+	}
 
 	//params cache by names
 	this.params = {};
@@ -357,7 +2319,8 @@ function Params (params, opts) {
 		this.on('change', function () {
 			if (saveTo) return;
 			saveTo = setTimeout(function () {
-				this$1.save(this$1.getParams());
+				var params = this$1.getParams();
+				this$1.save(params);
 				saveTo = null;
 			}, 100);
 		});
@@ -366,91 +2329,48 @@ function Params (params, opts) {
 	//create params from list
 	this.setParams(params, loadedParams);
 
+	//create settings button and popup
+	this.popup = createPopup({
+		type: this.type,
+		side: this.side || 'auto',
+		content: this.element
+	});
 
-	/*
-	//extend params with the read history state
-	if (this.history) {
-		var params = qs.parse(location.hash.slice(1));
+	this.button = document.createElement('a');
+	this.button.href = '#settings';
+	this.button.classList.add('prama-settings-button');
+	this.button.innerHTML = "<i>" + (this.icon) + "</i>";
+	this.button.title = this.titleElement.textContent;
+	this.button.addEventListener('click', function (e) {
+		e.preventDefault();
+		this$1.popup.show();
+	});
+
+	//if container is passed - place ui to it
+	if (this.container) {
+		this.container.appendChild(this.button);
 	}
-
-	this.addParams(this.params);
-
-	if (this.history) {
-		for (var param in params){
-			var value = params[param];
-			if (value.toLowerCase() === 'false') {
-				value = false;
-			}
-			else if (value.toLowerCase() === 'true') {
-				value = true;
-			}
-			else if (/[-0-9\.]+/.test(value)) {
-				value = parseFloat(value);
-			}
-			this.setParamValue(param, value);
-		}
-	}
-
-	//update history
-	if (this.history) {
-		this._wait = false;
-		this.on('change', () => {
-			if (this._wait) return;
-
-			this.updateHistory();
-
-			this._wait = true;
-			setTimeout(() => {
-				this._wait = false;
-			}, 100);
-		});
-	}
-
-	if (this.params) {
-		this.paramsBtn.removeAttribute('hidden');
-	} else {
-		this.paramsBtn.setAttribute('hidden', true);
-	}
-
-	this.updateHistory();
-	*/
 }
 
 inherits(Params, Emitter);
 
 
-Object.defineProperties(Params.prototype, {
-	title: {
-		get: function () {
-			return this.titleElement.innerHTML;
-		},
-		set: function (value) {
-			if (!value) {
-				this.titleElement.innerHTML = '';
-				this.titleElement.setAttribute('hidden', true);
-			}
-			else {
-				if (!this.titleElement.innerHTML) {
-					this.titleElement.removeAttribute('hidden');
-				}
-				this.titleElement.innerHTML = value;
-			}
-		}
-	}
-});
+//default container
+Params.prototype.container;
+
+//popup type
+Params.prototype.type = 'modal';
+
+//popup side
+Params.prototype.side = 'center';
+
+//settings button and settings popup
+Params.prototype.icon = Buffer("PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4OTYiIGhlaWdodD0iMTAyNCIgdmlld0JveD0iMCAwIDg5NiAxMDI0Ij48cGF0aCBkPSJNNDQ3Ljk0IDM1NS43ODZjLTg2LjIxMiAwLTE1Ni4xNTQgNjkuOTQyLTE1Ni4xNTQgMTU2LjIxNCAwIDg2LjE4NCA2OS45NDIgMTU2LjI3NCAxNTYuMTU0IDE1Ni4yNzQgODYuMjQ0IDAgMTU1LjY3Mi03MC4wOTIgMTU1LjY3Mi0xNTYuMjc0IDAtODYuMjcyLTY5LjQyOC0xNTYuMjE0LTE1NS42NzItMTU2LjIxNHptMzEzLjA5MiAyNDUuOTUybC0yOC4xNDYgNjcuOCA1Ni44MzQgMTExLjYxNi02OS42MSA2OS42MS0xMTQuMjA2LTUzLjk0LTY3LjggMjcuODQ0LTM0LjQxNCAxMDUuMzQ4LTQuNCAxMy45ODJoLTk4LjM4OEwzNTguMzI0IDgyNS4wOWwtNjcuOC0yNy45NjQtMTExLjc2NCA1Ni41OTItNjkuNTc4LTY5LjU1IDUzLjg4LTExNC4yNjgtMjcuOTM0LTY3Ljc0Mi0xMTkuMTIyLTM4Ljg3MlY0NjQuOTZsMTE4Ljk5OC00Mi42MzggMjcuOTM2LTY3LjY4Mi01MC4wNTItOTguODA4LTYuNi0xMi45NTggNjkuNDg4LTY5LjQ4OCAxMTQuMzU4IDUzLjg1IDY3LjcxLTI3Ljk5NiAzNC4zODItMTA1LjI4OEwzOTYuNjU2IDgwaDk4LjM1OGw0Mi42MSAxMTkuMDU4IDY3LjYyMiAyNy45OTYgMTExLjkxNi01Ni43MTIgNjkuNTUgNjkuNDg4LTUzLjg4IDExNC4xNzggMjcuODQ0IDY3LjgzMiAxMTkuMzMgMzguODEydjk4LjI5OGwtMTE4Ljk3IDQyLjc5eiIvPjwvc3ZnPg==","base64");
 
 
-//update hash state
-Params.prototype.updateHistory = function () {
-	// if (!this.history) return;
-
-	// var params = {};
-	// this.paramsList.forEach((param) => {
-	// 	params[param.name] = param.value;
-	// });
-
-	// location.hash = '#' + qs.stringify(params);
-}
+//show/hide popup
+Params.prototype.show = function () {this.popup && this.popup.show(); return this;};
+Params.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
 
 
 /** Create params based off list */
@@ -458,27 +2378,55 @@ Params.prototype.setParams = function (list, loaded) {
 	var this$1 = this;
 
 	if (isPlainObject(list)) {
-		for (var name in list) {
-			if (list[name] instanceof Function || list[name] instanceof HTMLElement) {
-				var item = {
-					create: list[name]
+		var loop = function ( name ) {
+			var item = list[name];
+
+			//function initializing param
+			if (item instanceof Function) {
+				this$1.once('set', function () {
+					this$1.setParam(name, item.call(this$1));
+				});
+			}
+			//
+			else if (item instanceof HTMLElement) {
+				item = {
+					create: item
 				};
 			}
 			else {
-				var item = isPlainObject(list[name]) ? list[name] : { value: list[name] };
+				item = isPlainObject(item) ? item : { value: item };
 			}
-			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+
+			if (loaded && loaded[name] !== undefined) {
+				if (item.default === undefined) {
+					item.default = item.value;
+				}
+				item.value = loaded[name];
+			}
 
 			this$1.setParam(name, item);
-		}
+		};
+
+		for (var name in list) loop( name );
 	}
 	else if (Array.isArray(list)){
 		list.forEach(function (item) {
+			if (item instanceof Function) {
+				this$1.once('set', function () {
+					this$1.setParam(item.call(this$1));
+				});
+				return;
+			}
 			var name = item.name;
-			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+			if (loaded && loaded[name] !== undefined) {
+				if (item.default === undefined) item.default = item.value;
+				item.value = loaded[name];
+			}
 			this$1.setParam(item);
 		});
 	}
+
+	this.emit('set');
 
 	return this;
 }
@@ -535,13 +2483,12 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	if (param.label === undefined) {
 		if (param.create) {
-			param.label = ''
+			param.label = null;
 		}
 		else {
 			param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
 		}
 	}
-
 
 	var label = '';
 	if (param.label != null) {
@@ -586,8 +2533,8 @@ Params.prototype.setParam = function (name, param, cb) {
 					}
 				}
 				else {
-					for (var name in param.values) {
-						html += "<option value=\"" + (param.values[name]) + "\" " + (param.values[name] === param.value ? 'selected' : '') + ">" + name + "</option>"
+					for (var name$1 in param.values) {
+						html += "<option value=\"" + (param.values[name$1]) + "\" " + (param.values[name$1] === param.value ? 'selected' : '') + ">" + name$1 + "</option>"
 					}
 				}
 				html += "</select>";
@@ -652,8 +2599,8 @@ Params.prototype.setParam = function (name, param, cb) {
 					}
 				}
 				else {
-					for (var name in param.values) {
-						html += "<label for=\"" + name + "\"><input type=\"radio\" value=\"" + (param.values[name]) + "\" " + (param.values[name] === param.value ? 'checked' : '') + " id=\"" + name + "\" name=\"" + (param.name) + "\"/> " + (param.values[name]) + "</label>";
+					for (var name$2 in param.values) {
+						html += "<label for=\"" + name$2 + "\"><input type=\"radio\" value=\"" + (param.values[name$2]) + "\" " + (param.values[name$2] === param.value ? 'checked' : '') + " id=\"" + name$2 + "\" name=\"" + (param.name) + "\"/> " + (param.values[name$2]) + "</label>";
 					}
 				}
 
@@ -735,19 +2682,22 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	//preset style
 	if (param.style) {
-		for (var name in param.style) {
-			var v = param.style[name];
-			if (typeof v === 'number' && !/ndex/.test(name)) v += 'px';
-			param.element.style[name] = v;
+		for (var name$3 in param.style) {
+			var v = param.style[name$3];
+			if (typeof v === 'number' && !/ndex/.test(name$3)) v += 'px';
+			param.element.style[name$3] = v;
 		}
 	}
 
 	//set serialization
 	if (param.save == null) param.save = true;
 
+	if (param.default === undefined) param.default = param.value;
+
 	//init param value
 	if (param.type !== 'button' && param.type !== 'submit') {
 		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
+		//FIXME: we cannot call this here, because it invokes `change`, which can affect other fields and in result init the whole form in wrong order.
 		setTimeout(function () {
 			this$1.setParamValue(param.name, param.value);
 		});
@@ -759,9 +2709,7 @@ Params.prototype.setParam = function (name, param, cb) {
 //return value of defined param
 Params.prototype.getParam = function (name) {
 	if (arguments.length) {
-		var el = this.paramsEl.querySelector('#' + name.toLowerCase());
-
-		return el && el.type === 'checkbox' ? el.checked : el && el.value;
+		return this.params[name].value;
 	}
 	else {
 		return this.getParams();
@@ -821,6 +2769,9 @@ Params.prototype.setParamValue = function (name, value) {
 }
 
 
+//reflect state in query
+Params.prototype.history = false;
+
 //save/load params to local storage
 Params.prototype.session = true;
 
@@ -828,17 +2779,35 @@ Params.prototype.session = true;
 Params.prototype.key = 'prama';
 
 //local storage
-Params.prototype.storage = self.localStorage || self.sessionStorage;
+Params.prototype.storage = self.sessionStorage || self.localStorage;
 
 //save params state to local storage
 Params.prototype.save = function (params) {
-	if (!this.storage) return false;
-
 	if (!params) return false;
+
+	if (this.session) {
+		this.saveSession(params);
+	}
+
+	if (this.history) {
+		this.saveHistory(params);
+	}
+
+	return true;
+};
+
+//put state into storage
+Params.prototype.saveSession = function (params) {
+	var this$1 = this;
+
+	if (!this.storage) return false;
 
 	//convert to string
 	for (var name in params) {
+		var value = params[name];
+		if (value === this$1.params[name].default) delete params[name];
 		params[name] = toString(params[name]);
+		if (value === this$1.params[name].default) delete params[name];
 	}
 
 	try {
@@ -849,14 +2818,40 @@ Params.prototype.save = function (params) {
 	}
 
 	if (!str) return false;
-
 	this.storage.setItem(this.key, str);
+
+	return true;
+};
+
+//put params into location
+Params.prototype.saveHistory = function (params) {
+	var str = this.toString(params);
+
+	location.hash = str;
 
 	return true;
 };
 
 //load params state from local storage
 Params.prototype.load = function () {
+
+	var values = {};
+
+	//load session
+	if (this.session) {
+		values = this.loadSession();
+	}
+
+	//load history (overwrite)
+	if (this.history) {
+		values = extend(values, this.loadHistory());
+	}
+
+	return values;
+};
+
+//load params from session
+Params.prototype.loadSession = function () {
 	if (!this.storage) return {};
 
 	var str = this.storage.getItem(this.key);
@@ -880,6 +2875,44 @@ Params.prototype.load = function () {
 	return values;
 };
 
+//load params from history
+Params.prototype.loadHistory = function () {
+	var params = qs.parse(location.hash.slice(1));
+
+	if (!params) return {};
+
+	for (var name in params) {
+		params[name] = fromString(params[name]);
+	}
+
+	return params;
+}
+
+
+//convert to string
+Params.prototype.toString = function (params) {
+	var this$1 = this;
+
+	params = params || this.getParams();
+
+	//convert to string
+	for (var name in params) {
+		var value = params[name];
+		if (value === this$1.params[name].default) delete params[name];
+		params[name] = toString(params[name]);
+		if (value === this$1.params[name].default) delete params[name];
+	}
+
+	var str = '';
+	try {
+		str = qs.stringify(params, {encode: false});
+	} catch (e) {
+		console.error(e);
+		return '';
+	}
+
+	return str;
+}
 
 
 
@@ -896,8 +2929,10 @@ function toString (value) {
 function fromString (value) {
 	if (value === '✔' || value === 'true') return true;
 	if (value === '✘' || value === 'false') return false;
+	if (/\,/.test(value) && !/\s/.test(value)) {
+		return value.split(',').map(fromString);
+	}
 	if (!isNaN(parseFloat(value))) return parseFloat(value);
-	if (/,/.test(value) && !/\s/.test(value)) return value.split(',').map(fromString);
 	return value;
 }
 
@@ -1016,8 +3051,9 @@ function multirange (input) {
 	ghost.addEventListener("input", update);
 
 	update();
-}
-},{"events":1,"inherits":5,"insert-css":6,"is-mobile":7,"mutype/is-object":23,"mutype/is-plain":24,"popoff":27,"xtend/mutable":30}],3:[function(require,module,exports){
+}
+}).call(this,require("buffer").Buffer)
+},{"buffer":2,"events":3,"inherits":9,"insert-css":10,"is-mobile":11,"mutype/is-object":27,"mutype/is-plain":28,"popoff":31,"qs":33,"xtend/mutable":38}],7:[function(require,module,exports){
 var margins = require('mucss/margin');
 var paddings = require('mucss/padding');
 var offsets = require('mucss/offset');
@@ -1180,14 +3216,14 @@ function toFloat(value){
 
 	return value;
 }
-},{"mucss/border":8,"mucss/is-fixed":12,"mucss/margin":13,"mucss/offset":14,"mucss/padding":15}],4:[function(require,module,exports){
+},{"mucss/border":12,"mucss/is-fixed":16,"mucss/margin":17,"mucss/offset":18,"mucss/padding":19}],8:[function(require,module,exports){
 /** generate unique id for selector */
 var counter = Date.now() % 1e9;
 
 module.exports = function getUid(){
 	return (Math.random() * 1e9 >>> 0) + (counter++);
 };
-},{}],5:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1212,7 +3248,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],6:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var containers = []; // will store container HTMLElement references
 var styleElements = []; // will store {prepend: HTMLElement, append: HTMLElement}
 
@@ -1260,7 +3296,7 @@ function createStyleElement() {
     return styleElement;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = isMobile;
 
 function isMobile (ua) {
@@ -1273,7 +3309,7 @@ function isMobile (ua) {
   return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(ua) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(ua.substr(0,4));
 }
 
-},{}],8:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  * Parse element’s borders
  *
@@ -1300,7 +3336,7 @@ module.exports = function(el){
 		parse(style.borderBottomWidth)
 	);
 };
-},{"./parse-value":16,"./rect":18}],9:[function(require,module,exports){
+},{"./parse-value":20,"./rect":22}],13:[function(require,module,exports){
 /**
  * Get or set element’s style, prefix-agnostic.
  *
@@ -1359,13 +3395,13 @@ function prefixize(name){
 	if (fakeStyle[prefix + uName] !== undefined) return prefix + uName;
 	return '';
 }
-},{"./fake-element":10,"./prefix":17}],10:[function(require,module,exports){
+},{"./fake-element":14,"./prefix":21}],14:[function(require,module,exports){
 /** Just a fake element to test styles
  * @module mucss/fake-element
  */
 
 module.exports = document.createElement('div');
-},{}],11:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /**
  * Window scrollbar detector.
  *
@@ -1379,7 +3415,7 @@ exports.x = function () {
 exports.y = function () {
 	return window.innerWidth > document.documentElement.clientWidth;
 };
-},{}],12:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /**
  * Detect whether element is placed to fixed container or is fixed itself.
  *
@@ -1404,7 +3440,7 @@ module.exports = function (el) {
 	}
 	return false;
 };
-},{}],13:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Get margins of an element.
  * @module mucss/margins
@@ -1433,7 +3469,7 @@ module.exports = function(el){
 		parse(style.marginBottom)
 	);
 };
-},{"./parse-value":16,"./rect":18}],14:[function(require,module,exports){
+},{"./parse-value":20,"./rect":22}],18:[function(require,module,exports){
 /**
  * Calculate absolute offsets of an element, relative to the document.
  *
@@ -1512,7 +3548,7 @@ function offsets (el) {
 
 	return result;
 };
-},{"./has-scroll":11,"./is-fixed":12,"./rect":18,"./scrollbar":19,"./translate":20}],15:[function(require,module,exports){
+},{"./has-scroll":15,"./is-fixed":16,"./rect":22,"./scrollbar":23,"./translate":24}],19:[function(require,module,exports){
 /**
  * Caclulate paddings of an element.
  * @module  mucss/paddings
@@ -1543,7 +3579,7 @@ module.exports = function(el){
 		parse(style.paddingBottom)
 	);
 };
-},{"./parse-value":16,"./rect":18}],16:[function(require,module,exports){
+},{"./parse-value":20,"./rect":22}],20:[function(require,module,exports){
 /**
  * Returns parsed css value.
  *
@@ -1559,7 +3595,7 @@ module.exports = function (str){
 };
 
 //FIXME: add parsing units
-},{}],17:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /**
  * Vendor prefixes
  * Method of http://davidwalsh.name/vendor-prefix
@@ -1589,7 +3625,7 @@ else {
 		js: pre[0].toUpperCase() + pre.substr(1)
 	};
 }
-},{}],18:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * Simple rect constructor.
  * It is just faster and smaller than constructing an object.
@@ -1613,7 +3649,7 @@ module.exports = function Rect (l,t,r,b) {
 	this.width=Math.abs(this.right - this.left);
 	this.height=Math.abs(this.bottom - this.top);
 };
-},{}],19:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * Calculate scrollbar width.
  *
@@ -1638,7 +3674,7 @@ module.exports = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
 // Delete fake DIV
 document.documentElement.removeChild(scrollDiv);
-},{}],20:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /**
  * Parse translate3d
  *
@@ -1665,15 +3701,15 @@ module.exports = function (el) {
 		return parseValue(value);
 	});
 };
-},{"./css":9,"./parse-value":16}],21:[function(require,module,exports){
+},{"./css":13,"./parse-value":20}],25:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'boolean' || a instanceof Boolean;
 }
-},{}],22:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'number' || a instanceof Number;
 }
-},{}],23:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /**
  * @module mutype/is-object
  */
@@ -1685,7 +3721,7 @@ module.exports = function(o){
 	// return obj === Object(obj);
 	return !!o && typeof o === 'object' && o.constructor === Object;
 };
-},{}],24:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 var isString = require('./is-string'),
 	isNumber = require('./is-number'),
 	isBool = require('./is-bool');
@@ -1693,11 +3729,11 @@ var isString = require('./is-string'),
 module.exports = function isPlain(a){
 	return !a || isString(a) || isNumber(a) || isBool(a);
 };
-},{"./is-bool":21,"./is-number":22,"./is-string":25}],25:[function(require,module,exports){
+},{"./is-bool":25,"./is-number":26,"./is-string":29}],29:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'string' || a instanceof String;
 }
-},{}],26:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
 * @module  placer
 *
@@ -2116,7 +4152,7 @@ function getParentRect (target) {
 
 	return rect;
 }
-},{"aligner":3,"mucss/border":8,"mucss/css":9,"mucss/has-scroll":11,"mucss/is-fixed":12,"mucss/margin":13,"mucss/offset":14,"mucss/parse-value":16,"mucss/scrollbar":19,"soft-extend":29}],27:[function(require,module,exports){
+},{"aligner":7,"mucss/border":12,"mucss/css":13,"mucss/has-scroll":15,"mucss/is-fixed":16,"mucss/margin":17,"mucss/offset":18,"mucss/parse-value":20,"mucss/scrollbar":23,"soft-extend":37}],31:[function(require,module,exports){
 /**
  * @module  popup
  */
@@ -2128,10 +4164,11 @@ var uid = require('get-uid');
 var inherits = require('inherits');
 var createOverlay = require('./overlay');
 var insertCss = require('insert-css');
+var sb = require('mucss/scrollbar');
+var hasScroll = require('mucss/has-scroll');
 
-var sb = require('mucss/scrollbar')
 
-insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n}\r\n\r\n.prama hidden {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\ttext-align: center;\r\n}\r\n\r\n.prama-param {\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 20%;\r\n\tvertical-align: top;\r\n\tline-height: 1.6rem;\r\n\tpadding-top: .2em;\r\n\theight: 2rem;\r\n}\r\n\r\n.prama-label + * {\r\n\tmax-width: 60%;\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 18%;\r\n\tmargin-left: 1%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 60%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: top;\r\n\ttext-align: center;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 60%;\r\n\tline-height: 2.4rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 20%;\r\n\tfont-weight: bold;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 29%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t\ttop: 0;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder { /* Chrome/Opera/Safari */\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder { /* Firefox 19+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder { /* IE 10+ */\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder { /* Firefox 18- */\r\n\tcolor: #bbc;\r\n}");
+insertCss(".popoff-overlay {\r\n\tposition: fixed;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tright: 0;\r\n\topacity: 0;\r\n\tbackground-color: rgba(65,65,65,.85);\r\n\tbackground: linear-gradient(160deg, rgba(93, 88, 95, 0.75), rgba(63, 60, 72, 0.75));\r\n\t-webkit-transition: opacity .33s;\r\n\t-moz-transition: opacity .33s;\r\n\ttransition: opacity .33s;\r\n\tz-index: 5;\r\n}\r\n.popoff-closable {\r\n\tcursor: pointer;\r\n}\r\n\r\n.popoff-popup {\r\n\tz-index: 9;\r\n\tposition: absolute;\r\n\toverflow: hidden;\r\n\tmargin: auto;\r\n\tmin-width: 4rem;\r\n\tmin-height: 1rem;\r\n\tbackground: white;\r\n\topacity: 1;\r\n\tvisibility: visible;\r\n\tbackface-visibility: hidden;\r\n\tbox-sizing: border-box;\r\n\t-webkit-transform-origin: center center;\r\n\t-moz-transform-origin: center center;\r\n\ttransform-origin: center center;\r\n\t-webkit-transform: scale(1) rotate(0deg);\r\n\t-moz-transform: scale(1) rotate(0deg);\r\n\t-ms-transform: scale(1) rotate(0deg);\r\n\ttransform: scale(1) rotate(0deg);\r\n}\r\n.popoff-popup-tip {\r\n\tmargin: 1rem;\r\n}\r\n\r\n.popoff-animate {\r\n\t-webkit-transition: opacity .333s, transform .25s ease-out;\r\n\t-moz-transition: opacity .333s, transform .25s ease-out;\r\n\ttransition: opacity .333s, transform .25s ease-out;\r\n}\r\n.popoff-hidden {\r\n\topacity: 0;\r\n\tdisplay: none;\r\n\tpointer-events: none;\r\n\tvisibility: hidden;\r\n}\r\n.popoff-visible {\r\n\topacity: 1;\r\n}\r\n\r\n\r\n.popoff-container {\r\n}\r\n.popoff-container-overflow {\r\n\toverflow: hidden;\r\n\theight: 100%;\r\n}\r\n\r\n.popoff-overflow {\r\n\tposition: fixed;\r\n\toverflow: hidden;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tz-index: 10;\r\n\tdisplay: flex;\r\n\tjustify-content: center;\r\n\talign-items: center;\r\n}\r\n.popoff-overflow.popoff-overflow-tall {\r\n\toverflow-y: scroll;\r\n\tdisplay: block;\r\n}\r\n.popoff-overflow .popoff-popup {\r\n\tposition: relative;\r\n}\r\n\r\n.popoff-overflow-tall .popoff-popup {\r\n\tmargin: 2rem auto;\r\n}\r\n@media (max-width: 42rem) {\r\n\t.popoff-overflow-tall .popoff-popup {\r\n\t\tmargin: 0 auto;\r\n\t}\r\n}\r\n\r\n/* Close button */\r\n.popoff-close {\r\n\tposition: absolute;\r\n\tright: 0;\r\n\ttop: 0;\r\n\twidth: 3.333rem;\r\n\theight: 3.333rem;\r\n\tcursor: pointer;\r\n\tline-height: 3.333rem;\r\n\ttext-align: center;\r\n\tfont-size: 1.333rem;\r\n\tcolor: rgb(40,40,40);\r\n\tbackground: transparent;\r\n}\r\n.popoff-close:after {\r\n\tcontent: '✕';\r\n}\r\n.popoff-close:hover{\r\n\tbackground: black;\r\n\tcolor: white;\r\n}\r\n\r\n\r\n/* Types */\r\n.popoff-modal,\r\n.popoff-dialog,\r\n.popoff-confirm,\r\n.popoff-alert,\r\n.popoff-sidebar {\r\n\tposition: fixed;\r\n\tmax-width: 660px;\r\n\tmin-width: 320px;\r\n\tpadding: 1.6rem 2rem;\r\n\tbox-shadow: 0 .666vh 3.333vw -.333vh rgba(19, 16, 27, 0.45);\r\n}\r\n@media (max-width: 42rem) {\r\n\t.popoff-modal,\r\n\t.popoff-dialog,\r\n\t.popoff-confirm,\r\n\t.popoff-alert {\r\n\t\tmax-width: 80%;\r\n\t}\r\n}\r\n.popoff-dropdown,\r\n.popoff-tooltip {\r\n\tmax-width: 320px;\r\n\tpadding: 1rem 1.2rem;\r\n\tbox-shadow: 0 1px 4px rgba(19, 16, 27, 0.25);\r\n}\r\n\r\n\r\n\r\n/** Special sidebar settings */\r\n.popoff-sidebar {\r\n\tmargin: 0;\r\n\tmax-width: none;\r\n\tmin-width: 0;\r\n\tmax-height: none;\r\n\toverflow-y: auto;\r\n\topacity: 1;\r\n}\r\n.popoff-sidebar[data-side=\"top\"] {\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: auto;\r\n\theight: 160px;\r\n}\r\n.popoff-sidebar[data-side=\"bottom\"] {\r\n\tbottom: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\ttop: auto;\r\n\theight: 160px;\r\n}\r\n.popoff-sidebar[data-side=\"right\"] {\r\n\tbottom: 0;\r\n\ttop: 0;\r\n\tright: 0;\r\n\tleft: auto;\r\n\twidth: 240px;\r\n}\r\n.popoff-sidebar[data-side=\"left\"] {\r\n\tbottom: 0;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: auto;\r\n\twidth: 240px;\r\n}\r\n\r\n\r\n\r\n/* Tip */\r\n.popoff-tip {\r\n\twidth: 30px;\r\n\theight: 30px;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\toverflow: hidden;\r\n}\r\n.popoff-tip:after {\r\n\tcontent: '';\r\n\tborder-top-left-radius: 1px;\r\n\tposition: absolute;\r\n\tbackground: white;\r\n\tbox-shadow: 0 0px 3px rgba(19, 16, 27, 0.25);\r\n\t-webkit-transform-origin: center;\r\n\t-moz-transform-origin: center;\r\n\ttransform-origin: center;\r\n\t-webkit-transform: rotate(45deg);\r\n\t-moz-transform: rotate(45deg);\r\n\ttransform: rotate(45deg);\r\n\twidth: 30px;\r\n\theight: 30px;\r\n}\r\n.popoff-tip[data-side=\"top\"],\r\n.popoff-tip[data-side=\"bottom\"] {\r\n\theight: 20px;\r\n}\r\n.popoff-tip[data-side=\"top\"]:after {\r\n\tbottom: auto;\r\n\ttop: 17px;\r\n}\r\n.popoff-tip[data-side=\"bottom\"]:after {\r\n\tbottom: 17px;\r\n\ttop: auto;\r\n}\r\n.popoff-tip[data-side=\"left\"],\r\n.popoff-tip[data-side=\"right\"] {\r\n\twidth: 20px;\r\n}\r\n.popoff-tip[data-side=\"left\"]:after {\r\n\tleft: 17px;\r\n\tright: auto;\r\n}\r\n.popoff-tip[data-side=\"right\"]:after {\r\n\tleft: auto;\r\n\tright: 17px;\r\n}\r\n\r\n\r\n\r\n/* Basic fade */\r\n.popoff-effect-fade {\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n/* Effect 1: Fade in and scale up */\r\n.popoff-effect-scale {\r\n\t-webkit-transform: scale(0.7);\r\n\t-moz-transform: scale(0.7);\r\n\t-ms-transform: scale(0.7);\r\n\ttransform: scale(0.7);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n\r\n/* Effect 2: Slide from the right */\r\n.popoff-effect-slide {\r\n\t-webkit-transform: translateY(20%);\r\n\t-moz-transform: translateY(20%);\r\n\t-ms-transform: translateY(20%);\r\n\ttransform: translateY(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-right {\r\n\t-webkit-transform: translateX(20%);\r\n\t-moz-transform: translateX(20%);\r\n\t-ms-transform: translateX(20%);\r\n\ttransform: translateX(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-bottom {\r\n\t-webkit-transform: translateY(20%);\r\n\t-moz-transform: translateY(20%);\r\n\t-ms-transform: translateY(20%);\r\n\ttransform: translateY(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-left {\r\n\t-webkit-transform: translateX(-20%);\r\n\t-moz-transform: translateX(-20%);\r\n\t-ms-transform: translateX(-20%);\r\n\ttransform: translateX(-20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-top {\r\n\t-webkit-transform: translateY(-20%);\r\n\t-moz-transform: translateY(-20%);\r\n\t-ms-transform: translateY(-20%);\r\n\ttransform: translateY(-20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n\r\n/* Effect 4: Newspaper */\r\n.popoff-effect-newspaper {\r\n\t-webkit-transform: scale(0) rotate(720deg);\r\n\t-moz-transform: scale(0) rotate(720deg);\r\n\t-ms-transform: scale(0) rotate(720deg);\r\n\ttransform: scale(0) rotate(720deg);\r\n\t-webkit-transition: all 0.5s;\r\n\t-moz-transition: all 0.5s;\r\n\ttransition: all 0.5s;\r\n\topacity: 0;\r\n}\r\n\r\n\r\n/* Effect 11: Super scaled */\r\n.popoff-effect-super-scaled {\r\n\t-webkit-transform: scale(2);\r\n\t-moz-transform: scale(2);\r\n\t-ms-transform: scale(2);\r\n\ttransform: scale(2);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n");
 
 module.exports = Popup;
 
@@ -2524,9 +4561,11 @@ Popup.prototype.show = function (target, cb) {
 			this.isTall = true;
 			this.overflowElement.classList.add('popoff-overflow-tall');
 		}
+		if (hasScroll.y()) {
+			this._border = this.container.style.borderRight;
+			this.container.style.borderRight = sb + 'px solid transparent';
+		}
 		this.container.classList.add('popoff-container-overflow');
-		this._border = this.container.style.borderRight;
-		this.container.style.borderRight = sb + 'px solid transparent';
 		this.container.appendChild(this.overflowElement);
 		this.overflowElement.appendChild(this.element);
 	}
@@ -2709,7 +4748,7 @@ Popup.prototype.animend = function (cb) {
 		cb.call(that);
 	}
 }
-},{"./overlay":28,"events":1,"get-uid":4,"inherits":5,"insert-css":6,"mucss/scrollbar":19,"placer":26,"xtend/mutable":30}],28:[function(require,module,exports){
+},{"./overlay":32,"events":3,"get-uid":8,"inherits":9,"insert-css":10,"mucss/has-scroll":15,"mucss/scrollbar":23,"placer":30,"xtend/mutable":38}],32:[function(require,module,exports){
 /**
  * @module  popoff/overlay
  *
@@ -2826,7 +4865,492 @@ Overlay.prototype.hide = function () {
 
 	return this;
 };
-},{"events":1,"inherits":5,"xtend/mutable":30}],29:[function(require,module,exports){
+},{"events":3,"inherits":9,"xtend/mutable":38}],33:[function(require,module,exports){
+'use strict';
+
+var Stringify = require('./stringify');
+var Parse = require('./parse');
+
+module.exports = {
+    stringify: Stringify,
+    parse: Parse
+};
+
+},{"./parse":34,"./stringify":35}],34:[function(require,module,exports){
+'use strict';
+
+var Utils = require('./utils');
+
+var defaults = {
+    delimiter: '&',
+    depth: 5,
+    arrayLimit: 20,
+    parameterLimit: 1000,
+    strictNullHandling: false,
+    plainObjects: false,
+    allowPrototypes: false,
+    allowDots: false,
+    decoder: Utils.decode
+};
+
+var parseValues = function parseValues(str, options) {
+    var obj = {};
+    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+
+    for (var i = 0; i < parts.length; ++i) {
+        var part = parts[i];
+        var pos = part.indexOf(']=') === -1 ? part.indexOf('=') : part.indexOf(']=') + 1;
+
+        if (pos === -1) {
+            obj[options.decoder(part)] = '';
+
+            if (options.strictNullHandling) {
+                obj[options.decoder(part)] = null;
+            }
+        } else {
+            var key = options.decoder(part.slice(0, pos));
+            var val = options.decoder(part.slice(pos + 1));
+
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                obj[key] = [].concat(obj[key]).concat(val);
+            } else {
+                obj[key] = val;
+            }
+        }
+    }
+
+    return obj;
+};
+
+var parseObject = function parseObject(chain, val, options) {
+    if (!chain.length) {
+        return val;
+    }
+
+    var root = chain.shift();
+
+    var obj;
+    if (root === '[]') {
+        obj = [];
+        obj = obj.concat(parseObject(chain, val, options));
+    } else {
+        obj = options.plainObjects ? Object.create(null) : {};
+        var cleanRoot = root[0] === '[' && root[root.length - 1] === ']' ? root.slice(1, root.length - 1) : root;
+        var index = parseInt(cleanRoot, 10);
+        if (
+            !isNaN(index) &&
+            root !== cleanRoot &&
+            String(index) === cleanRoot &&
+            index >= 0 &&
+            (options.parseArrays && index <= options.arrayLimit)
+        ) {
+            obj = [];
+            obj[index] = parseObject(chain, val, options);
+        } else {
+            obj[cleanRoot] = parseObject(chain, val, options);
+        }
+    }
+
+    return obj;
+};
+
+var parseKeys = function parseKeys(givenKey, val, options) {
+    if (!givenKey) {
+        return;
+    }
+
+    // Transform dot notation to bracket notation
+    var key = options.allowDots ? givenKey.replace(/\.([^\.\[]+)/g, '[$1]') : givenKey;
+
+    // The regex chunks
+
+    var parent = /^([^\[\]]*)/;
+    var child = /(\[[^\[\]]*\])/g;
+
+    // Get the parent
+
+    var segment = parent.exec(key);
+
+    // Stash the parent if it exists
+
+    var keys = [];
+    if (segment[1]) {
+        // If we aren't using plain objects, optionally prefix keys
+        // that would overwrite object prototype properties
+        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1])) {
+            if (!options.allowPrototypes) {
+                return;
+            }
+        }
+
+        keys.push(segment[1]);
+    }
+
+    // Loop through children appending to the array until we hit depth
+
+    var i = 0;
+    while ((segment = child.exec(key)) !== null && i < options.depth) {
+        i += 1;
+        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1].replace(/\[|\]/g, ''))) {
+            if (!options.allowPrototypes) {
+                continue;
+            }
+        }
+        keys.push(segment[1]);
+    }
+
+    // If there's a remainder, just add whatever is left
+
+    if (segment) {
+        keys.push('[' + key.slice(segment.index) + ']');
+    }
+
+    return parseObject(keys, val, options);
+};
+
+module.exports = function (str, opts) {
+    var options = opts || {};
+
+    if (options.decoder !== null && options.decoder !== undefined && typeof options.decoder !== 'function') {
+        throw new TypeError('Decoder has to be a function.');
+    }
+
+    options.delimiter = typeof options.delimiter === 'string' || Utils.isRegExp(options.delimiter) ? options.delimiter : defaults.delimiter;
+    options.depth = typeof options.depth === 'number' ? options.depth : defaults.depth;
+    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : defaults.arrayLimit;
+    options.parseArrays = options.parseArrays !== false;
+    options.decoder = typeof options.decoder === 'function' ? options.decoder : defaults.decoder;
+    options.allowDots = typeof options.allowDots === 'boolean' ? options.allowDots : defaults.allowDots;
+    options.plainObjects = typeof options.plainObjects === 'boolean' ? options.plainObjects : defaults.plainObjects;
+    options.allowPrototypes = typeof options.allowPrototypes === 'boolean' ? options.allowPrototypes : defaults.allowPrototypes;
+    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : defaults.parameterLimit;
+    options.strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults.strictNullHandling;
+
+    if (str === '' || str === null || typeof str === 'undefined') {
+        return options.plainObjects ? Object.create(null) : {};
+    }
+
+    var tempObj = typeof str === 'string' ? parseValues(str, options) : str;
+    var obj = options.plainObjects ? Object.create(null) : {};
+
+    // Iterate over the keys and setup the new object
+
+    var keys = Object.keys(tempObj);
+    for (var i = 0; i < keys.length; ++i) {
+        var key = keys[i];
+        var newObj = parseKeys(key, tempObj[key], options);
+        obj = Utils.merge(obj, newObj, options);
+    }
+
+    return Utils.compact(obj);
+};
+
+},{"./utils":36}],35:[function(require,module,exports){
+'use strict';
+
+var Utils = require('./utils');
+
+var arrayPrefixGenerators = {
+    brackets: function brackets(prefix) {
+        return prefix + '[]';
+    },
+    indices: function indices(prefix, key) {
+        return prefix + '[' + key + ']';
+    },
+    repeat: function repeat(prefix) {
+        return prefix;
+    }
+};
+
+var defaults = {
+    delimiter: '&',
+    strictNullHandling: false,
+    skipNulls: false,
+    encode: true,
+    encoder: Utils.encode
+};
+
+var stringify = function stringify(object, prefix, generateArrayPrefix, strictNullHandling, skipNulls, encoder, filter, sort, allowDots) {
+    var obj = object;
+    if (typeof filter === 'function') {
+        obj = filter(prefix, obj);
+    } else if (obj instanceof Date) {
+        obj = obj.toISOString();
+    } else if (obj === null) {
+        if (strictNullHandling) {
+            return encoder ? encoder(prefix) : prefix;
+        }
+
+        obj = '';
+    }
+
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean' || Utils.isBuffer(obj)) {
+        if (encoder) {
+            return [encoder(prefix) + '=' + encoder(obj)];
+        }
+        return [prefix + '=' + String(obj)];
+    }
+
+    var values = [];
+
+    if (typeof obj === 'undefined') {
+        return values;
+    }
+
+    var objKeys;
+    if (Array.isArray(filter)) {
+        objKeys = filter;
+    } else {
+        var keys = Object.keys(obj);
+        objKeys = sort ? keys.sort(sort) : keys;
+    }
+
+    for (var i = 0; i < objKeys.length; ++i) {
+        var key = objKeys[i];
+
+        if (skipNulls && obj[key] === null) {
+            continue;
+        }
+
+        if (Array.isArray(obj)) {
+            values = values.concat(stringify(obj[key], generateArrayPrefix(prefix, key), generateArrayPrefix, strictNullHandling, skipNulls, encoder, filter, sort, allowDots));
+        } else {
+            values = values.concat(stringify(obj[key], prefix + (allowDots ? '.' + key : '[' + key + ']'), generateArrayPrefix, strictNullHandling, skipNulls, encoder, filter, sort, allowDots));
+        }
+    }
+
+    return values;
+};
+
+module.exports = function (object, opts) {
+    var obj = object;
+    var options = opts || {};
+    var delimiter = typeof options.delimiter === 'undefined' ? defaults.delimiter : options.delimiter;
+    var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults.strictNullHandling;
+    var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : defaults.skipNulls;
+    var encode = typeof options.encode === 'boolean' ? options.encode : defaults.encode;
+    var encoder = encode ? (typeof options.encoder === 'function' ? options.encoder : defaults.encoder) : null;
+    var sort = typeof options.sort === 'function' ? options.sort : null;
+    var allowDots = typeof options.allowDots === 'undefined' ? false : options.allowDots;
+    var objKeys;
+    var filter;
+
+    if (options.encoder !== null && options.encoder !== undefined && typeof options.encoder !== 'function') {
+        throw new TypeError('Encoder has to be a function.');
+    }
+
+    if (typeof options.filter === 'function') {
+        filter = options.filter;
+        obj = filter('', obj);
+    } else if (Array.isArray(options.filter)) {
+        objKeys = filter = options.filter;
+    }
+
+    var keys = [];
+
+    if (typeof obj !== 'object' || obj === null) {
+        return '';
+    }
+
+    var arrayFormat;
+    if (options.arrayFormat in arrayPrefixGenerators) {
+        arrayFormat = options.arrayFormat;
+    } else if ('indices' in options) {
+        arrayFormat = options.indices ? 'indices' : 'repeat';
+    } else {
+        arrayFormat = 'indices';
+    }
+
+    var generateArrayPrefix = arrayPrefixGenerators[arrayFormat];
+
+    if (!objKeys) {
+        objKeys = Object.keys(obj);
+    }
+
+    if (sort) {
+        objKeys.sort(sort);
+    }
+
+    for (var i = 0; i < objKeys.length; ++i) {
+        var key = objKeys[i];
+
+        if (skipNulls && obj[key] === null) {
+            continue;
+        }
+
+        keys = keys.concat(stringify(obj[key], key, generateArrayPrefix, strictNullHandling, skipNulls, encoder, filter, sort, allowDots));
+    }
+
+    return keys.join(delimiter);
+};
+
+},{"./utils":36}],36:[function(require,module,exports){
+'use strict';
+
+var hexTable = (function () {
+    var array = new Array(256);
+    for (var i = 0; i < 256; ++i) {
+        array[i] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
+    }
+
+    return array;
+}());
+
+exports.arrayToObject = function (source, options) {
+    var obj = options.plainObjects ? Object.create(null) : {};
+    for (var i = 0; i < source.length; ++i) {
+        if (typeof source[i] !== 'undefined') {
+            obj[i] = source[i];
+        }
+    }
+
+    return obj;
+};
+
+exports.merge = function (target, source, options) {
+    if (!source) {
+        return target;
+    }
+
+    if (typeof source !== 'object') {
+        if (Array.isArray(target)) {
+            target.push(source);
+        } else if (typeof target === 'object') {
+            target[source] = true;
+        } else {
+            return [target, source];
+        }
+
+        return target;
+    }
+
+    if (typeof target !== 'object') {
+        return [target].concat(source);
+    }
+
+    var mergeTarget = target;
+    if (Array.isArray(target) && !Array.isArray(source)) {
+        mergeTarget = exports.arrayToObject(target, options);
+    }
+
+    return Object.keys(source).reduce(function (acc, key) {
+        var value = source[key];
+
+        if (Object.prototype.hasOwnProperty.call(acc, key)) {
+            acc[key] = exports.merge(acc[key], value, options);
+        } else {
+            acc[key] = value;
+        }
+        return acc;
+    }, mergeTarget);
+};
+
+exports.decode = function (str) {
+    try {
+        return decodeURIComponent(str.replace(/\+/g, ' '));
+    } catch (e) {
+        return str;
+    }
+};
+
+exports.encode = function (str) {
+    // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
+    // It has been adapted here for stricter adherence to RFC 3986
+    if (str.length === 0) {
+        return str;
+    }
+
+    var string = typeof str === 'string' ? str : String(str);
+
+    var out = '';
+    for (var i = 0; i < string.length; ++i) {
+        var c = string.charCodeAt(i);
+
+        if (
+            c === 0x2D || // -
+            c === 0x2E || // .
+            c === 0x5F || // _
+            c === 0x7E || // ~
+            (c >= 0x30 && c <= 0x39) || // 0-9
+            (c >= 0x41 && c <= 0x5A) || // a-z
+            (c >= 0x61 && c <= 0x7A) // A-Z
+        ) {
+            out += string.charAt(i);
+            continue;
+        }
+
+        if (c < 0x80) {
+            out = out + hexTable[c];
+            continue;
+        }
+
+        if (c < 0x800) {
+            out = out + (hexTable[0xC0 | (c >> 6)] + hexTable[0x80 | (c & 0x3F)]);
+            continue;
+        }
+
+        if (c < 0xD800 || c >= 0xE000) {
+            out = out + (hexTable[0xE0 | (c >> 12)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
+            continue;
+        }
+
+        i += 1;
+        c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
+        out += hexTable[0xF0 | (c >> 18)] + hexTable[0x80 | ((c >> 12) & 0x3F)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)];
+    }
+
+    return out;
+};
+
+exports.compact = function (obj, references) {
+    if (typeof obj !== 'object' || obj === null) {
+        return obj;
+    }
+
+    var refs = references || [];
+    var lookup = refs.indexOf(obj);
+    if (lookup !== -1) {
+        return refs[lookup];
+    }
+
+    refs.push(obj);
+
+    if (Array.isArray(obj)) {
+        var compacted = [];
+
+        for (var i = 0; i < obj.length; ++i) {
+            if (obj[i] && typeof obj[i] === 'object') {
+                compacted.push(exports.compact(obj[i], refs));
+            } else if (typeof obj[i] !== 'undefined') {
+                compacted.push(obj[i]);
+            }
+        }
+
+        return compacted;
+    }
+
+    var keys = Object.keys(obj);
+    for (var j = 0; j < keys.length; ++j) {
+        var key = keys[j];
+        obj[key] = exports.compact(obj[key], refs);
+    }
+
+    return obj;
+};
+
+exports.isRegExp = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object RegExp]';
+};
+
+exports.isBuffer = function (obj) {
+    if (obj === null || typeof obj === 'undefined') {
+        return false;
+    }
+
+    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+};
+
+},{}],37:[function(require,module,exports){
 /**
  * Append all not-existing props to the initial object
  *
@@ -2850,7 +5374,7 @@ module.exports = function(){
 
 	return res;
 };
-},{}],30:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -2871,27 +5395,27 @@ function extend(target) {
     return target
 }
 
-},{}],31:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var extend = require('xtend/mutable');
 var createParams = require('./');
+var insertCSS = require('insert-css');
 
+//prepare body
+var meta = document.createElement('meta');
+meta.setAttribute('name', 'viewport');
+meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+document.head.appendChild(meta);
+
+insertCSS("\n\t@media (min-width: 42rem) {\n\t}\n\t.prama {\n\t\tmax-width: 900px;\n\t\tbackground: rgb(251, 250, 249);\n\t\tborder-radius: .5rem;\n\t\tpadding: 1rem 0;\n\t}\n\t.prama-title {\n\t\ttext-align: center;\n\t\tletter-spacing: -.05ex;\n\t}\n");
+
+//prepare demo params
+var demoParams = createParams([
+], {
+	title: 'Example settings'
+});
+
+//create main form
 var params = createParams({
-	title: {
-		label: '',
-		create: "<header>\n\t\t\t<h1>Prama demo</h1>\n\t\t</header>",
-		help: ''
-	},
-
-	name: {
-		label: 'Field name',
-		value: 'Field',
-		placeholder: 'Field name...',
-		change: function (value) {
-			this.setParam('example', {
-				label: value
-			});
-		}
-	},
 	type: {
 		type: 'list',
 		label: 'Type',
@@ -2920,8 +5444,29 @@ var params = createParams({
 					hidden: true
 				});
 			}
+			//show placeholder
+			if (value === 'text' || value === 'textarea') {
+				params.setParam('placeholder', {
+					hidden: false
+				});
+			}
+			else {
+				params.setParam('placeholder', {
+					hidden: true
+				});
+			}
 			params.setParam('example', {
 				type: value
+			});
+		}
+	},
+	label: {
+		label: 'Label',
+		value: 'Field',
+		placeholder: 'Field name...',
+		change: function (value) {
+			this.setParam('example', {
+				label: value
 			});
 		}
 	},
@@ -2942,6 +5487,10 @@ var params = createParams({
 		label: 'Value',
 		value: '',
 		change: function (v) {
+			if (params.params.example.type === 'multirange') {
+				v =  Array.isArray(v) ? v : typeof v === 'string' ? v.split(/\s*,\s*|\n/) : [v, v];
+			}
+
 			params.setParam('example', v);
 		}
 	},
@@ -2951,6 +5500,14 @@ var params = createParams({
 		type: 'textarea',
 		change: function (v) {
 			params.setParam('example', {help: v});
+		}
+	},
+	placeholder: {
+		label: 'Placeholder',
+		placeholder: 'Placeholder...',
+		type: 'text',
+		change: function (v) {
+			params.setParam('example', {placeholder: v});
 		}
 	},
 	//TODO: make dependent on multirange/range type
@@ -2971,36 +5528,57 @@ var params = createParams({
 	save: {
 		label: '',
 		type: 'button',
-		value: 'Add field',
-		style: {},
+		value: '+ Add field',
+		// style: {minWidth: '50%', textAlign: 'center'},
 		change: function (v) {
 			var p = extend({}, params.params.example);
 			p.element = null;
-			params.setParam('example-' + Object.keys(params.params).length, p);
-			params.setParam('name', {
+			demoParams.setParam('example-' + Object.keys(demoParams.params).length, {
+				save: false,
+				type: params.getParam('type'),
+				label: params.getParam('label'),
+				value: params.getParam('value'),
+				values: params.getParam('values'),
+				hidden: params.getParam('isHidden'),
+				help: params.getParam('help')
+			});
+			params.setParam('label', {
 				value: ''
 			});
 		}
 	},
 	previewTitle: {
+		label: null,
+		style: {
+			textAlign: 'center',
+			columnSpan: 'all',
+			display: 'block'
+		},
 		create: function () {
 			//return an html element with bound events
-			return '<h3>Preview</h3>'
+			return '<h3>It looks like that:</h3>'
 		}
 	},
-	example: {
-		type: 'text',
-		label: 'Field'
+	example: function () {
+		return {
+			save: false,
+			type: this.getParam('type'),
+			label: this.getParam('label'),
+			value: this.getParam('value'),
+			values: this.getParam('values'),
+			hidden: this.getParam('isHidden'),
+			help: this.getParam('help')
+		};
 	},
-	// divider: {
-	// 	create: `<h3>Created fields</h3>`
+	// previewBtn: {
+	// 	style: {textAlign: 'center', minWidth: '100%'},
+	// 	create: () => demoParams.button,
 	// }
 }, {
-	// ui: false,
-	// history: false,
-	// load: false
+	title: 'Create a new field',
+	container: null
 });
 
 
-document.body.appendChild(params.element);
-},{"./":2,"xtend/mutable":30}]},{},[31]);
+document.body.appendChild(params.element);
+},{"./":6,"insert-css":10,"xtend/mutable":38}]},{},[39]);

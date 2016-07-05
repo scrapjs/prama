@@ -1,6 +1,6 @@
 [![❁](https://dfcreative.github.io/prama/logo.png "❁")](https://dfcreative.github.io/prama)
 
-# prāṃa [![WIP](https://img.shields.io/badge/Work%20in%20progress--green.svg)](http://github.com/badges/stability-badges)
+# prāṃa [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
 <em>Para</em>meters <em>ma</em>nager for applications or tests.
 

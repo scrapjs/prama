@@ -28,8 +28,8 @@ var params = createParams({
 		label: '',
 		value: 'Sign Up',
 		type: 'submit',
-		change: function () => {
-			var qs = params.toString();
+		change: () => {
+			var querystring = params.toString();
 		}
 	}
 });

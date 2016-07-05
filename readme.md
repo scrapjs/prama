@@ -35,7 +35,7 @@ var params = createParams({
 });
 
 //display settings form
-container.appendChild(params.element);
+prams.show();
 ```
 
 ## API
@@ -84,13 +84,10 @@ const params = new Prama([
 		//(optional) place passed styles to param’s `style` property.
 		style: {},
 
-		//(optional) reflect param in cache
-		history: false,
-
-		//(optional) use param value in serialization, like save/load/toString/toJSON etc.
+		//(optional) reflect param value in session/history
 		save: false,
 
-		//(optional) set default value for param to ignore from save, to get nice querystirng
+		//(optional) set default value for param to ignore from save, to get nice querystirng. By default defined from value.
 		default: false,
 
 		//(optional) will be called on any input, change, click or interaction event
@@ -103,6 +100,9 @@ const params = new Prama([
 ],
 
 {
+	//reflect state in browser hash (to share link)
+	history: false,
+
 	//save/load params between sessions
 	session: true,
 
@@ -121,6 +121,13 @@ prama.setParams(object|array);
 
 //Get object with values of all params.
 prama.getParams(whitelist?);
+
+//Get string representation of state, excluding default values
+prama.toString();
+
+//Show/hide params menu, if ui is enabled
+prama.show();
+prama.hide();
 
 //Hook up a callback for any parameter change.
 prama.on('change', (name, value, opts) => {});

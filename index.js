@@ -11,6 +11,7 @@ const isPrimitive = require('mutype/is-plain');
 const Emitter = require('events');
 const insertCSS = require('insert-css');
 const fs = require('fs');
+const qs = require('qs');
 
 
 module.exports = Params;
@@ -50,7 +51,8 @@ function Params (params, opts) {
 		this.on('change', () => {
 			if (saveTo) return;
 			saveTo = setTimeout(() => {
-				this.save(this.getParams());
+				var params = this.getParams();
+				this.save(params);
 				saveTo = null;
 			}, 100);
 		});
@@ -61,44 +63,6 @@ function Params (params, opts) {
 
 
 	/*
-	//extend params with the read history state
-	if (this.history) {
-		var params = qs.parse(location.hash.slice(1));
-	}
-
-	this.addParams(this.params);
-
-	if (this.history) {
-		for (var param in params){
-			var value = params[param];
-			if (value.toLowerCase() === 'false') {
-				value = false;
-			}
-			else if (value.toLowerCase() === 'true') {
-				value = true;
-			}
-			else if (/[-0-9\.]+/.test(value)) {
-				value = parseFloat(value);
-			}
-			this.setParamValue(param, value);
-		}
-	}
-
-	//update history
-	if (this.history) {
-		this._wait = false;
-		this.on('change', () => {
-			if (this._wait) return;
-
-			this.updateHistory();
-
-			this._wait = true;
-			setTimeout(() => {
-				this._wait = false;
-			}, 100);
-		});
-	}
-
 	if (this.params) {
 		this.paramsBtn.removeAttribute('hidden');
 	} else {
@@ -133,18 +97,6 @@ Object.defineProperties(Params.prototype, {
 });
 
 
-//update hash state
-Params.prototype.updateHistory = function () {
-	// if (!this.history) return;
-
-	// var params = {};
-	// this.paramsList.forEach((param) => {
-	// 	params[param.name] = param.value;
-	// });
-
-	// location.hash = '#' + qs.stringify(params);
-}
-
 
 /** Create params based off list */
 Params.prototype.setParams = function (list, loaded) {
@@ -167,7 +119,13 @@ Params.prototype.setParams = function (list, loaded) {
 			else {
 				item = isPlainObject(item) ? item : { value: item };
 			}
-			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+
+			if (loaded && loaded[name] !== undefined) {
+				if (item.default === undefined) {
+					item.default = item.value;
+				}
+				item.value = loaded[name];
+			}
 
 			this.setParam(name, item);
 		}
@@ -181,7 +139,10 @@ Params.prototype.setParams = function (list, loaded) {
 				return;
 			}
 			var name = item.name;
-			if (loaded && loaded[name] !== undefined) item.value = loaded[name];
+			if (loaded && loaded[name] !== undefined) {
+				if (item.default === undefined) item.default = item.value;
+				item.value = loaded[name];
+			}
 			this.setParam(item);
 		});
 	}
@@ -458,6 +419,8 @@ Params.prototype.setParam = function (name, param, cb) {
 	//set serialization
 	if (param.save == null) param.save = true;
 
+	if (param.default === undefined) param.default = param.value;
+
 	//init param value
 	if (param.type !== 'button' && param.type !== 'submit') {
 		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
@@ -531,6 +494,9 @@ Params.prototype.setParamValue = function (name, value) {
 }
 
 
+//reflect state in query
+Params.prototype.history = false;
+
 //save/load params to local storage
 Params.prototype.session = true;
 
@@ -538,17 +504,33 @@ Params.prototype.session = true;
 Params.prototype.key = 'prama';
 
 //local storage
-Params.prototype.storage = self.localStorage || self.sessionStorage;
+Params.prototype.storage = self.sessionStorage || self.localStorage;
 
 //save params state to local storage
 Params.prototype.save = function (params) {
-	if (!this.storage) return false;
-
 	if (!params) return false;
+
+	if (this.session) {
+		this.saveSession(params);
+	}
+
+	if (this.history) {
+		this.saveHistory(params);
+	}
+
+	return true;
+};
+
+//put state into storage
+Params.prototype.saveSession = function (params) {
+	if (!this.storage) return false;
 
 	//convert to string
 	for (var name in params) {
+		let value = params[name];
+		if (value === this.params[name].default) delete params[name];
 		params[name] = toString(params[name]);
+		if (value === this.params[name].default) delete params[name];
 	}
 
 	try {
@@ -564,8 +546,35 @@ Params.prototype.save = function (params) {
 	return true;
 };
 
+//put params into location
+Params.prototype.saveHistory = function (params) {
+	var str = this.toString(params);
+
+	location.hash = str;
+
+	return true;
+};
+
 //load params state from local storage
 Params.prototype.load = function () {
+
+	var values = {};
+
+	//load session
+	if (this.session) {
+		values = this.loadSession();
+	}
+
+	//load history (overwrite)
+	if (this.history) {
+		values = extend(values, this.loadHistory());
+	}
+
+	return values;
+};
+
+//load params from session
+Params.prototype.loadSession = function () {
 	if (!this.storage) return {};
 
 	var str = this.storage.getItem(this.key);
@@ -589,6 +598,42 @@ Params.prototype.load = function () {
 	return values;
 };
 
+//load params from history
+Params.prototype.loadHistory = function () {
+	var params = qs.parse(location.hash.slice(1));
+
+	if (!params) return {};
+
+	for (var name in params) {
+		params[name] = fromString(params[name]);
+	}
+
+	return params;
+}
+
+
+//convert to string
+Params.prototype.toString = function (params) {
+	params = params || this.getParams();
+
+	//convert to string
+	for (var name in params) {
+		let value = params[name];
+		if (value === this.params[name].default) delete params[name];
+		params[name] = toString(params[name]);
+		if (value === this.params[name].default) delete params[name];
+	}
+
+	var str = '';
+	try {
+		str = qs.stringify(params, {encode: false});
+	} catch (e) {
+		console.error(e);
+		return '';
+	}
+
+	return str;
+}
 
 
 

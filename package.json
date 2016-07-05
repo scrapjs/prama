@@ -9,6 +9,7 @@
     "insert-css": "^1.0.0",
     "mutype": "^0.3.9",
     "popoff": "^2.0.6",
+    "qs": "^6.2.0",
     "xtend": "^4.0.1"
   },
   "browserify": {

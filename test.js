@@ -79,7 +79,7 @@ var params = createParams({
 		value: '',
 		change: (v) => {
 			if (params.params.example.type === 'multirange') {
-				v =  Array.isArray(v) ? v : v.split(/\s*,\s*|\n/);
+				v =  Array.isArray(v) ? v : typeof v === 'string' ? v.split(/\s*,\s*|\n/) : [v, v];
 			}
 
 			params.setParam('example', v);

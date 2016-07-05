@@ -6,7 +6,7 @@
 
 Define parameters which your component depends on and _prama_ will take care of settings form, history of changes, saving/loading states, parameter types etc.
 
-**[Demo](https://dfcreative.github.io/prama)**
+**[Settings constructor](https://dfcreative.github.io/prama)**
 
 ## Usage
 
@@ -87,7 +87,7 @@ const params = new Prama([
 		//(optional) reflect param value in session/history
 		save: false,
 
-		//(optional) set default value for param to ignore from save, to get nice querystirng. By default defined from value.
+		//(optional) ignore value of param from save, to get nice querystirng. By default defined from value.
 		default: false,
 
 		//(optional) will be called on any input, change, click or interaction event
@@ -100,6 +100,13 @@ const params = new Prama([
 ],
 
 {
+	//svg to use for a menu icon
+	icon: `./gears.svg`,
+
+	//container element or selector to place settings form/button.
+	//Use `false` to avoid autoplacement, see `prama.element`, `prama.button`
+	container: document.body,
+
 	//reflect state in browser hash (to share link)
 	history: false,
 
@@ -132,8 +139,11 @@ prama.hide();
 //Hook up a callback for any parameter change.
 prama.on('change', (name, value, opts) => {});
 
-//Form element to insert to page
+//Settings form element
 prama.element;
+
+//Settings button element
+prama.button;
 ```
 
 ## See also

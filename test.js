@@ -1,33 +1,21 @@
 var extend = require('xtend/mutable');
 var createParams = require('./');
 
-
+//prepare body
 var meta = document.createElement('meta');
 meta.setAttribute('name', 'viewport');
 meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no');
 document.head.appendChild(meta);
+document.body.style.padding = '0 1rem';
 
+//prepare demo params
+var demoParams = createParams([
+], {
+	title: 'Example settings'
+});
 
+//create main form
 var params = createParams({
-	title: {
-		label: null,
-		style: {minWidth: '99%', textAlign:'center'},
-		create: `<header>
-			<h1>Prama demo</h1>
-		</header>`,
-	},
-
-	label: {
-		label: 'Field name',
-		value: 'Field',
-		placeholder: 'Field name...',
-		help: 'Look at preview below',
-		change: function (value) {
-			this.setParam('example', {
-				label: value
-			});
-		}
-	},
 	type: {
 		type: 'list',
 		label: 'Type',
@@ -56,8 +44,29 @@ var params = createParams({
 					hidden: true
 				});
 			}
+			//show placeholder
+			if (value === 'text' || value === 'textarea') {
+				params.setParam('placeholder', {
+					hidden: false
+				});
+			}
+			else {
+				params.setParam('placeholder', {
+					hidden: true
+				});
+			}
 			params.setParam('example', {
 				type: value
+			});
+		}
+	},
+	label: {
+		label: 'Label',
+		value: 'Field',
+		placeholder: 'Field name...',
+		change: function (value) {
+			this.setParam('example', {
+				label: value
 			});
 		}
 	},
@@ -93,6 +102,14 @@ var params = createParams({
 			params.setParam('example', {help: v});
 		}
 	},
+	placeholder: {
+		label: 'Placeholder',
+		placeholder: 'Placeholder...',
+		type: 'text',
+		change: (v) => {
+			params.setParam('example', {placeholder: v});
+		}
+	},
 	//TODO: make dependent on multirange/range type
 	// sampleRange: {
 	// 	label: 'Range',
@@ -111,23 +128,36 @@ var params = createParams({
 	save: {
 		label: '',
 		type: 'button',
-		value: 'Add field',
-		style: {},
+		value: '+ Add field',
+		// style: {minWidth: '50%', textAlign: 'center'},
 		change: (v) => {
 			var p = extend({}, params.params.example);
 			p.element = null;
-			params.setParam('example-' + Object.keys(params.params).length, p);
-			params.setParam('name', {
+			demoParams.setParam('example-' + Object.keys(demoParams.params).length, {
+				save: false,
+				type: params.getParam('type'),
+				label: params.getParam('label'),
+				value: params.getParam('value'),
+				values: params.getParam('values'),
+				hidden: params.getParam('isHidden'),
+				help: params.getParam('help')
+			});
+			params.setParam('label', {
 				value: ''
 			});
 		}
 	},
 	previewTitle: {
 		label: null,
-		style: {minWidth: '99%', textAlign: 'center'},
+		style: {
+			minWidth: '100%',
+			textAlign: 'center',
+			columnSpan: 'all',
+			display: 'block'
+		},
 		create: () => {
 			//return an html element with bound events
-			return '<h3>Preview</h3>'
+			return '<h3>It looks like that:</h3>'
 		}
 	},
 	example: function () {
@@ -135,16 +165,19 @@ var params = createParams({
 			save: false,
 			type: this.getParam('type'),
 			label: this.getParam('label'),
-			value: this.getParam('value')
+			value: this.getParam('value'),
+			values: this.getParam('values'),
+			hidden: this.getParam('isHidden'),
+			help: this.getParam('help')
 		};
 	},
-	// divider: {
-	// 	create: `<h3>Created fields</h3>`
+	// previewBtn: {
+	// 	style: {textAlign: 'center', minWidth: '100%'},
+	// 	create: () => demoParams.button,
 	// }
 }, {
-	// ui: false,
-	// history: false,
-	// load: false
+	title: 'Create a new field',
+	container: null
 });
 
 

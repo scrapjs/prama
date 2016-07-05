@@ -14,8 +14,7 @@
   },
   "browserify": {
     "transform": [
-      "brfs",
-      "bubleify"
+      "brfs"
     ]
   },
   "devDependencies": {

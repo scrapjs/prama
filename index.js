@@ -17,7 +17,7 @@ const qs = require('qs');
 module.exports = Params;
 
 
-insertCSS(fs.readFileSync('./index.css', 'utf-8'));
+insertCSS(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
 
 
 /**
@@ -26,18 +26,29 @@ insertCSS(fs.readFileSync('./index.css', 'utf-8'));
 function Params (params, opts) {
 	if (!(this instanceof Params)) return new Params(params, opts);
 
+	extend(this, opts);
+
 	//create content
 	this.element = document.createElement('form');
 	this.element.classList.add('prama');
 
+	//ensure container, unless it is explicitly false
+	if (!this.container && this.container !== false && this.container !== null) {
+		this.container = document.body || document.documentElement;
+	}
+
+	if (this.container) {
+		this.container.classList.add('prama-container');
+	}
+
+	//create title
 	this.titleElement = document.createElement('h2');
 	this.titleElement.classList.add('prama-title');
-	this.titleElement.innerHTML = this.title;
-	this.titleElement.setAttribute('hidden', true);
-	this.element.appendChild(this.titleElement);
 
-	extend(this, opts);
-
+	if (this.title || this.title === '') {
+		this.titleElement.innerHTML = this.title;
+		this.element.appendChild(this.titleElement);
+	}
 
 	//params cache by names
 	this.params = {};
@@ -61,48 +72,43 @@ function Params (params, opts) {
 	//create params from list
 	this.setParams(params, loadedParams);
 
+	//create settings button and popup
+	this.popup = createPopup({
+		type: 'modal',
+		content: this.element
+	});
 
-	/*
-	if (this.params) {
-		this.paramsBtn.removeAttribute('hidden');
-	} else {
-		this.paramsBtn.setAttribute('hidden', true);
+	this.button = document.createElement('a');
+	this.button.href = '#settings';
+	this.button.classList.add('prama-settings-button');
+	this.button.innerHTML = `<i>${this.icon}</i>`;
+	this.button.title = this.titleElement.textContent;
+	this.button.addEventListener('click', (e) => {
+		e.preventDefault();
+		this.popup.show();
+	});
+
+	//if container is passed - place ui to it
+	if (this.container) {
+		this.container.appendChild(this.button);
 	}
-
-	this.updateHistory();
-	*/
 }
 
 inherits(Params, Emitter);
 
 
-Object.defineProperties(Params.prototype, {
-	title: {
-		get: function () {
-			return this.titleElement.innerHTML;
-		},
-		set: function (value) {
-			if (!value) {
-				this.titleElement.innerHTML = '';
-				this.titleElement.setAttribute('hidden', true);
-			}
-			else {
-				if (!this.titleElement.innerHTML) {
-					this.titleElement.removeAttribute('hidden');
-				}
-				this.titleElement.innerHTML = value;
-			}
-		}
-	}
-});
+//default container
+Params.prototype.container;
 
+//settings button and settings popup
+Params.prototype.icon = fs.readFileSync(__dirname + '/gear.svg');
 
 
 /** Create params based off list */
 Params.prototype.setParams = function (list, loaded) {
 	if (isPlainObject(list)) {
-		for (var name in list) {
-			var item = list[name];
+		for (let name in list) {
+			let item = list[name];
 
 			//function initializing param
 			if (item instanceof Function) {
@@ -202,7 +208,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	if (param.label === undefined) {
 		if (param.create) {
-			param.label = ''
+			param.label = null;
 		}
 		else {
 			param.label = param.name.slice(0,1).toUpperCase() + param.name.slice(1);
@@ -253,7 +259,7 @@ Params.prototype.setParam = function (name, param, cb) {
 					}
 				}
 				else {
-					for (var name in param.values) {
+					for (let name in param.values) {
 						html += `<option value="${param.values[name]}" ${param.values[name] === param.value ? 'selected' : ''}>${name}</option>`
 					}
 				}
@@ -324,7 +330,7 @@ Params.prototype.setParam = function (name, param, cb) {
 					}
 				}
 				else {
-					for (var name in param.values) {
+					for (let name in param.values) {
 						html += `<label for="${name}"><input type="radio" value="${param.values[name]}" ${param.values[name] === param.value ? 'checked' : ''} id="${name}" name="${param.name}"/> ${param.values[name]}</label>`;
 					}
 				}
@@ -409,8 +415,8 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	//preset style
 	if (param.style) {
-		for (var name in param.style) {
-			var v = param.style[name];
+		for (let name in param.style) {
+			let v = param.style[name];
 			if (typeof v === 'number' && !/ndex/.test(name)) v += 'px';
 			param.element.style[name] = v;
 		}
@@ -446,7 +452,7 @@ Params.prototype.getParam = function (name) {
 //get cache of params
 Params.prototype.getParams = function (whitelist) {
 	var res = {};
-	for (var name in this.params) {
+	for (let name in this.params) {
 		if (!whitelist || (whitelist && whitelist[name] != null)) {
 			if (!this.params[name].save) continue;
 			res[name] = this.params[name].value;
@@ -526,7 +532,7 @@ Params.prototype.saveSession = function (params) {
 	if (!this.storage) return false;
 
 	//convert to string
-	for (var name in params) {
+	for (let name in params) {
 		let value = params[name];
 		if (value === this.params[name].default) delete params[name];
 		params[name] = toString(params[name]);
@@ -591,7 +597,7 @@ Params.prototype.loadSession = function () {
 	if (!values) return {};
 
 	//convert from string
-	for (var name in values) {
+	for (let name in values) {
 		values[name] = fromString(values[name]);
 	}
 
@@ -604,7 +610,7 @@ Params.prototype.loadHistory = function () {
 
 	if (!params) return {};
 
-	for (var name in params) {
+	for (let name in params) {
 		params[name] = fromString(params[name]);
 	}
 
@@ -617,7 +623,7 @@ Params.prototype.toString = function (params) {
 	params = params || this.getParams();
 
 	//convert to string
-	for (var name in params) {
+	for (let name in params) {
 		let value = params[name];
 		if (value === this.params[name].default) delete params[name];
 		params[name] = toString(params[name]);

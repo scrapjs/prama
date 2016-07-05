@@ -19,7 +19,7 @@
 
 .prama-param {
 	text-align: left;
-	margin-bottom: 1rem;
+	margin-bottom: .8rem;
 	position: relative;
 	width: 100%;
 	max-width: 420px;
@@ -30,14 +30,15 @@
 }
 
 .prama-label {
-	font-size: .857142rem;
+	word-break: break-word;
+	font-size: .8333rem;
 	display: inline-block;
 	width: 17%;
-	width: calc(20% - 1rem);
-	margin-right: 1rem;
+	width: calc(20% - .5rem);
+	margin-right: .5rem;
 	vertical-align: top;
 	line-height: 1.2rem;
-	padding-top: .42em;
+	padding-top: .48em;
 	height: 2rem;
 	text-align: right;
 }
@@ -103,7 +104,7 @@
 	min-width: 2rem;
 	border: none;
 	margin: 0;
-	border-radius: .1111rem;
+	border-radius: 0;
 }
 
 .prama textarea,
@@ -111,8 +112,7 @@
 .prama input[type="text"],
 .prama input[type="number"],
 .prama select {
-	box-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);
-	background: rgb(241, 244, 249);
+	background: rgb(238, 240, 242);
 	width: 80%;
 	padding: .2rem .5rem;
 }
@@ -129,7 +129,7 @@
 
 
 .prama-input:not([type="range"]):focus {
-	box-shadow: 0 0 0 2px rgb(2, 135, 210);
+	box-shadow: 0 0 0 2px rgb(36,37,38);
 	outline: none;
 }
 
@@ -144,8 +144,7 @@
 .prama input[type="radio"] {
 	margin: 0;
 	cursor: pointer;
-	background: rgb(2, 135, 210);
-	border-color: rgb(2, 98, 157);
+	background: rgb(36,37,38);
 	font-weight: bolder;
 	font-size: 1.4rem;
 	line-height: 1.2rem;
@@ -188,7 +187,7 @@
 .prama button,
 .prama input[type="submit"],
 .prama input[type="reset"] {
-	background: rgb(2, 135, 210);
+	background: rgb(36,37,38);
 	color: white;
 	height: 2.4rem;
 	line-height: 2.4rem;
@@ -197,21 +196,19 @@
 	font-weight: bold;
 	font-size: 1.1rem;
 	cursor: pointer;
-	border-radius: .1666rem;
-	box-shadow: 0 1px 2px -1px rgb(131, 184, 249);
 }
 
 .prama button:hover,
 .prama input[type="submit"]:hover,
 .prama input[type="reset"]:hover {
-	background: rgb(12, 145, 220);
+	background: rgb(238, 240, 242);
+	color: rgb(36, 37, 38);
 }
 
 .prama button:active,
 .prama input[type="submit"]:active,
 .prama input[type="reset"]:active {
-	background: rgb(241, 244, 249);
-	color: rgb(2, 135, 210);
+	box-shadow: 0 0 0 2px rgb(36, 37, 38);
 }
 
 
@@ -246,31 +243,27 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: rgb(241, 244, 249);
-	box-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);
-	border-radius: 34px;
+	background-color: rgb(238, 240, 242);
 	-webkit-transition: .4s;
 	transition: .4s;
 }
 .prama-toggle .prama-toggle-thumb:before {
 	position: absolute;
-	border-radius: 34px;
 	content: "";
-	height: 1.6rem;
-	width: 1.6rem;
-	left: .2rem;
-	bottom: .2rem;
+	height: 1.2rem;
+	width: 1.2rem;
+	left: .4rem;
+	bottom: .4rem;
 	background-color: white;
-	box-shadow: 0 1px 2px 1px rgb(231, 234, 249);
 	-webkit-transition: .4s;
 	transition: .4s;
 }
 .prama-toggle input:checked + .prama-toggle-thumb {
-	background-color: rgb(2, 135, 210);
+	background-color: rgb(36,37,38);
 	box-shadow: none;
 }
 .prama-toggle input:focus + .prama-toggle-thumb {
-	box-shadow: 0 0 1px rgb(2, 135, 210);
+	box-shadow: 0 0 1px rgb(36,37,38);
 }
 .prama-toggle input:checked + .prama-toggle-thumb:before {
 	-webkit-transform: translateX(2rem);
@@ -312,41 +305,40 @@
 	height: .5rem;
 	cursor: pointer;
 	box-shadow: none;
-	background: rgb(241, 244, 249);
-	box-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);
-	border-radius: .5rem;
+	background: rgb(238, 240, 242);
+	border-radius: 0;
 	border: none;
 	margin: .25rem 0 .25rem;
 }
 .prama input[type="range"]::-webkit-slider-thumb {
 	box-shadow: none;
 	border: none;
-	height: 2rem;
-	width: 2rem;
-	border-radius: 2rem;
-	background: rgb(2, 135, 210);
+	height: 1.6rem;
+	width: 1.6rem;
+	border-radius: 1.6rem;
+	background: rgb(36,37,38);
 	cursor: pointer;
-	margin-top: -.75rem;
+	margin-top: -.55rem;
 	-webkit-appearance: none;
 }
 .prama input[type="range"]:focus::-webkit-slider-runnable-track {
-	background: rgb(241, 244, 249);
+	background: rgb(238, 240, 242);
 }
 .prama input[type="range"]::-moz-range-track {
 	height: .5rem;
 	cursor: pointer;
 	box-shadow: none;
-	background: rgb(241, 244, 249);
-	border-radius: .5rem;
+	background: rgb(238, 240, 242);
+	border-radius: 0;
 	border: none;
 }
 .prama input[type="range"]::-moz-range-thumb {
 	box-shadow: none;
 	border: none;
-	height: 2rem;
-	width: 2rem;
-	border-radius: 2rem;
-	background: rgb(2, 135, 210);
+	height: 1.6rem;
+	width: 1.6rem;
+	border-radius: 0;
+	background: rgb(36,37,38);
 	cursor: pointer;
 }
 input[type="range"]::-ms-track {
@@ -359,31 +351,31 @@ input[type="range"]::-ms-track {
 }
 
 input[type="range"]::-ms-fill-lower {
-	background: rgb(241, 244, 249);
+	background: rgb(238, 240, 242);
 	border: none;
-	border-radius: 26px;
+	border-radius: 0;
 	box-shadow: none;
 }
 input[type="range"]::-ms-fill-upper {
-	background: rgb(241, 244, 249);
+	background: rgb(238, 240, 242);
 	border: none;
-	border-radius: 26px;
+	border-radius: 0;
 	box-shadow: none;
 }
 input[type="range"]::-ms-thumb {
 	box-shadow: none;
 	border: none;
-	width: 2rem;
-	border-radius: 2rem;
-	background: rgb(2, 135, 210);
+	width: 1.6rem;
+	border-radius: 0;
+	background: rgb(36,37,38);
 	cursor: pointer;
 	height: .5rem;
 }
 input[type="range"]:focus::-ms-fill-lower {
-	background: rgb(241, 244, 249);
+	background: rgb(238, 240, 242);
 }
 input[type="range"]:focus::-ms-fill-upper {
-	background: rgb(241, 244, 249);
+	background: rgb(238, 240, 242);
 }
 
 
@@ -421,7 +413,7 @@ input[type="range"]:focus::-ms-fill-upper {
 				transparent var(--low), var(--range-color) 0,
 				var(--range-color) var(--high), transparent 0
 			) no-repeat 0 45% / 100% 40%;
-		--range-color: rgb(2, 135, 210);
+		--range-color: rgb(36,37,38);
 	}
 
 	input[type="range"].multirange.ghost::-webkit-slider-runnable-track {
@@ -437,16 +429,16 @@ input[type="range"]:focus::-ms-fill-upper {
 
 
 .prama ::-webkit-input-placeholder {
-	color: #bbc;
+	color: rgb(196, 198, 200);
 }
 .prama ::-moz-placeholder {
-	color: #bbc;
+	color: rgb(196, 198, 200);
 }
 .prama :-ms-input-placeholder {
-	color: #bbc;
+	color: rgb(196, 198, 200);
 }
 .prama :-moz-placeholder {
-	color: #bbc;
+	color: rgb(196, 198, 200);
 }
 
 

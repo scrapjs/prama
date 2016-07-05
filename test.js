@@ -14,8 +14,9 @@ insertCSS(`
 	}
 	body > .prama {
 		max-width: 900px;
-		background: rgb(251, 250, 249);
+		/* background: rgb(251, 250, 249); */
 		border-radius: .5rem;
+		padding: 1rem;
 	}
 	.prama-title {
 		text-align: center;

@@ -12,6 +12,7 @@ const Emitter = require('events');
 const insertCSS = require('insert-css');
 const fs = require('fs');
 const qs = require('qs');
+const autosize = require('autosize');
 
 
 module.exports = Params;
@@ -226,7 +227,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	var label = '';
 	if (param.label != null) {
-		label = `<label for="${param.name}" class="prama-label">${param.label}</label>`
+		label = `<label for="${param.name}" class="prama-label" title="${param.label}">${param.label}</label>`
 	};
 
 	var el = document.createElement('div');
@@ -359,7 +360,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'textarea' :
 				param.value = param.value == null ? '' : param.value;
-				html += `<textarea rows="3" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
+				html += `<textarea rows="1" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
 				`;
 
 				break;
@@ -388,6 +389,7 @@ Params.prototype.setParam = function (name, param, cb) {
 		this.element.appendChild(param.element);
 	}
 
+	//apply hidden
 	if (param.hidden) {
 		param.element.setAttribute('hidden', true);
 	}
@@ -395,11 +397,19 @@ Params.prototype.setParam = function (name, param, cb) {
 		param.element.removeAttribute('hidden');
 	}
 
+	//init autosize
+	if (param.type === 'textarea') {
+		var textarea = param.element.querySelector('textarea');
+		textarea && autosize(textarea);
+	}
+
+	//init multirange
 	if (param.type === 'multirange') {
 		var input = param.element.querySelector('input');
 		input && multirange(input);
 	}
 
+	//watch for change event
 	var inputs = param.element.querySelectorAll('input, select, button, textarea, fieldset');
 
 	[].forEach.call(inputs, (input) => {
@@ -439,7 +449,7 @@ Params.prototype.setParam = function (name, param, cb) {
 	//init param value
 	if (param.type !== 'button' && param.type !== 'submit') {
 		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
-		//FIXME: we cannot call this here, because it invokes `change`, which can affect other fields and in result init the whole form in wrong order.
+		//FIXME: it invokes `change`, which can affect other fields and in result init the whole form in wrong order.
 		setTimeout(() => {
 			this.setParamValue(param.name, param.value);
 		});
@@ -481,8 +491,8 @@ Params.prototype.setParamValue = function (name, value) {
 
 	var param = this.params[name];
 
-	param.element.title = value;
 	param.value = value;
+	param.element.title = `${param.label || param.name}: ${param.value}`;
 
 	param.change && param.change.call(this, value, param);
 	this.emit('change', param.name, param.value, param);

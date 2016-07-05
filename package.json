@@ -4,6 +4,7 @@
   "description": "Beautiful settings form for application or tests",
   "main": "index.js",
   "dependencies": {
+    "autosize": "^3.0.15",
     "brfs": "^1.4.3",
     "inherits": "^2.0.1",
     "insert-css": "^1.0.0",

@@ -147,8 +147,9 @@
 	line-height: 1.6rem;
 	width: 1.6rem;
 	height: 1.6rem;
-	vertical-align: top;
+	vertical-align: middle;
 	text-align: center;
+	margin-top: -.2rem;
 }
 .prama input[type="radio"] {
 	border-radius: 2rem;
@@ -426,9 +427,9 @@ input[type="range"]:focus::-ms-fill-upper {
 .prama-container > .prama-settings-button {
 	top: 0;
 	right: 0;
-	width: 3rem;
-	height: 3rem;
-	line-height: 3rem;
+	width: 3.2rem;
+	height: 3.2rem;
+	line-height: 3.2rem;
 	text-align: center;
 	display: block;
 	position: absolute;
@@ -436,13 +437,14 @@ input[type="range"]:focus::-ms-fill-upper {
 }
 
 .prama-settings-button i {
-	height: 2rem;
-	width: 2rem;
+	height: 1.6rem;
+	width: 1.6rem;
 	display: inline-block;
 	vertical-align: middle;
 }
 
 .prama-settings-button svg {
+	margin-bottom: .52rem;
 	max-width: 100%;
 	max-height: 100%;
 }

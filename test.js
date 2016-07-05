@@ -12,11 +12,10 @@ insertCSS(`
 	@media (min-width: 42rem) {
 	}
 	.prama {
-		max-width: 960px;
+		max-width: 900px;
 		background: rgb(251, 250, 249);
 		border-radius: .5rem;
 		padding: 1rem 0;
-		text-align: left;
 	}
 	.prama-title {
 		text-align: center;

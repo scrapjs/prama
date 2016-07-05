@@ -2267,12 +2267,13 @@ var Emitter = require('events');
 var insertCSS = require('insert-css');
 
 var qs = require('qs');
+var autosize = require('autosize');
 
 
 module.exports = Params;
 
 
-insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n\ttext-align: center;\r\n}\r\n\r\n.prama [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\tmargin-bottom: 2rem;\r\n}\r\n\r\n.prama-param {\r\n\ttext-align: left;\r\n\tmargin-bottom: 1rem;\r\n\tposition: relative;\r\n\twidth: 100%;\r\n\tmax-width: 420px;\r\n\tmargin-right: auto;\r\n    margin-left: auto;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n}\r\n\r\n.prama-label {\r\n\tfont-size: .95rem;\r\n\tdisplay: inline-block;\r\n\twidth: 17%;\r\n\tmargin-right: 3%;\r\n\tvertical-align: top;\r\n\tline-height: 1.2rem;\r\n\tpadding-top: .42em;\r\n\theight: 2rem;\r\n\ttext-align: right;\r\n}\r\n\r\n.prama-label + * {\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\ttext-align: left;\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 80%;\r\n\tmargin-left: 20%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\twidth: 100%;\r\n\t\tmargin-left: 0;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: .2222rem;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tbackground: rgb(241, 244, 249);\r\n\twidth: 80%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(2, 135, 210);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(2, 135, 210);\r\n\tborder-color: rgb(2, 98, 157);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.6rem;\r\n\twidth: 1.6rem;\r\n\theight: 1.6rem;\r\n\tvertical-align: middle;\r\n\ttext-align: center;\r\n\tmargin-top: -.2rem;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 80%;\r\n\tline-height: 2rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 45%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(2, 135, 210);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 40%;\r\n\tfont-weight: bold;\r\n\tfont-size: 1.1rem;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbackground: rgb(241, 244, 249);\r\n\tcolor: rgb(2, 135, 210);\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: 34px;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tborder-radius: 34px;\r\n\tcontent: \"\";\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tleft: .2rem;\r\n\tbottom: .2rem;\r\n\tbackground-color: white;\r\n\tbox-shadow: 0 1px 2px 1px rgb(231, 234, 249);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(2, 135, 210);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(2, 135, 210);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 59%;\r\n\tmargin-right: 1%;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 79%;\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\tmargin-top: -.75rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder-radius: .5rem;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 2rem;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n\tborder: none;\r\n\tborder-radius: 26px;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 2rem;\r\n\tborder-radius: 2rem;\r\n\tbackground: rgb(2, 135, 210);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(241, 244, 249);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(2, 135, 210);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n.prama ::-moz-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n.prama :-ms-input-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n.prama :-moz-placeholder {\r\n\tcolor: #bbc;\r\n}\r\n\r\n\r\n\r\n.prama-container > .prama-settings-button {\r\n\ttop: 0;\r\n\tright: 0;\r\n\twidth: 3.2rem;\r\n\theight: 3.2rem;\r\n\tline-height: 3.2rem;\r\n\ttext-align: center;\r\n\tdisplay: block;\r\n\tposition: absolute;\r\n\tz-index: 2;\r\n}\r\n\r\n.prama-settings-button i {\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n}\r\n\r\n.prama-settings-button svg {\r\n\tmargin-bottom: .52rem;\r\n\tmax-width: 100%;\r\n\tmax-height: 100%;\r\n}\r\n");
+insertCSS(".prama {\r\n\tfont-family: sans-serif;\r\n\ttext-align: center;\r\n\tpadding: 1.6rem 0;\r\n}\r\n\r\n.prama [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-title {\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 1.6rem;\r\n}\r\n\r\n.prama-param {\r\n\ttext-align: left;\r\n\tmargin-bottom: .8rem;\r\n\tposition: relative;\r\n\twidth: 100%;\r\n\tmax-width: 420px;\r\n\tmargin-right: auto;\r\n    margin-left: auto;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n}\r\n\r\n.prama-label {\r\n\tword-break: break-word;\r\n\tfont-size: .8333rem;\r\n\tdisplay: inline-block;\r\n\twidth: 17%;\r\n\twidth: calc(20% - .5rem);\r\n\tmargin-right: .5rem;\r\n\tvertical-align: top;\r\n\tline-height: 1.2rem;\r\n\tpadding-top: .48em;\r\n\theight: 2rem;\r\n\ttext-align: right;\r\n}\r\n\r\n.prama-label + * {\r\n\tdisplay: inline-block;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-label {\r\n\t\ttext-align: left;\r\n\t\tdisplay: block;\r\n\t\twidth: 100%;\r\n\t}\r\n\t.prama-label + * {\r\n\t\tmax-width: none;\r\n\t}\r\n\t.prama-label:empty {\r\n\t\tdisplay: none;\r\n\t}\r\n}\r\n\r\n.prama-input {\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama-help {\r\n\tword-break: break-word;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\twidth: 80%;\r\n\tmargin-left: 20%;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.2rem;\r\n\tfont-size: .9rem;\r\n\tcolor: #888;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama-help {\r\n\t\twidth: 100%;\r\n\t\tmargin-left: 0;\r\n\t}\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama input[type=\"range\"],\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"],\r\n.prama select,\r\n.prama button,\r\n.prama fieldset {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tvertical-align: top;\r\n\tdisplay: inline-block;\r\n\t/*line-height: 2rem;*/\r\n\tmin-height: 2rem;\r\n\tmin-width: 2rem;\r\n\tborder: none;\r\n\tmargin: 0;\r\n\tborder-radius: 0;\r\n}\r\n\r\n.prama textarea,\r\n.prama input:not([type]),\r\n.prama input[type=\"text\"],\r\n.prama input[type=\"number\"],\r\n.prama select {\r\n\tbackground: rgb(238, 240, 242);\r\n\twidth: 80%;\r\n\tpadding: .2rem .5rem;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama textarea,\r\n\t.prama input:not([type]),\r\n\t.prama input[type=\"text\"],\r\n\t.prama input[type=\"number\"],\r\n\t.prama select {\r\n\t\twidth: 100%;\r\n\t}\r\n}\r\n\r\n\r\n.prama-input:not([type=\"range\"]):focus {\r\n\tbox-shadow: 0 0 0 2px rgb(36,37,38);\r\n\toutline: none;\r\n}\r\n\r\n.prama textarea {\r\n\tvertical-align: top;\r\n\tpadding-top: .5rem;\r\n\tline-height: 1.5;\r\n\tfont-size: 1rem;\r\n}\r\n\r\n.prama input[type=\"checkbox\"],\r\n.prama input[type=\"radio\"] {\r\n\tmargin: 0;\r\n\tcursor: pointer;\r\n\tbackground: rgb(36,37,38);\r\n\tfont-weight: bolder;\r\n\tfont-size: 1.4rem;\r\n\tline-height: 1.2rem;\r\n\twidth: 1.2rem;\r\n\theight: 1.2rem;\r\n\tvertical-align: middle;\r\n\ttext-align: center;\r\n\tmargin-top: -.2rem;\r\n}\r\n.prama input[type=\"radio\"] {\r\n\tborder-radius: 2rem;\r\n}\r\n\r\n.prama fieldset {\r\n\tpadding: 0;\r\n\theight: auto;\r\n\tbackground: none;\r\n\tvertical-align: top;\r\n\tborder: none;\r\n\twidth: 80%;\r\n\tline-height: 2rem;\r\n}\r\n.prama fieldset label {\r\n\twidth: auto;\r\n\tcursor: pointer;\r\n\tline-height: 2rem;\r\n\theight: 2rem;\r\n\tdisplay: inline-block;\r\n\tmargin-right: 1rem;\r\n\tmin-width: 35%;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama fieldset {\r\n\t\twidth: 100%;\r\n\t\tdisplay: block;\r\n\t}\r\n}\r\n\r\n.prama button,\r\n.prama input[type=\"submit\"],\r\n.prama input[type=\"reset\"] {\r\n\tbackground: rgb(36,37,38);\r\n\tcolor: white;\r\n\theight: 2.4rem;\r\n\tline-height: 2.4rem;\r\n\tpadding: 0 1rem;\r\n\tmin-width: 40%;\r\n\tfont-weight: bold;\r\n\tfont-size: 1.1rem;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama button:hover,\r\n.prama input[type=\"submit\"]:hover,\r\n.prama input[type=\"reset\"]:hover {\r\n\tbackground: rgb(238, 240, 242);\r\n\tcolor: rgb(36, 37, 38);\r\n}\r\n\r\n.prama button:active,\r\n.prama input[type=\"submit\"]:active,\r\n.prama input[type=\"reset\"]:active {\r\n\tbox-shadow: 0 0 0 2px rgb(36, 37, 38);\r\n}\r\n\r\n\r\n.prama-select-arrow {\r\n\tposition: absolute;\r\n    pointer-events: none;\r\n    right: 0rem;\r\n    width: 1.6rem;\r\n    font-size: .666rem;\r\n    text-align: center;\r\n    height: 2rem;\r\n    line-height: 2rem;\r\n    z-index: 2;\r\n}\r\n\r\n\r\n/* Hide default HTML checkbox */\r\n.prama-toggle {\r\n  position: relative;\r\n  display: inline-block;\r\n  vertical-align: top;\r\n  width: 4rem;\r\n  height: 2rem;\r\n}\r\n.prama-toggle input {\r\n\tdisplay: none;\r\n}\r\n.prama-toggle .prama-toggle-thumb {\r\n\tposition: absolute;\r\n\tcursor: pointer;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tbackground-color: rgb(238, 240, 242);\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle .prama-toggle-thumb:before {\r\n\tposition: absolute;\r\n\tcontent: \"\";\r\n\theight: 1.2rem;\r\n\twidth: 1.2rem;\r\n\tleft: .4rem;\r\n\tbottom: .4rem;\r\n\tbackground-color: white;\r\n\t-webkit-transition: .4s;\r\n\ttransition: .4s;\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb {\r\n\tbackground-color: rgb(36,37,38);\r\n\tbox-shadow: none;\r\n}\r\n.prama-toggle input:focus + .prama-toggle-thumb {\r\n\tbox-shadow: 0 0 1px rgb(36,37,38);\r\n}\r\n.prama-toggle input:checked + .prama-toggle-thumb:before {\r\n\t-webkit-transform: translateX(2rem);\r\n\t-ms-transform: translateX(2rem);\r\n\ttransform: translateX(2rem);\r\n\tbox-shadow: none;\r\n\tbackground-color: white;\r\n}\r\n\r\n\r\n.prama input[type=\"range\"] {\r\n\twidth: 58%;\r\n\twidth: calc(60% - .5rem);\r\n\tmargin-right: .5rem;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\t/** O_o you can’t use height for IE here */\r\n\tpadding: 0;\r\n\tmargin-top: .5rem;\r\n\tmin-height: .5rem;\r\n}\r\n.prama input[type=\"range\"] ~ input:not(.ghost) {\r\n\twidth: 20%;\r\n\tpadding-right: 0;\r\n}\r\n\r\n@media (max-width: 42rem) {\r\n\t.prama input[type=\"range\"] {\r\n\t\twidth: 78%;\r\n\t\twidth: calc(80% - .5rem);\r\n\t}\r\n}\r\n\r\n.prama input[type=\"range\"]:focus {\r\n\toutline: none;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-runnable-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(238, 240, 242);\r\n\tborder-radius: 0;\r\n\tborder: none;\r\n\tmargin: .25rem 0 .25rem;\r\n}\r\n.prama input[type=\"range\"]::-webkit-slider-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tborder-radius: 1.6rem;\r\n\tbackground: rgb(36,37,38);\r\n\tcursor: pointer;\r\n\tmargin-top: -.55rem;\r\n\t-webkit-appearance: none;\r\n}\r\n.prama input[type=\"range\"]:focus::-webkit-slider-runnable-track {\r\n\tbackground: rgb(238, 240, 242);\r\n}\r\n.prama input[type=\"range\"]::-moz-range-track {\r\n\theight: .5rem;\r\n\tcursor: pointer;\r\n\tbox-shadow: none;\r\n\tbackground: rgb(238, 240, 242);\r\n\tborder-radius: 0;\r\n\tborder: none;\r\n}\r\n.prama input[type=\"range\"]::-moz-range-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tborder-radius: 0;\r\n\tbackground: rgb(36,37,38);\r\n\tcursor: pointer;\r\n}\r\ninput[type=\"range\"]::-ms-track {\r\n\theight: .5rem;\r\n\tbox-shadow: inset 0 1px 2px 1px rgb(231, 234, 249);\r\n\tcursor: pointer;\r\n\tbackground: transparent;\r\n\tborder-color: transparent;\r\n\tcolor: transparent;\r\n}\r\n\r\ninput[type=\"range\"]::-ms-fill-lower {\r\n\tbackground: rgb(238, 240, 242);\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-fill-upper {\r\n\tbackground: rgb(238, 240, 242);\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\tbox-shadow: none;\r\n}\r\ninput[type=\"range\"]::-ms-thumb {\r\n\tbox-shadow: none;\r\n\tborder: none;\r\n\twidth: 1.6rem;\r\n\tborder-radius: 0;\r\n\tbackground: rgb(36,37,38);\r\n\tcursor: pointer;\r\n\theight: .5rem;\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-lower {\r\n\tbackground: rgb(238, 240, 242);\r\n}\r\ninput[type=\"range\"]:focus::-ms-fill-upper {\r\n\tbackground: rgb(238, 240, 242);\r\n}\r\n\r\n\r\n\r\n\r\n/** multirange polyfill */\r\n@supports (--css: variables) {\r\n\tinput[type=\"range\"].multirange {\r\n\t\tdisplay: inline-block;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original {\r\n\t\tposition: absolute;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-webkit-slider-thumb {\r\n\t\tposition: relative;\r\n\t\tz-index: 2;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.original::-moz-range-thumb {\r\n\t\ttransform: scale(1); /* FF doesn't apply position it seems */\r\n\t\tz-index: 1;\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange::-moz-range-track {\r\n\t\tborder-color: transparent; /* needed to switch FF to \"styleable\" control */\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost {\r\n\t\tposition: relative;\r\n\t\tbackground: var(--track-background);\r\n\t\t--track-background: linear-gradient(to right,\r\n\t\t\t\ttransparent var(--low), var(--range-color) 0,\r\n\t\t\t\tvar(--range-color) var(--high), transparent 0\r\n\t\t\t) no-repeat 0 45% / 100% 40%;\r\n\t\t--range-color: rgb(36,37,38);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-webkit-slider-runnable-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n\r\n\tinput[type=\"range\"].multirange.ghost::-moz-range-track {\r\n\t\tbackground: var(--track-background);\r\n\t}\r\n}\r\n\r\n\r\n\r\n\r\n.prama ::-webkit-input-placeholder {\r\n\tcolor: rgb(196, 198, 200);\r\n}\r\n.prama ::-moz-placeholder {\r\n\tcolor: rgb(196, 198, 200);\r\n}\r\n.prama :-ms-input-placeholder {\r\n\tcolor: rgb(196, 198, 200);\r\n}\r\n.prama :-moz-placeholder {\r\n\tcolor: rgb(196, 198, 200);\r\n}\r\n\r\n\r\n\r\n.prama-container > .prama-settings-button {\r\n\ttop: 0;\r\n\tright: 0;\r\n\twidth: 3.2rem;\r\n\theight: 3.2rem;\r\n\tline-height: 3.2rem;\r\n\ttext-align: center;\r\n\tdisplay: block;\r\n\tposition: absolute;\r\n\tz-index: 2;\r\n}\r\n\r\n.prama-settings-button i {\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n}\r\n\r\n.prama-settings-button svg {\r\n\tmargin-bottom: .52rem;\r\n\tmax-width: 100%;\r\n\tmax-height: 100%;\r\n}\r\n");
 
 
 /**
@@ -2330,11 +2331,9 @@ function Params (params, opts) {
 	this.setParams(params, loadedParams);
 
 	//create settings button and popup
-	this.popup = createPopup({
-		type: this.type,
-		side: this.side || 'auto',
+	this.popup = createPopup(extend(this.popup, {
 		content: this.element
-	});
+	}));
 
 	this.button = document.createElement('a');
 	this.button.href = '#settings';
@@ -2359,10 +2358,9 @@ inherits(Params, Emitter);
 Params.prototype.container;
 
 //popup type
-Params.prototype.type = 'modal';
-
-//popup side
-Params.prototype.side = 'center';
+Params.prototype.popup = {
+	type: 'modal'
+};
 
 //settings button and settings popup
 Params.prototype.icon = Buffer("PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4OTYiIGhlaWdodD0iMTAyNCIgdmlld0JveD0iMCAwIDg5NiAxMDI0Ij48cGF0aCBkPSJNNDQ3Ljk0IDM1NS43ODZjLTg2LjIxMiAwLTE1Ni4xNTQgNjkuOTQyLTE1Ni4xNTQgMTU2LjIxNCAwIDg2LjE4NCA2OS45NDIgMTU2LjI3NCAxNTYuMTU0IDE1Ni4yNzQgODYuMjQ0IDAgMTU1LjY3Mi03MC4wOTIgMTU1LjY3Mi0xNTYuMjc0IDAtODYuMjcyLTY5LjQyOC0xNTYuMjE0LTE1NS42NzItMTU2LjIxNHptMzEzLjA5MiAyNDUuOTUybC0yOC4xNDYgNjcuOCA1Ni44MzQgMTExLjYxNi02OS42MSA2OS42MS0xMTQuMjA2LTUzLjk0LTY3LjggMjcuODQ0LTM0LjQxNCAxMDUuMzQ4LTQuNCAxMy45ODJoLTk4LjM4OEwzNTguMzI0IDgyNS4wOWwtNjcuOC0yNy45NjQtMTExLjc2NCA1Ni41OTItNjkuNTc4LTY5LjU1IDUzLjg4LTExNC4yNjgtMjcuOTM0LTY3Ljc0Mi0xMTkuMTIyLTM4Ljg3MlY0NjQuOTZsMTE4Ljk5OC00Mi42MzggMjcuOTM2LTY3LjY4Mi01MC4wNTItOTguODA4LTYuNi0xMi45NTggNjkuNDg4LTY5LjQ4OCAxMTQuMzU4IDUzLjg1IDY3LjcxLTI3Ljk5NiAzNC4zODItMTA1LjI4OEwzOTYuNjU2IDgwaDk4LjM1OGw0Mi42MSAxMTkuMDU4IDY3LjYyMiAyNy45OTYgMTExLjkxNi01Ni43MTIgNjkuNTUgNjkuNDg4LTUzLjg4IDExNC4xNzggMjcuODQ0IDY3LjgzMiAxMTkuMzMgMzguODEydjk4LjI5OGwtMTE4Ljk3IDQyLjc5eiIvPjwvc3ZnPg==","base64");
@@ -2492,7 +2490,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 	var label = '';
 	if (param.label != null) {
-		label = "<label for=\"" + (param.name) + "\" class=\"prama-label\">" + (param.label) + "</label>"
+		label = "<label for=\"" + (param.name) + "\" class=\"prama-label\" title=\"" + (param.label) + "\">" + (param.label) + "</label>"
 	};
 
 	var el = document.createElement('div');
@@ -2537,7 +2535,7 @@ Params.prototype.setParam = function (name, param, cb) {
 						html += "<option value=\"" + (param.values[name$1]) + "\" " + (param.values[name$1] === param.value ? 'selected' : '') + ">" + name$1 + "</option>"
 					}
 				}
-				html += "</select>";
+				html += "</select><span class=\"prama-select-arrow\">▼</span>";
 
 				break;
 
@@ -2619,7 +2617,7 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'textarea' :
 				param.value = param.value == null ? '' : param.value;
-				html += "<textarea rows=\"3\" placeholder=\"" + (param.placeholder || 'value...') + "\" id=\"" + (param.name) + "\" class=\"prama-input prama-textarea\" title=\"" + (param.value) + "\">" + (param.value) + "</textarea>\n\t\t\t\t";
+				html += "<textarea rows=\"1\" placeholder=\"" + (param.placeholder || 'value...') + "\" id=\"" + (param.name) + "\" class=\"prama-input prama-textarea\" title=\"" + (param.value) + "\">" + (param.value) + "</textarea>\n\t\t\t\t";
 
 				break;
 
@@ -2646,6 +2644,7 @@ Params.prototype.setParam = function (name, param, cb) {
 		this.element.appendChild(param.element);
 	}
 
+	//apply hidden
 	if (param.hidden) {
 		param.element.setAttribute('hidden', true);
 	}
@@ -2653,11 +2652,19 @@ Params.prototype.setParam = function (name, param, cb) {
 		param.element.removeAttribute('hidden');
 	}
 
+	//init autosize
+	if (param.type === 'textarea') {
+		var textarea = param.element.querySelector('textarea');
+		textarea && autosize(textarea);
+	}
+
+	//init multirange
 	if (param.type === 'multirange') {
 		var input = param.element.querySelector('input');
 		input && multirange(input);
 	}
 
+	//watch for change event
 	var inputs = param.element.querySelectorAll('input, select, button, textarea, fieldset');
 
 	[].forEach.call(inputs, function (input) {
@@ -2697,7 +2704,7 @@ Params.prototype.setParam = function (name, param, cb) {
 	//init param value
 	if (param.type !== 'button' && param.type !== 'submit') {
 		//FIXME: >:( setTimeout needed to avoid instant init (before other fields)
-		//FIXME: we cannot call this here, because it invokes `change`, which can affect other fields and in result init the whole form in wrong order.
+		//FIXME: it invokes `change`, which can affect other fields and in result init the whole form in wrong order.
 		setTimeout(function () {
 			this$1.setParamValue(param.name, param.value);
 		});
@@ -2741,8 +2748,8 @@ Params.prototype.setParamValue = function (name, value) {
 
 	var param = this.params[name];
 
-	param.element.title = value;
 	param.value = value;
+	param.element.title = (param.label || param.name) + ": " + (param.value);
 
 	param.change && param.change.call(this, value, param);
 	this.emit('change', param.name, param.value, param);
@@ -3053,7 +3060,7 @@ function multirange (input) {
 	update();
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":2,"events":3,"inherits":9,"insert-css":10,"is-mobile":11,"mutype/is-object":27,"mutype/is-plain":28,"popoff":31,"qs":33,"xtend/mutable":38}],7:[function(require,module,exports){
+},{"autosize":8,"buffer":2,"events":3,"inherits":10,"insert-css":11,"is-mobile":12,"mutype/is-object":28,"mutype/is-plain":29,"popoff":32,"qs":34,"xtend/mutable":39}],7:[function(require,module,exports){
 var margins = require('mucss/margin');
 var paddings = require('mucss/padding');
 var offsets = require('mucss/offset');
@@ -3216,14 +3223,269 @@ function toFloat(value){
 
 	return value;
 }
-},{"mucss/border":12,"mucss/is-fixed":16,"mucss/margin":17,"mucss/offset":18,"mucss/padding":19}],8:[function(require,module,exports){
+},{"mucss/border":13,"mucss/is-fixed":17,"mucss/margin":18,"mucss/offset":19,"mucss/padding":20}],8:[function(require,module,exports){
+/*!
+	Autosize 3.0.15
+	license: MIT
+	http://www.jacklmoore.com/autosize
+*/
+(function (global, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['exports', 'module'], factory);
+	} else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+		factory(exports, module);
+	} else {
+		var mod = {
+			exports: {}
+		};
+		factory(mod.exports, mod);
+		global.autosize = mod.exports;
+	}
+})(this, function (exports, module) {
+	'use strict';
+
+	var set = typeof Set === 'function' ? new Set() : (function () {
+		var list = [];
+
+		return {
+			has: function has(key) {
+				return Boolean(list.indexOf(key) > -1);
+			},
+			add: function add(key) {
+				list.push(key);
+			},
+			'delete': function _delete(key) {
+				list.splice(list.indexOf(key), 1);
+			} };
+	})();
+
+	var createEvent = function createEvent(name) {
+		return new Event(name);
+	};
+	try {
+		new Event('test');
+	} catch (e) {
+		// IE does not support `new Event()`
+		createEvent = function (name) {
+			var evt = document.createEvent('Event');
+			evt.initEvent(name, true, false);
+			return evt;
+		};
+	}
+
+	function assign(ta) {
+		var _ref = arguments[1] === undefined ? {} : arguments[1];
+
+		var _ref$setOverflowX = _ref.setOverflowX;
+		var setOverflowX = _ref$setOverflowX === undefined ? true : _ref$setOverflowX;
+		var _ref$setOverflowY = _ref.setOverflowY;
+		var setOverflowY = _ref$setOverflowY === undefined ? true : _ref$setOverflowY;
+
+		if (!ta || !ta.nodeName || ta.nodeName !== 'TEXTAREA' || set.has(ta)) return;
+
+		var heightOffset = null;
+		var overflowY = null;
+		var clientWidth = ta.clientWidth;
+
+		function init() {
+			var style = window.getComputedStyle(ta, null);
+
+			overflowY = style.overflowY;
+
+			if (style.resize === 'vertical') {
+				ta.style.resize = 'none';
+			} else if (style.resize === 'both') {
+				ta.style.resize = 'horizontal';
+			}
+
+			if (style.boxSizing === 'content-box') {
+				heightOffset = -(parseFloat(style.paddingTop) + parseFloat(style.paddingBottom));
+			} else {
+				heightOffset = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+			}
+			// Fix when a textarea is not on document body and heightOffset is Not a Number
+			if (isNaN(heightOffset)) {
+				heightOffset = 0;
+			}
+
+			update();
+		}
+
+		function changeOverflow(value) {
+			{
+				// Chrome/Safari-specific fix:
+				// When the textarea y-overflow is hidden, Chrome/Safari do not reflow the text to account for the space
+				// made available by removing the scrollbar. The following forces the necessary text reflow.
+				var width = ta.style.width;
+				ta.style.width = '0px';
+				// Force reflow:
+				/* jshint ignore:start */
+				ta.offsetWidth;
+				/* jshint ignore:end */
+				ta.style.width = width;
+			}
+
+			overflowY = value;
+
+			if (setOverflowY) {
+				ta.style.overflowY = value;
+			}
+
+			resize();
+		}
+
+		function resize() {
+			var htmlTop = window.pageYOffset;
+			var bodyTop = document.body.scrollTop;
+			var originalHeight = ta.style.height;
+
+			ta.style.height = 'auto';
+
+			var endHeight = ta.scrollHeight + heightOffset;
+
+			if (ta.scrollHeight === 0) {
+				// If the scrollHeight is 0, then the element probably has display:none or is detached from the DOM.
+				ta.style.height = originalHeight;
+				return;
+			}
+
+			ta.style.height = endHeight + 'px';
+
+			// used to check if an update is actually necessary on window.resize
+			clientWidth = ta.clientWidth;
+
+			// prevents scroll-position jumping
+			document.documentElement.scrollTop = htmlTop;
+			document.body.scrollTop = bodyTop;
+		}
+
+		function update() {
+			var startHeight = ta.style.height;
+
+			resize();
+
+			var style = window.getComputedStyle(ta, null);
+
+			if (style.height !== ta.style.height) {
+				if (overflowY !== 'visible') {
+					changeOverflow('visible');
+				}
+			} else {
+				if (overflowY !== 'hidden') {
+					changeOverflow('hidden');
+				}
+			}
+
+			if (startHeight !== ta.style.height) {
+				var evt = createEvent('autosize:resized');
+				ta.dispatchEvent(evt);
+			}
+		}
+
+		var pageResize = function pageResize() {
+			if (ta.clientWidth !== clientWidth) {
+				update();
+			}
+		};
+
+		var destroy = (function (style) {
+			window.removeEventListener('resize', pageResize, false);
+			ta.removeEventListener('input', update, false);
+			ta.removeEventListener('keyup', update, false);
+			ta.removeEventListener('autosize:destroy', destroy, false);
+			ta.removeEventListener('autosize:update', update, false);
+			set['delete'](ta);
+
+			Object.keys(style).forEach(function (key) {
+				ta.style[key] = style[key];
+			});
+		}).bind(ta, {
+			height: ta.style.height,
+			resize: ta.style.resize,
+			overflowY: ta.style.overflowY,
+			overflowX: ta.style.overflowX,
+			wordWrap: ta.style.wordWrap });
+
+		ta.addEventListener('autosize:destroy', destroy, false);
+
+		// IE9 does not fire onpropertychange or oninput for deletions,
+		// so binding to onkeyup to catch most of those events.
+		// There is no way that I know of to detect something like 'cut' in IE9.
+		if ('onpropertychange' in ta && 'oninput' in ta) {
+			ta.addEventListener('keyup', update, false);
+		}
+
+		window.addEventListener('resize', pageResize, false);
+		ta.addEventListener('input', update, false);
+		ta.addEventListener('autosize:update', update, false);
+		set.add(ta);
+
+		if (setOverflowX) {
+			ta.style.overflowX = 'hidden';
+			ta.style.wordWrap = 'break-word';
+		}
+
+		init();
+	}
+
+	function destroy(ta) {
+		if (!(ta && ta.nodeName && ta.nodeName === 'TEXTAREA')) return;
+		var evt = createEvent('autosize:destroy');
+		ta.dispatchEvent(evt);
+	}
+
+	function update(ta) {
+		if (!(ta && ta.nodeName && ta.nodeName === 'TEXTAREA')) return;
+		var evt = createEvent('autosize:update');
+		ta.dispatchEvent(evt);
+	}
+
+	var autosize = null;
+
+	// Do nothing in Node.js environment and IE8 (or lower)
+	if (typeof window === 'undefined' || typeof window.getComputedStyle !== 'function') {
+		autosize = function (el) {
+			return el;
+		};
+		autosize.destroy = function (el) {
+			return el;
+		};
+		autosize.update = function (el) {
+			return el;
+		};
+	} else {
+		autosize = function (el, options) {
+			if (el) {
+				Array.prototype.forEach.call(el.length ? el : [el], function (x) {
+					return assign(x, options);
+				});
+			}
+			return el;
+		};
+		autosize.destroy = function (el) {
+			if (el) {
+				Array.prototype.forEach.call(el.length ? el : [el], destroy);
+			}
+			return el;
+		};
+		autosize.update = function (el) {
+			if (el) {
+				Array.prototype.forEach.call(el.length ? el : [el], update);
+			}
+			return el;
+		};
+	}
+
+	module.exports = autosize;
+});
+},{}],9:[function(require,module,exports){
 /** generate unique id for selector */
 var counter = Date.now() % 1e9;
 
 module.exports = function getUid(){
 	return (Math.random() * 1e9 >>> 0) + (counter++);
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -3248,7 +3510,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var containers = []; // will store container HTMLElement references
 var styleElements = []; // will store {prepend: HTMLElement, append: HTMLElement}
 
@@ -3296,7 +3558,7 @@ function createStyleElement() {
     return styleElement;
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = isMobile;
 
 function isMobile (ua) {
@@ -3309,7 +3571,7 @@ function isMobile (ua) {
   return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(ua) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(ua.substr(0,4));
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /**
  * Parse element’s borders
  *
@@ -3336,7 +3598,7 @@ module.exports = function(el){
 		parse(style.borderBottomWidth)
 	);
 };
-},{"./parse-value":20,"./rect":22}],13:[function(require,module,exports){
+},{"./parse-value":21,"./rect":23}],14:[function(require,module,exports){
 /**
  * Get or set element’s style, prefix-agnostic.
  *
@@ -3395,13 +3657,13 @@ function prefixize(name){
 	if (fakeStyle[prefix + uName] !== undefined) return prefix + uName;
 	return '';
 }
-},{"./fake-element":14,"./prefix":21}],14:[function(require,module,exports){
+},{"./fake-element":15,"./prefix":22}],15:[function(require,module,exports){
 /** Just a fake element to test styles
  * @module mucss/fake-element
  */
 
 module.exports = document.createElement('div');
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /**
  * Window scrollbar detector.
  *
@@ -3415,7 +3677,7 @@ exports.x = function () {
 exports.y = function () {
 	return window.innerWidth > document.documentElement.clientWidth;
 };
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Detect whether element is placed to fixed container or is fixed itself.
  *
@@ -3440,7 +3702,7 @@ module.exports = function (el) {
 	}
 	return false;
 };
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Get margins of an element.
  * @module mucss/margins
@@ -3469,7 +3731,7 @@ module.exports = function(el){
 		parse(style.marginBottom)
 	);
 };
-},{"./parse-value":20,"./rect":22}],18:[function(require,module,exports){
+},{"./parse-value":21,"./rect":23}],19:[function(require,module,exports){
 /**
  * Calculate absolute offsets of an element, relative to the document.
  *
@@ -3548,7 +3810,7 @@ function offsets (el) {
 
 	return result;
 };
-},{"./has-scroll":15,"./is-fixed":16,"./rect":22,"./scrollbar":23,"./translate":24}],19:[function(require,module,exports){
+},{"./has-scroll":16,"./is-fixed":17,"./rect":23,"./scrollbar":24,"./translate":25}],20:[function(require,module,exports){
 /**
  * Caclulate paddings of an element.
  * @module  mucss/paddings
@@ -3579,7 +3841,7 @@ module.exports = function(el){
 		parse(style.paddingBottom)
 	);
 };
-},{"./parse-value":20,"./rect":22}],20:[function(require,module,exports){
+},{"./parse-value":21,"./rect":23}],21:[function(require,module,exports){
 /**
  * Returns parsed css value.
  *
@@ -3595,7 +3857,7 @@ module.exports = function (str){
 };
 
 //FIXME: add parsing units
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * Vendor prefixes
  * Method of http://davidwalsh.name/vendor-prefix
@@ -3625,7 +3887,7 @@ else {
 		js: pre[0].toUpperCase() + pre.substr(1)
 	};
 }
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * Simple rect constructor.
  * It is just faster and smaller than constructing an object.
@@ -3649,7 +3911,7 @@ module.exports = function Rect (l,t,r,b) {
 	this.width=Math.abs(this.right - this.left);
 	this.height=Math.abs(this.bottom - this.top);
 };
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /**
  * Calculate scrollbar width.
  *
@@ -3674,7 +3936,7 @@ module.exports = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
 // Delete fake DIV
 document.documentElement.removeChild(scrollDiv);
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * Parse translate3d
  *
@@ -3701,15 +3963,15 @@ module.exports = function (el) {
 		return parseValue(value);
 	});
 };
-},{"./css":13,"./parse-value":20}],25:[function(require,module,exports){
+},{"./css":14,"./parse-value":21}],26:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'boolean' || a instanceof Boolean;
 }
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'number' || a instanceof Number;
 }
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * @module mutype/is-object
  */
@@ -3721,7 +3983,7 @@ module.exports = function(o){
 	// return obj === Object(obj);
 	return !!o && typeof o === 'object' && o.constructor === Object;
 };
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var isString = require('./is-string'),
 	isNumber = require('./is-number'),
 	isBool = require('./is-bool');
@@ -3729,11 +3991,11 @@ var isString = require('./is-string'),
 module.exports = function isPlain(a){
 	return !a || isString(a) || isNumber(a) || isBool(a);
 };
-},{"./is-bool":25,"./is-number":26,"./is-string":29}],29:[function(require,module,exports){
+},{"./is-bool":26,"./is-number":27,"./is-string":30}],30:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'string' || a instanceof String;
 }
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /**
 * @module  placer
 *
@@ -4152,7 +4414,7 @@ function getParentRect (target) {
 
 	return rect;
 }
-},{"aligner":7,"mucss/border":12,"mucss/css":13,"mucss/has-scroll":15,"mucss/is-fixed":16,"mucss/margin":17,"mucss/offset":18,"mucss/parse-value":20,"mucss/scrollbar":23,"soft-extend":37}],31:[function(require,module,exports){
+},{"aligner":7,"mucss/border":13,"mucss/css":14,"mucss/has-scroll":16,"mucss/is-fixed":17,"mucss/margin":18,"mucss/offset":19,"mucss/parse-value":21,"mucss/scrollbar":24,"soft-extend":38}],32:[function(require,module,exports){
 /**
  * @module  popup
  */
@@ -4168,7 +4430,7 @@ var sb = require('mucss/scrollbar');
 var hasScroll = require('mucss/has-scroll');
 
 
-insertCss(".popoff-overlay {\r\n\tposition: fixed;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tright: 0;\r\n\topacity: 0;\r\n\tbackground-color: rgba(65,65,65,.85);\r\n\tbackground: linear-gradient(160deg, rgba(93, 88, 95, 0.75), rgba(63, 60, 72, 0.75));\r\n\t-webkit-transition: opacity .33s;\r\n\t-moz-transition: opacity .33s;\r\n\ttransition: opacity .33s;\r\n\tz-index: 5;\r\n}\r\n.popoff-closable {\r\n\tcursor: pointer;\r\n}\r\n\r\n.popoff-popup {\r\n\tz-index: 9;\r\n\tposition: absolute;\r\n\toverflow: hidden;\r\n\tmargin: auto;\r\n\tmin-width: 4rem;\r\n\tmin-height: 1rem;\r\n\tbackground: white;\r\n\topacity: 1;\r\n\tvisibility: visible;\r\n\tbackface-visibility: hidden;\r\n\tbox-sizing: border-box;\r\n\t-webkit-transform-origin: center center;\r\n\t-moz-transform-origin: center center;\r\n\ttransform-origin: center center;\r\n\t-webkit-transform: scale(1) rotate(0deg);\r\n\t-moz-transform: scale(1) rotate(0deg);\r\n\t-ms-transform: scale(1) rotate(0deg);\r\n\ttransform: scale(1) rotate(0deg);\r\n}\r\n.popoff-popup-tip {\r\n\tmargin: 1rem;\r\n}\r\n\r\n.popoff-animate {\r\n\t-webkit-transition: opacity .333s, transform .25s ease-out;\r\n\t-moz-transition: opacity .333s, transform .25s ease-out;\r\n\ttransition: opacity .333s, transform .25s ease-out;\r\n}\r\n.popoff-hidden {\r\n\topacity: 0;\r\n\tdisplay: none;\r\n\tpointer-events: none;\r\n\tvisibility: hidden;\r\n}\r\n.popoff-visible {\r\n\topacity: 1;\r\n}\r\n\r\n\r\n.popoff-container {\r\n}\r\n.popoff-container-overflow {\r\n\toverflow: hidden;\r\n\theight: 100%;\r\n}\r\n\r\n.popoff-overflow {\r\n\tposition: fixed;\r\n\toverflow: hidden;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tz-index: 10;\r\n\tdisplay: flex;\r\n\tjustify-content: center;\r\n\talign-items: center;\r\n}\r\n.popoff-overflow.popoff-overflow-tall {\r\n\toverflow-y: scroll;\r\n\tdisplay: block;\r\n}\r\n.popoff-overflow .popoff-popup {\r\n\tposition: relative;\r\n}\r\n\r\n.popoff-overflow-tall .popoff-popup {\r\n\tmargin: 2rem auto;\r\n}\r\n@media (max-width: 42rem) {\r\n\t.popoff-overflow-tall .popoff-popup {\r\n\t\tmargin: 0 auto;\r\n\t}\r\n}\r\n\r\n/* Close button */\r\n.popoff-close {\r\n\tposition: absolute;\r\n\tright: 0;\r\n\ttop: 0;\r\n\twidth: 3.333rem;\r\n\theight: 3.333rem;\r\n\tcursor: pointer;\r\n\tline-height: 3.333rem;\r\n\ttext-align: center;\r\n\tfont-size: 1.333rem;\r\n\tcolor: rgb(40,40,40);\r\n\tbackground: transparent;\r\n}\r\n.popoff-close:after {\r\n\tcontent: '✕';\r\n}\r\n.popoff-close:hover{\r\n\tbackground: black;\r\n\tcolor: white;\r\n}\r\n\r\n\r\n/* Types */\r\n.popoff-modal,\r\n.popoff-dialog,\r\n.popoff-confirm,\r\n.popoff-alert,\r\n.popoff-sidebar {\r\n\tposition: fixed;\r\n\tmax-width: 660px;\r\n\tmin-width: 320px;\r\n\tpadding: 1.6rem 2rem;\r\n\tbox-shadow: 0 .666vh 3.333vw -.333vh rgba(19, 16, 27, 0.45);\r\n}\r\n@media (max-width: 42rem) {\r\n\t.popoff-modal,\r\n\t.popoff-dialog,\r\n\t.popoff-confirm,\r\n\t.popoff-alert {\r\n\t\tmax-width: 80%;\r\n\t}\r\n}\r\n.popoff-dropdown,\r\n.popoff-tooltip {\r\n\tmax-width: 320px;\r\n\tpadding: 1rem 1.2rem;\r\n\tbox-shadow: 0 1px 4px rgba(19, 16, 27, 0.25);\r\n}\r\n\r\n\r\n\r\n/** Special sidebar settings */\r\n.popoff-sidebar {\r\n\tmargin: 0;\r\n\tmax-width: none;\r\n\tmin-width: 0;\r\n\tmax-height: none;\r\n\toverflow-y: auto;\r\n\topacity: 1;\r\n}\r\n.popoff-sidebar[data-side=\"top\"] {\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: auto;\r\n\theight: 160px;\r\n}\r\n.popoff-sidebar[data-side=\"bottom\"] {\r\n\tbottom: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\ttop: auto;\r\n\theight: 160px;\r\n}\r\n.popoff-sidebar[data-side=\"right\"] {\r\n\tbottom: 0;\r\n\ttop: 0;\r\n\tright: 0;\r\n\tleft: auto;\r\n\twidth: 240px;\r\n}\r\n.popoff-sidebar[data-side=\"left\"] {\r\n\tbottom: 0;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: auto;\r\n\twidth: 240px;\r\n}\r\n\r\n\r\n\r\n/* Tip */\r\n.popoff-tip {\r\n\twidth: 30px;\r\n\theight: 30px;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\toverflow: hidden;\r\n}\r\n.popoff-tip:after {\r\n\tcontent: '';\r\n\tborder-top-left-radius: 1px;\r\n\tposition: absolute;\r\n\tbackground: white;\r\n\tbox-shadow: 0 0px 3px rgba(19, 16, 27, 0.25);\r\n\t-webkit-transform-origin: center;\r\n\t-moz-transform-origin: center;\r\n\ttransform-origin: center;\r\n\t-webkit-transform: rotate(45deg);\r\n\t-moz-transform: rotate(45deg);\r\n\ttransform: rotate(45deg);\r\n\twidth: 30px;\r\n\theight: 30px;\r\n}\r\n.popoff-tip[data-side=\"top\"],\r\n.popoff-tip[data-side=\"bottom\"] {\r\n\theight: 20px;\r\n}\r\n.popoff-tip[data-side=\"top\"]:after {\r\n\tbottom: auto;\r\n\ttop: 17px;\r\n}\r\n.popoff-tip[data-side=\"bottom\"]:after {\r\n\tbottom: 17px;\r\n\ttop: auto;\r\n}\r\n.popoff-tip[data-side=\"left\"],\r\n.popoff-tip[data-side=\"right\"] {\r\n\twidth: 20px;\r\n}\r\n.popoff-tip[data-side=\"left\"]:after {\r\n\tleft: 17px;\r\n\tright: auto;\r\n}\r\n.popoff-tip[data-side=\"right\"]:after {\r\n\tleft: auto;\r\n\tright: 17px;\r\n}\r\n\r\n\r\n\r\n/* Basic fade */\r\n.popoff-effect-fade {\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n/* Effect 1: Fade in and scale up */\r\n.popoff-effect-scale {\r\n\t-webkit-transform: scale(0.7);\r\n\t-moz-transform: scale(0.7);\r\n\t-ms-transform: scale(0.7);\r\n\ttransform: scale(0.7);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n\r\n/* Effect 2: Slide from the right */\r\n.popoff-effect-slide {\r\n\t-webkit-transform: translateY(20%);\r\n\t-moz-transform: translateY(20%);\r\n\t-ms-transform: translateY(20%);\r\n\ttransform: translateY(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-right {\r\n\t-webkit-transform: translateX(20%);\r\n\t-moz-transform: translateX(20%);\r\n\t-ms-transform: translateX(20%);\r\n\ttransform: translateX(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-bottom {\r\n\t-webkit-transform: translateY(20%);\r\n\t-moz-transform: translateY(20%);\r\n\t-ms-transform: translateY(20%);\r\n\ttransform: translateY(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-left {\r\n\t-webkit-transform: translateX(-20%);\r\n\t-moz-transform: translateX(-20%);\r\n\t-ms-transform: translateX(-20%);\r\n\ttransform: translateX(-20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-top {\r\n\t-webkit-transform: translateY(-20%);\r\n\t-moz-transform: translateY(-20%);\r\n\t-ms-transform: translateY(-20%);\r\n\ttransform: translateY(-20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n\r\n/* Effect 4: Newspaper */\r\n.popoff-effect-newspaper {\r\n\t-webkit-transform: scale(0) rotate(720deg);\r\n\t-moz-transform: scale(0) rotate(720deg);\r\n\t-ms-transform: scale(0) rotate(720deg);\r\n\ttransform: scale(0) rotate(720deg);\r\n\t-webkit-transition: all 0.5s;\r\n\t-moz-transition: all 0.5s;\r\n\ttransition: all 0.5s;\r\n\topacity: 0;\r\n}\r\n\r\n\r\n/* Effect 11: Super scaled */\r\n.popoff-effect-super-scaled {\r\n\t-webkit-transform: scale(2);\r\n\t-moz-transform: scale(2);\r\n\t-ms-transform: scale(2);\r\n\ttransform: scale(2);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n");
+insertCss(".popoff-overlay {\r\n\tposition: fixed;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tright: 0;\r\n\topacity: 0;\r\n\tbackground-color: rgba(65,65,65,.85);\r\n\tbackground: linear-gradient(160deg, rgba(93, 88, 95, 0.75), rgba(63, 60, 72, 0.75));\r\n\t-webkit-transition: opacity .33s;\r\n\t-moz-transition: opacity .33s;\r\n\ttransition: opacity .33s;\r\n\tz-index: 5;\r\n}\r\n.popoff-closable {\r\n\tcursor: pointer;\r\n}\r\n\r\n.popoff-popup {\r\n\tz-index: 9;\r\n\tposition: absolute;\r\n\toverflow: hidden;\r\n\tmargin: auto;\r\n\tmin-width: 4rem;\r\n\tmin-height: 1rem;\r\n\tbackground: white;\r\n\topacity: 1;\r\n\tvisibility: visible;\r\n\tbackface-visibility: hidden;\r\n\tbox-sizing: border-box;\r\n\t-webkit-transform-origin: center center;\r\n\t-moz-transform-origin: center center;\r\n\ttransform-origin: center center;\r\n\t-webkit-transform: scale(1) rotate(0deg);\r\n\t-moz-transform: scale(1) rotate(0deg);\r\n\t-ms-transform: scale(1) rotate(0deg);\r\n\ttransform: scale(1) rotate(0deg);\r\n}\r\n.popoff-popup-tip {\r\n\tmargin: 1rem;\r\n}\r\n\r\n.popoff-animate {\r\n\t-webkit-transition: opacity .333s, transform .25s ease-out;\r\n\t-moz-transition: opacity .333s, transform .25s ease-out;\r\n\ttransition: opacity .333s, transform .25s ease-out;\r\n}\r\n.popoff-hidden {\r\n\topacity: 0;\r\n\tdisplay: none;\r\n\tpointer-events: none;\r\n\tvisibility: hidden;\r\n}\r\n.popoff-visible {\r\n\topacity: 1;\r\n}\r\n\r\n\r\n.popoff-container {\r\n}\r\n.popoff-container-overflow {\r\n\toverflow: hidden;\r\n\theight: 100%;\r\n}\r\n\r\n.popoff-overflow {\r\n\tposition: fixed;\r\n\toverflow: hidden;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\tz-index: 10;\r\n\tdisplay: flex;\r\n\tjustify-content: center;\r\n\talign-items: center;\r\n}\r\n.popoff-overflow.popoff-overflow-tall {\r\n\toverflow-y: scroll;\r\n\tdisplay: block;\r\n}\r\n.popoff-overflow .popoff-popup {\r\n\tposition: relative;\r\n}\r\n\r\n.popoff-overflow-tall .popoff-popup {\r\n\tmargin: 2rem auto;\r\n}\r\n@media (max-width: 42rem) {\r\n\t.popoff-overflow-tall .popoff-popup {\r\n\t\tmargin: 0 auto;\r\n\t}\r\n}\r\n\r\n/* Close button */\r\n.popoff-close {\r\n\tposition: absolute;\r\n\tright: 0;\r\n\ttop: 0;\r\n\twidth: 3.333rem;\r\n\theight: 3.333rem;\r\n\tcursor: pointer;\r\n\tline-height: 3.333rem;\r\n\ttext-align: center;\r\n\tfont-size: 1.333rem;\r\n\tcolor: rgb(40,40,40);\r\n\tbackground: transparent;\r\n}\r\n.popoff-close:after {\r\n\tcontent: '✕';\r\n}\r\n.popoff-close:hover{\r\n\tbackground: black;\r\n\tcolor: white;\r\n}\r\n\r\n\r\n/* Types */\r\n.popoff-modal,\r\n.popoff-dialog,\r\n.popoff-confirm,\r\n.popoff-alert,\r\n.popoff-sidebar {\r\n\tposition: fixed;\r\n\tmax-width: 660px;\r\n\tmin-width: 320px;\r\n\tpadding: 1.6rem 2rem;\r\n\tbox-shadow: 0 .666vh 3.333vw -.333vh rgba(19, 16, 27, 0.45);\r\n}\r\n@media (max-width: 42rem) {\r\n\t.popoff-modal,\r\n\t.popoff-dialog,\r\n\t.popoff-confirm,\r\n\t.popoff-alert {\r\n\t\tmax-width: 80%;\r\n\t}\r\n}\r\n.popoff-dropdown,\r\n.popoff-tooltip {\r\n\tmax-width: 320px;\r\n\tpadding: 1rem 1.2rem;\r\n\tbox-shadow: 0 1px 4px rgba(19, 16, 27, 0.25);\r\n}\r\n\r\n\r\n\r\n/** Special sidebar settings */\r\n.popoff-sidebar {\r\n\tmargin: 0;\r\n\tmax-width: none;\r\n\tmin-width: 0;\r\n\tmax-height: none;\r\n\toverflow-y: auto;\r\n\topacity: 1;\r\n\tpadding: 1.2rem;\r\n}\r\n.popoff-sidebar[data-side=\"top\"] {\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\tbottom: auto;\r\n\tmax-height: 160px;\r\n}\r\n.popoff-sidebar[data-side=\"bottom\"] {\r\n\tbottom: 0;\r\n\tleft: 0;\r\n\tright: 0;\r\n\ttop: auto;\r\n\tmax-height: 160px;\r\n}\r\n.popoff-sidebar[data-side=\"right\"] {\r\n\tbottom: 0;\r\n\ttop: 0;\r\n\tright: 0;\r\n\tleft: auto;\r\n\tmax-width: 240px;\r\n}\r\n.popoff-sidebar[data-side=\"left\"] {\r\n\tbottom: 0;\r\n\ttop: 0;\r\n\tleft: 0;\r\n\tright: auto;\r\n\tmax-width: 240px;\r\n}\r\n\r\n\r\n\r\n/* Tip */\r\n.popoff-tip {\r\n\twidth: 30px;\r\n\theight: 30px;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\toverflow: hidden;\r\n}\r\n.popoff-tip:after {\r\n\tcontent: '';\r\n\tborder-top-left-radius: 1px;\r\n\tposition: absolute;\r\n\tbackground: white;\r\n\tbox-shadow: 0 0px 3px rgba(19, 16, 27, 0.25);\r\n\t-webkit-transform-origin: center;\r\n\t-moz-transform-origin: center;\r\n\ttransform-origin: center;\r\n\t-webkit-transform: rotate(45deg);\r\n\t-moz-transform: rotate(45deg);\r\n\ttransform: rotate(45deg);\r\n\twidth: 30px;\r\n\theight: 30px;\r\n}\r\n.popoff-tip[data-side=\"top\"],\r\n.popoff-tip[data-side=\"bottom\"] {\r\n\theight: 20px;\r\n}\r\n.popoff-tip[data-side=\"top\"]:after {\r\n\tbottom: auto;\r\n\ttop: 17px;\r\n}\r\n.popoff-tip[data-side=\"bottom\"]:after {\r\n\tbottom: 17px;\r\n\ttop: auto;\r\n}\r\n.popoff-tip[data-side=\"left\"],\r\n.popoff-tip[data-side=\"right\"] {\r\n\twidth: 20px;\r\n}\r\n.popoff-tip[data-side=\"left\"]:after {\r\n\tleft: 17px;\r\n\tright: auto;\r\n}\r\n.popoff-tip[data-side=\"right\"]:after {\r\n\tleft: auto;\r\n\tright: 17px;\r\n}\r\n\r\n\r\n\r\n/* Basic fade */\r\n.popoff-effect-fade {\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n/* Effect 1: Fade in and scale up */\r\n.popoff-effect-scale {\r\n\t-webkit-transform: scale(0.7);\r\n\t-moz-transform: scale(0.7);\r\n\t-ms-transform: scale(0.7);\r\n\ttransform: scale(0.7);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n\r\n/* Effect 2: Slide from the right */\r\n.popoff-effect-slide {\r\n\t-webkit-transform: translateY(20%);\r\n\t-moz-transform: translateY(20%);\r\n\t-ms-transform: translateY(20%);\r\n\ttransform: translateY(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-right {\r\n\t-webkit-transform: translateX(20%);\r\n\t-moz-transform: translateX(20%);\r\n\t-ms-transform: translateX(20%);\r\n\ttransform: translateX(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-bottom {\r\n\t-webkit-transform: translateY(20%);\r\n\t-moz-transform: translateY(20%);\r\n\t-ms-transform: translateY(20%);\r\n\ttransform: translateY(20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-left {\r\n\t-webkit-transform: translateX(-20%);\r\n\t-moz-transform: translateX(-20%);\r\n\t-ms-transform: translateX(-20%);\r\n\ttransform: translateX(-20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n.popoff-effect-slide-top {\r\n\t-webkit-transform: translateY(-20%);\r\n\t-moz-transform: translateY(-20%);\r\n\t-ms-transform: translateY(-20%);\r\n\ttransform: translateY(-20%);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n\r\n\r\n/* Effect 4: Newspaper */\r\n.popoff-effect-newspaper {\r\n\t-webkit-transform: scale(0) rotate(720deg);\r\n\t-moz-transform: scale(0) rotate(720deg);\r\n\t-ms-transform: scale(0) rotate(720deg);\r\n\ttransform: scale(0) rotate(720deg);\r\n\t-webkit-transition: all 0.5s;\r\n\t-moz-transition: all 0.5s;\r\n\ttransition: all 0.5s;\r\n\topacity: 0;\r\n}\r\n\r\n\r\n/* Effect 11: Super scaled */\r\n.popoff-effect-super-scaled {\r\n\t-webkit-transform: scale(2);\r\n\t-moz-transform: scale(2);\r\n\t-ms-transform: scale(2);\r\n\ttransform: scale(2);\r\n\topacity: 0;\r\n\t-webkit-transition: all 0.3s;\r\n\t-moz-transition: all 0.3s;\r\n\ttransition: all 0.3s;\r\n}\r\n");
 
 module.exports = Popup;
 
@@ -4489,6 +4751,11 @@ Popup.prototype.types = {
 		onInit: function () {
 			var this$1 = this;
 
+			//define shift
+			if (this.shift === true) {
+				this.shift = 100;
+			}
+
 			if (this.target) {
 				this.target.addEventListener('click', function (e) {
 					if (this$1.isVisible) return;
@@ -4748,7 +5015,7 @@ Popup.prototype.animend = function (cb) {
 		cb.call(that);
 	}
 }
-},{"./overlay":32,"events":3,"get-uid":8,"inherits":9,"insert-css":10,"mucss/has-scroll":15,"mucss/scrollbar":23,"placer":30,"xtend/mutable":38}],32:[function(require,module,exports){
+},{"./overlay":33,"events":3,"get-uid":9,"inherits":10,"insert-css":11,"mucss/has-scroll":16,"mucss/scrollbar":24,"placer":31,"xtend/mutable":39}],33:[function(require,module,exports){
 /**
  * @module  popoff/overlay
  *
@@ -4865,7 +5132,7 @@ Overlay.prototype.hide = function () {
 
 	return this;
 };
-},{"events":3,"inherits":9,"xtend/mutable":38}],33:[function(require,module,exports){
+},{"events":3,"inherits":10,"xtend/mutable":39}],34:[function(require,module,exports){
 'use strict';
 
 var Stringify = require('./stringify');
@@ -4876,7 +5143,7 @@ module.exports = {
     parse: Parse
 };
 
-},{"./parse":34,"./stringify":35}],34:[function(require,module,exports){
+},{"./parse":35,"./stringify":36}],35:[function(require,module,exports){
 'use strict';
 
 var Utils = require('./utils');
@@ -5045,7 +5312,7 @@ module.exports = function (str, opts) {
     return Utils.compact(obj);
 };
 
-},{"./utils":36}],35:[function(require,module,exports){
+},{"./utils":37}],36:[function(require,module,exports){
 'use strict';
 
 var Utils = require('./utils');
@@ -5184,7 +5451,7 @@ module.exports = function (object, opts) {
     return keys.join(delimiter);
 };
 
-},{"./utils":36}],36:[function(require,module,exports){
+},{"./utils":37}],37:[function(require,module,exports){
 'use strict';
 
 var hexTable = (function () {
@@ -5350,7 +5617,7 @@ exports.isBuffer = function (obj) {
     return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /**
  * Append all not-existing props to the initial object
  *
@@ -5374,7 +5641,7 @@ module.exports = function(){
 
 	return res;
 };
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -5395,7 +5662,7 @@ function extend(target) {
     return target
 }
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var extend = require('xtend/mutable');
 var createParams = require('./');
 var insertCSS = require('insert-css');
@@ -5406,12 +5673,17 @@ meta.setAttribute('name', 'viewport');
 meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no');
 document.head.appendChild(meta);
 
-insertCSS("\n\t@media (min-width: 42rem) {\n\t}\n\t.prama {\n\t\tmax-width: 900px;\n\t\tbackground: rgb(251, 250, 249);\n\t\tborder-radius: .5rem;\n\t\tpadding: 1rem 0;\n\t}\n\t.prama-title {\n\t\ttext-align: center;\n\t\tletter-spacing: -.05ex;\n\t}\n");
+insertCSS("\n\tbody {\n\t\tmargin: 0;\n\t}\n\tbody > .prama {\n\t\tmax-width: 900px;\n\t\t/* background: rgb(251, 250, 249); */\n\t\tborder-radius: .5rem;\n\t\tpadding: 1rem;\n\t}\n\t.prama-title {\n\t\ttext-align: center;\n\t\tletter-spacing: -.05ex;\n\t}\n");
 
 //prepare demo params
 var demoParams = createParams([
 ], {
-	title: 'Example settings'
+	title: 'Settings',
+	popup: {
+		type: 'sidebar',
+		side: 'right',
+		shift: 100
+	}
 });
 
 //create main form
@@ -5581,4 +5853,4 @@ var params = createParams({
 
 
 document.body.appendChild(params.element);
-},{"./":6,"insert-css":10,"xtend/mutable":38}]},{},[39]);
+},{"./":6,"insert-css":11,"xtend/mutable":39}]},{},[40]);

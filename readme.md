@@ -6,7 +6,10 @@
 
 Define parameters which your component depends on and _prama_ will take care of settings form, history of changes, saving/loading states, parameter types etc.
 
-**[Example](https://dfcreative.github.io/prama)**
+Examples:
+
+* **[plot-grid](https://dfcreative.github.io/plot-grid)**
+* **[settings constructor](https://dfcreative.github.io/prama)**
 
 ## Usage
 
@@ -156,6 +159,8 @@ prama.button;
 
 ## See also
 
+* [control-panel](https://github.com/freeman-lab/control-panel) — alternative settings panel.
+* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
 * [start-app](https://github.com/dfcreative/start-app) — demo page for components.
 * [tst](https://github.com/dfcreative/tst) — minimalistic test runner.
 * [popoff](https://github.com/dfcreative/popoff) — any type of popup, modal, dropdown etc.

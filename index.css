@@ -1,7 +1,7 @@
 .prama {
 	font-family: sans-serif;
 	text-align: center;
-	padding: 1.6rem 0;
+	padding: .8rem 0;
 }
 
 .prama [hidden] {
@@ -12,11 +12,38 @@
 	box-sizing: border-box;
 }
 
-.prama-title {
-	margin-top: 0;
-	margin-bottom: 1.6rem;
+.prama-container > .prama-settings-button {
+	top: 0;
+	right: 0;
+	width: 3.2rem;
+	height: 3.2rem;
+	line-height: 3.2rem;
+	text-align: center;
+	display: block;
+	position: absolute;
+	z-index: 2;
 }
 
+.prama-settings-button i {
+	height: 1.6rem;
+	width: 1.6rem;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.prama-settings-button svg {
+	margin-bottom: .52rem;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+
+
+/*
+.prama-title {
+	margin-top: .8rem;
+	margin-bottom: 1.6rem;
+}
 .prama-param {
 	text-align: left;
 	margin-bottom: .8rem;
@@ -99,7 +126,6 @@
 	appearance: none;
 	vertical-align: top;
 	display: inline-block;
-	/*line-height: 2rem;*/
 	min-height: 2rem;
 	min-width: 2rem;
 	border: none;
@@ -225,7 +251,6 @@
 }
 
 
-/* Hide default HTML checkbox */
 .prama-toggle {
   position: relative;
   display: inline-block;
@@ -272,8 +297,10 @@
 	box-shadow: none;
 	background-color: white;
 }
+*/
 
-
+/** O_o you can’t use height for IE here */
+/*
 .prama input[type="range"] {
 	width: 58%;
 	width: calc(60% - .5rem);
@@ -281,7 +308,6 @@
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	/** O_o you can’t use height for IE here */
 	padding: 0;
 	margin-top: .5rem;
 	min-height: .5rem;
@@ -377,11 +403,12 @@ input[type="range"]:focus::-ms-fill-lower {
 input[type="range"]:focus::-ms-fill-upper {
 	background: rgb(238, 240, 242);
 }
-
+*/
 
 
 
 /** multirange polyfill */
+/*
 @supports (--css: variables) {
 	input[type="range"].multirange {
 		display: inline-block;
@@ -398,12 +425,12 @@ input[type="range"]:focus::-ms-fill-upper {
 	}
 
 	input[type="range"].multirange.original::-moz-range-thumb {
-		transform: scale(1); /* FF doesn't apply position it seems */
+		transform: scale(1);
 		z-index: 1;
 	}
 
 	input[type="range"].multirange::-moz-range-track {
-		border-color: transparent; /* needed to switch FF to "styleable" control */
+		border-color: transparent;
 	}
 
 	input[type="range"].multirange.ghost {
@@ -427,7 +454,6 @@ input[type="range"]:focus::-ms-fill-upper {
 
 
 
-
 .prama ::-webkit-input-placeholder {
 	color: rgb(196, 198, 200);
 }
@@ -441,29 +467,4 @@ input[type="range"]:focus::-ms-fill-upper {
 	color: rgb(196, 198, 200);
 }
 
-
-
-.prama-container > .prama-settings-button {
-	top: 0;
-	right: 0;
-	width: 3.2rem;
-	height: 3.2rem;
-	line-height: 3.2rem;
-	text-align: center;
-	display: block;
-	position: absolute;
-	z-index: 2;
-}
-
-.prama-settings-button i {
-	height: 1.6rem;
-	width: 1.6rem;
-	display: inline-block;
-	vertical-align: middle;
-}
-
-.prama-settings-button svg {
-	margin-bottom: .52rem;
-	max-width: 100%;
-	max-height: 100%;
-}
+*/

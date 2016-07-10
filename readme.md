@@ -4,7 +4,7 @@
 
 <em>Para</em>meters <em>ma</em>nager for applications or tests.
 
-Define parameters which your component depends on and _prama_ will take care of settings form, history of changes, saving/loading states, parameter types etc.
+Define parameters which your component depends on and _prama_ will take care of settings panel, history of changes, saving/loading states, parameter types etc. Essentially it is a wrapper for [control-panel](https://github.com/freeman-lab).
 
 Examples:
 
@@ -18,152 +18,101 @@ Examples:
 ```js
 var createParams = require('prama');
 
-var params = createParams({
-	name: {
-		label: 'Full name',
-		type: 'text'
-	},
-	email: {
-		label: 'Email',
-		type: 'email'
-	},
-	submit: {
-		label: '',
-		value: 'Sign Up',
-		type: 'submit',
-		change: () => {
-			var querystring = params.toString();
+var params = createParams(
+	title: 'Login',
+	fields: [
+		{ label: 'Full name', type: 'text'},
+		{ label: 'Email', type: 'email'},
+		{ label: 'Sign Up', type: 'button', action: () => {
+				var querystring = params.toString();
+				login(querystring);
+			}
 		}
-	}
-});
-
-//display settings form
-prams.show();
+	],
+	button: true,
+	popup: 'dropdown'
+);
 ```
 
 ## API
 
-### new Prama(object|list, options?)
-
-Create prama instance based off array or object with keys standing for param names and values for param options.
-
 ```js
 const Prama = require('prama');
 
-const params = new Prama([
-	{
-		//identifier, used as a key every here and there. Case-insensitive.
-		name: 'my-param',
+// create parameters manager instance based off options.
+const params = new Prama({
+	//menu title
+	title: 'Settings',
 
-		//checkbox/toggle, number, range/multirange, select, button/submit, radio/switch
-		//any default input type: password, email, url, tel, time, date, week
-		//undefined type will be guessed from other options
-		type: 'text',
+	//list or cache of control-panel parameters
+	fields: [] or {},
 
-		//(optional) human-readable name of param
-		label: '',
-
-		//(optional) starting/current value
-		value: false,
-
-		//(optional) for select or switch types
-		values: [] or {},
-
-		//(optional) <input> attributes
-		min: 0,
-		max: 100,
-		step: 1,
-		title: this.label,
-
-		//(optional) short message to explain the meaning of the param
-		help: false,
-
-		//(optional) set hidden attribute for a field
-		hidden: false,
-
-		//(optional) ignore any user attempts to input value
-		readonly: false,
-
-		//(optional) place passed styles to param’s `style` property.
-		style: {},
-
-		//(optional) reflect param value in session/history
-		save: false,
-
-		//(optional) ignore value of param from save, to get nice querystirng. By default defined from value.
-		default: false,
-
-		//(optional) will be called on any input, change, click or interaction event
-		change: (value) => {}
-
-		//(optional) for custom param return custom html
-		create: `Custom html` or (param) => `Custom html`
+	//theme name or object for the control-panel
+	theme: 'light' or {
+		fontFamily: '"Hack", monospace',
+		fontSize: '14px',
+		background1: 'rgb(227,227,227)',
+		background2: 'rgb(204,204,204)',
+		background2hover: 'rgb(208,208,208)',
+		foreground1: 'rgb(105,105,105)',
+		text1: 'rgb(36,36,36)',
+		text2: 'rgb(87,87,87)'
 	},
-	...
-],
 
-//(optional) behavior
-{
-	//container element to place settings form/button
-	//pass `false` to place manually, see `prama.element`, `prama.button`
+	//placement of the button/panel
+	position: 'top-right',
+
+	//container element to place panel and button
 	container: document.body,
 
-	//popup settings, see popoff package for available options
+	//settings for popup or `false` to avoid creating popup
 	popup: {
 		type: 'modal',
 		side: 'center',
-		...
+		//... see popoff package for available options
 	},
+
+	//make panel draggable
+	draggable: true,
+
+	//create settings menu button
+	button: true,
 
 	//svg to use for a menu icon
 	icon: `./gears.svg`,
 
-	//reflect state in browser hash (to share link)
+	//reflect state in url (for shareable states), including loading history
 	history: false,
 
 	//save/load params between sessions
 	session: true,
 
-	//default storage to use
-	storage: window.localStorage
+	//default storage
+	storage: window.sessionStorage,
+
+	//storage key
+	key: 'prama'
 });
 
-//Add/set `options` or `value` to `name` parameter. Pass optional `change` callback.
-prama.setParam(name, value|options?, onchange?);
-
-//Get value of a single param with `name`.
-prama.getParam(name);
-
-//Add/set params based off object or array of params.
-prama.setParams(object|array);
-
-//Get object with values of all params.
-prama.getParams(whitelist?);
-
-//Get string representation of state, excluding default values
-prama.toString();
-
-//Show/hide params menu, if ui is enabled
+//Show/hide params menu
 prama.show();
 prama.hide();
 
 //Hook up a callback for any parameter change.
 prama.on('change', (name, value, opts) => {});
 
-//Settings form element
-prama.element;
-
-//Settings button element
-prama.button;
+//Get string/object representation of state
+prama.toString();
+prama.toObject();
 ```
 
 ## See also
 
-* [control-panel](https://github.com/freeman-lab/control-panel) — alternative settings panel.
-* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
+* [control-panel](https://github.com/freeman-lab/control-panel) — setting panel used by prama.
+* [popoff](https://github.com/dfcreative/popoff) — any type of popup, modal, dropdown etc.
 * [start-app](https://github.com/dfcreative/start-app) — demo page for components.
 * [tst](https://github.com/dfcreative/tst) — minimalistic test runner.
-* [popoff](https://github.com/dfcreative/popoff) — any type of popup, modal, dropdown etc.
+* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
 
 ## Credits
 

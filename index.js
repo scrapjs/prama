@@ -279,8 +279,10 @@ Params.prototype.setParam = function (name, param, cb) {
 
 			case 'number':
 			case 'range':
+			case 'interval':
+			case 'diapason':
 			case 'multirange':
-				var multiple = param.type === 'multirange';
+				var multiple = param.type === 'multirange' || param.type === 'interval';
 				var value = param.value != null ? (typeof param.value === 'number' ? param.value : parseFloat(param.value)) : NaN;
 				if (isNaN(value)) value = param.max ? param.max / 2 : 50;
 				if (multiple) {

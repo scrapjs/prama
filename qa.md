@@ -38,6 +38,15 @@
 * settings-form
 * settings-page
 * prams
+* super-control-panel
+	* - betrayal
+	* - absence of vision
+* settings-panel
+	* - influenced by control-panel
+	* + free
+	* + reflects name properly
+	* + no big reminescence of control-panel
+	* +
 
 
 # Q: Possible APIs?
@@ -52,3 +61,16 @@
 * 3. Can we get the best of 1 and 2?
 	- seems that we don’t need to: create settings button and show popup with content of biloba is not that difficult.
 		+ though we should not really get down to pure API, having simple settings hassle-free is a big deal.
+
+# Q: super-control-panel dep vs straight prama code
+
+* + nicer inverval input
+	* - we have one, just style it
+* + super-control-panel has nice styles
+	* - prama is flexible in that regard, but we need default styles
+* + it shortens the code, significantly
+	* - control-panel is mess inside, it is better for prama create a set of components. Also prama is easier to look through.
+* - prama has dynamic API
+* - prama has wider options
+* + color input
+	* - just connect color input

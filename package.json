@@ -34,7 +34,10 @@
     "settings",
     "parameters",
     "options",
-    "form"
+    "form",
+    "control-panel",
+    "settings-panel",
+    "settings-box"
   ],
   "author": "ΔY <dfcreative@gmail.com>",
   "license": "MIT",

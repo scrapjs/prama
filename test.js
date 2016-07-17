@@ -12,39 +12,34 @@ insertCSS(`
 	body {
 		margin: 0;
 	}
+
 	body > .prama {
-		max-width: 900px;
-		border-radius: .5rem;
-		padding: 1rem;
-	}
-	.prama-title {
-		text-align: center;
-		letter-spacing: -.05ex;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
 	}
 `);
 
-//prepare demo params
-var demoParams = createParams({
-	title: 'Settings',
-	fields: [],
-	popup: {
-		type: 'sidebar',
-		side: 'right',
-		shift: 100
-	}
-});
-
 //create main form
 var params = createParams({
-	title: 'Create a new field',
-	container: null,
-	fields: {
-		type: {
-			type: 'list',
+	title: 'Customize panel',
+	fields: [
+		{
+			label: 'Button',
+			initial: true
+		},
+		{
+			label: 'Position',
+			options: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+			initial: 'top-right'
+		},
+		{
+			type: 'select',
 			label: 'Type',
-			values: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch', 'button'],
-			value: 'text',
-			change: (value) => {
+			options: ['text', 'number', 'multirange', 'textarea', 'toggle', 'select', 'switch', 'button'],
+			initial: 'text',
+			input: (value) => {
 				if (value === 'number' || value === 'range') {
 					params.setParam('value', {
 						type: 'number'
@@ -83,19 +78,19 @@ var params = createParams({
 				});
 			}
 		},
-		label: {
+		{
 			label: 'Label',
-			value: 'Field',
+			initial: 'Field',
 			placeholder: 'Field name...',
-			change: function (value) {
+			input: function (value) {
 				this.setParam('example', {
 					label: value
 				});
 			}
 		},
-		values: {
+		{
 			label: 'Values',
-			value: ['a', 'b', 'c'],
+			initial: ['a', 'b', 'c'],
 			hidden: true,
 			type: 'textarea',
 			placeholder: 'option 1, option 2, option 3, ...',
@@ -106,9 +101,9 @@ var params = createParams({
 				});
 			}
 		},
-		value: {
+		{
 			label: 'Value',
-			value: '',
+			initial: '',
 			change: (v) => {
 				if (params.params.example.type === 'multirange') {
 					v =  Array.isArray(v) ? v : typeof v === 'string' ? v.split(/\s*,\s*|\n/) : [v, v];
@@ -117,7 +112,7 @@ var params = createParams({
 				params.setParam('example', v);
 			}
 		},
-		help: {
+		{
 			label: 'Help text',
 			placeholder: 'Help text here...',
 			type: 'textarea',
@@ -125,7 +120,7 @@ var params = createParams({
 				params.setParam('example', {help: v});
 			}
 		},
-		placeholder: {
+		{
 			label: 'Placeholder',
 			placeholder: 'Placeholder...',
 			type: 'text',
@@ -136,11 +131,11 @@ var params = createParams({
 		//TODO: make dependent on multirange/range type
 		// sampleRange: {
 		// 	label: 'Range',
-		// 	value: [11, 22]
+		// 	initial: [11, 22]
 		// },
-		isHidden: {
+		{
 			label: 'Hidden',
-			value: false,
+			initial: false,
 			change: value => params.setParam('example', {hidden: value})
 		},
 		// isDisabled: {
@@ -148,10 +143,9 @@ var params = createParams({
 		// 	value: false,
 		// 	change: value => params.setParam('example', {hidden: value})
 		// },
-		save: {
-			label: '',
+		{
 			type: 'button',
-			value: '+ Add field',
+			label: '+ Add field',
 			// style: {minWidth: '50%', textAlign: 'center'},
 			change: (v) => {
 				var p = extend({}, params.params.example);
@@ -170,35 +164,40 @@ var params = createParams({
 				});
 			}
 		},
-		previewTitle: {
-			label: null,
-			style: {
-				textAlign: 'center',
-				columnSpan: 'all',
-				display: 'block'
-			},
-			create: () => {
-				//return an html element with bound events
-				return '<h3>It looks like that:</h3>'
-			}
-		},
-		example: function () {
-			return {
-				save: false,
-				type: this.getParam('type'),
-				label: this.getParam('label'),
-				value: this.getParam('value'),
-				values: this.getParam('values'),
-				hidden: this.getParam('isHidden'),
-				help: this.getParam('help')
-			};
-		},
+		// {
+		// 	label: null,
+		// 	style: {
+		// 		textAlign: 'center',
+		// 		columnSpan: 'all',
+		// 		display: 'block'
+		// 	},
+		// 	create: () => {
+		// 		//return an html element with bound events
+		// 		return '<h3>It looks like that:</h3>'
+		// 	}
+		// }
+		// example: function () {
+		// 	return {
+		// 		save: false,
+		// 		type: this.getParam('type'),
+		// 		label: this.getParam('label'),
+		// 		value: this.getParam('value'),
+		// 		values: this.getParam('values'),
+		// 		hidden: this.getParam('isHidden'),
+		// 		help: this.getParam('help')
+		// 	};
+		// },
 		// previewBtn: {
 		// 	style: {textAlign: 'center', minWidth: '100%'},
 		// 	create: () => demoParams.button,
 		// }
-	}
+	]
 });
 
+//prepare demo params
+// var demoParams = createParams([], {
+// 	title: 'Settings'
+// });
+// document.body.appendChild(demoParams.element);
 
-document.body.appendChild(params.element);
+

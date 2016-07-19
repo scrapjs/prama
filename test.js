@@ -28,11 +28,11 @@ insertCSS(`
 
 const themes = {
 	none: {},
-	control: require('./theme/control'),
-	dragon: require('./theme/dragon'),
-	merka: require('./theme/merka'),
 	lucy: require('./theme/lucy'),
-	typer: require('./theme/typer'),
+	// typer: require('./theme/typer'),
+	// control: require('./theme/control'),
+	// dragon: require('./theme/dragon'),
+	// merka: require('./theme/merka'),
 };
 
 

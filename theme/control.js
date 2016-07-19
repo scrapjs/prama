@@ -3,9 +3,11 @@
  *
  * Control-panel replica
  */
+const px = require('add-px-to-style');
+const sf = require('sheetify');
+const theme = {};
 
-module.exports = function () {
-	`
+module.exports = sf`
 	.settings-panel--control {
 		background: ${theme.background};
 		font-size: ${px('font-size', theme.fontSize)};
@@ -85,13 +87,13 @@ module.exports = function () {
 	.settings-panel--control .settings-panel-button:hover {
 		background: ${theme.foreground};
 	}
-`};
+`;
 
 
 
 
 //default rect theme style reset
-`
+let x = `
 .settings-panel input,
 .settings-panel button,
 .settings-panel textarea,

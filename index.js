@@ -4,7 +4,7 @@
 
 const inherits = require('inherits');
 const extend = require('just-extend');
-const createPopup = require('../popoff');
+const createPopup = require('popoff');
 const isMobile = require('is-mobile');
 const isPlainObject = require('is-plain-obj');
 const Emitter = require('events');
@@ -80,6 +80,7 @@ function Prama (opts) {
 	this.element = this.panel.element;
 
 	this.element.classList.add('prama');
+	this.element.classList.add('prama-' + this.id);
 
 	this.panel.on('change', (data, value, state) => {
 		this.emit('change', data, value, state);
@@ -128,7 +129,18 @@ inherits(Prama, Emitter);
 Prama.prototype.container;
 
 //default theme
-Prama.prototype.theme = {};
+Prama.prototype.theme = () => ``;
+
+//apply theme/orientation/position/other params changes
+Prama.prototype.update = function (opts) {
+	extend(this, opts);
+
+	this.panel.update({
+		title: this.title,
+		orientation: this.orientation,
+		css: this.theme
+	});
+};
 
 //palette for the theme, see nice-color-palettes module
 Prama.prototype.palette = ["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"];
@@ -170,17 +182,6 @@ Prama.prototype.key = 'prama';
 
 //local storage
 Prama.prototype.storage = self.sessionStorage || self.localStorage;
-
-
-//apply theme/orientation/position/other params changes
-Prama.prototype.update = function (opts) {
-	extend(this, opts);
-
-	this.panel.update({
-		title: this.title,
-		orientation: this.orientation
-	});
-};
 
 
 //show/hide popup

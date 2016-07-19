@@ -4,20 +4,14 @@
  * Round theme
  */
 
-const sf = require('sheetify')
+module.exports = function () {
+	let palette = this.palette;
 
-module.exports = {
-	orientation: 'top',
-	palette: ['#05FBFF','#999', '#eee', '#333'],
-	inversed: false,
-	className: `
+	let className = `
 		:host {
-			font-family: '';
-			font-size: 12px;
+			background: transparent;
 		}
+	`;
 
-		.settings-panel {
-
-		}
-	`
+	return className;
 };

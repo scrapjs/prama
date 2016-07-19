@@ -4,16 +4,17 @@
   "description": "Beautiful settings form for application or tests",
   "main": "index.js",
   "dependencies": {
-    "autosize": "^3.0.15",
     "brfs": "^1.4.3",
-    "control-panel": "github:dfcreative/control-panel",
     "draggy": "^1.6.4",
     "inherits": "^2.0.1",
     "insert-css": "^1.0.0",
-    "mutype": "^0.3.9",
+    "is-mobile": "^0.2.2",
+    "is-plain-obj": "^1.1.0",
+    "just-extend": "^1.1.18",
     "popoff": "^2.0.6",
     "qs": "^6.2.0",
-    "xtend": "^4.0.1"
+    "settings-panel": "^1.2.3",
+    "sheetify": "^5.0.3"
   },
   "browserify": {
     "transform": [
@@ -21,7 +22,9 @@
     ]
   },
   "devDependencies": {
-    "bubleify": "^0.5.0"
+    "bubleify": "^0.5.0",
+    "colormap": "^2.2.0",
+    "nice-color-palettes": "^1.0.1"
   },
   "scripts": {
     "test": "budo test.js",

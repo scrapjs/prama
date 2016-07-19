@@ -3,58 +3,28 @@
  */
 
 const inherits = require('inherits');
-const extend = require('xtend/mutable');
-const createPopup = require('popoff');
+const extend = require('just-extend');
+const createPopup = require('../popoff');
 const isMobile = require('is-mobile');
-const isPlainObject = require('mutype/is-object');
-const isPrimitive = require('mutype/is-plain');
+const isPlainObject = require('is-plain-obj');
 const Emitter = require('events');
 const draggable = require('draggy');
 const insertCSS = require('insert-css');
 const fs = require('fs');
 const qs = require('qs');
-const autosize = require('autosize');
-const createPanel = require('../control-panel');
+const createPanel = require('../settings-panel');
 
-module.exports = Params;
+module.exports = Prama;
 
 
 insertCSS(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
 
 
-//param names mapping to control-panel’s names
-const ALIAS = {
-	'range': 'range',
-	'number': 'range',
-
-	'interval': 'interval',
-	'multirange': 'interval',
-	'diapasone': 'interval',
-
-	'switch': 'select',
-	'radio': 'select',
-	'list': 'select',
-
-	'initial': 'initial',
-	'value': 'initial',
-	'default': 'initial',
-
-	'options': 'options',
-	'values': 'options',
-
-	'label': 'label',
-	'name': 'label',
-
-	'input': 'input',
-	'change': 'input',
-};
-
-
 /**
  * @constructor
  */
-function Params (opts) {
-	if (!(this instanceof Params)) return new Params(opts);
+function Prama (opts) {
+	if (!(this instanceof Prama)) return new Prama(opts);
 
 	extend(this, opts);
 
@@ -82,59 +52,39 @@ function Params (opts) {
 
 	//load, if defined
 	if (this.session) {
-		var loadedParams = this.load();
+		var loadedValues = this.load();
 	}
 
-	//set loaded params to initial values
-	for (var name in loadedParams) {
-		this.fields[name].initial = loadedParams[name];
-	}
-
-	//prepare argument for control panel
+	//prepare argument for settings panel
 	var paramList = [];
 	for (let name in this.fields) {
 		let item = this.fields[name];
 		if (!item.label) item.label = name;
 
-		// detect item type, if undefined, from other options
-		if (!item.type) {
-			if (item.initial && Array.isArray(item.initial)) {
-				item.type = 'interval'
-			} else if (item.scale || item.max || item.steps || typeof item.initial === 'number') {
-				item.type = 'range'
-			} else if (item.options) {
-				item.type = 'select'
-			} else if (item.format) {
-				item.type = 'color'
-			} else if (typeof item.initial === 'boolean') {
-				item.type = 'checkbox'
-			} else if (item.action) {
-				item.type = 'button'
-			} else {
-				item.type = 'text'
-			}
-		}
+		//save initial value, as we need it to exclude from serialization
+		item.initial = item.value;
+
+		//apply loaded value
+		if (this.session && loadedValues[name] !== undefined) item.value = loadedValues[name];
 
 		paramList.push(item);
 	}
-
 	paramList = paramList.sort((a, b) => (a.order || 0) - (b.order || 0));
 
 	//create control panel
 	this.panel = createPanel(paramList, {
 		title: this.title,
-		theme: this.theme,
-		root: this.container
+		container: this.container
 	});
 
-	this.panel.box.classList.add('prama');
+	this.element = this.panel.element;
 
-	//update state on change
-	if (this.session) {
-		this.panel.on('input', (data) => {
-			this.save(data);
-		});
-	}
+	this.element.classList.add('prama');
+
+	this.panel.on('change', (data, value, state) => {
+		this.emit('change', data, value, state);
+		this.session && this.save(state);
+	});
 
 	//create settings button
 	this.button = document.createElement('a');
@@ -147,72 +97,128 @@ function Params (opts) {
 	});
 
 	//create settings button and popup
-	// this.popup = createPopup(extend(this.popup, {
-	// 	target: this.button,
-	// 	content: this.element
-	// }));
-	// this.draggable = draggable(this.popup.element);
+	if (this.popup) {
+		this.popup = this.popup || {};
+		this.popup = createPopup(extend(this.popup, {
+			target: this.button,
+			content: this.element
+		}));
+
+		if (this.draggable) {
+			this.dragman = draggable(this.popup.element);
+		}
+
+		this.popup.on('afterShow', () => {
+			this.dragman.update();
+		});
+	}
 
 	//if container is passed - place ui to it
 	if (this.container) {
 		this.container.appendChild(this.button);
 	}
+
+	this.update();
 }
 
-inherits(Params, Emitter);
+inherits(Prama, Emitter);
 
 
 //default container
-Params.prototype.container;
+Prama.prototype.container;
 
 //default theme
-Params.prototype.theme = 'light'; /*{
-	fontFamily: 'sans-serif',
-	fontSize: '14px',
-	background1: 'rgb(227,227,227)',
-	background2: 'rgb(204,204,204)',
-	background2hover: 'rgb(208,208,208)',
-	foreground1: 'rgb(105,105,105)',
-	text1: 'rgb(36,36,36)',
-	text2: 'rgb(87,87,87)'
-};*/
+Prama.prototype.theme = {};
+
+//palette for the theme, see nice-color-palettes module
+Prama.prototype.palette = ["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"];
+
+//labels orientation
+Prama.prototype.orientation = createPanel.prototype.orientation;
 
 //popup type
-Params.prototype.popup = {
+Prama.prototype.popup = {
 	type: 'modal',
 	overlay: false,
-	wrap: false
+	wrap: false,
+	side: 'center'
 };
 
 //title for the panel
-Params.prototype.title = '';
+Prama.prototype.title = '';
 
 //make panel draggable
-Params.prototype.draggable = true;
+Prama.prototype.draggable = true;
 
 //default position
-Params.prototype.position = 'top-right';
+Prama.prototype.position = 'top-right';
 
 //show params button
-Params.prototype.button = true;
+Prama.prototype.button = true;
 
 //settings button and settings popup
-Params.prototype.icon = fs.readFileSync(__dirname + '/gear.svg');
+Prama.prototype.icon = fs.readFileSync(__dirname + '/gear.svg');
 
 //reflect state in query
-Params.prototype.history = false;
+Prama.prototype.history = false;
 
 //save/load params to local storage
-Params.prototype.session = true;
+Prama.prototype.session = true;
 
 //storage key
-Params.prototype.key = 'prama';
+Prama.prototype.key = 'prama';
 
 //local storage
-Params.prototype.storage = self.sessionStorage || self.localStorage;
+Prama.prototype.storage = self.sessionStorage || self.localStorage;
+
+
+//apply theme/orientation/position/other params changes
+Prama.prototype.update = function (opts) {
+	extend(this, opts);
+
+	this.panel.update({
+		title: this.title,
+		orientation: this.orientation
+	});
+};
+
+
+//show/hide popup
+Prama.prototype.show = function () {this.popup && this.popup.show(); return this;};
+Prama.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
+
+
+
+
+
+//convert to string
+Prama.prototype.toString = function (params) {
+	params = params || this.panel.get();
+
+	//convert to string
+	for (let name in params) {
+		let value = params[name];
+		if (value === this.panel.items[name].initial) delete params[name];
+		params[name] = toString(params[name]);
+		if (value === this.panel.items[name].initial) delete params[name];
+	}
+
+	var str = '';
+	try {
+		str = qs.stringify(params, {encode: false});
+	} catch (e) {
+		console.error(e);
+		return '';
+	}
+
+	return str;
+}
+
+
+
 
 //save params state to local storage
-Params.prototype.save = function (params) {
+Prama.prototype.save = function (params) {
 	if (!params) return false;
 
 	if (this.session) {
@@ -227,15 +233,15 @@ Params.prototype.save = function (params) {
 };
 
 //put state into storage
-Params.prototype.saveSession = function (params) {
+Prama.prototype.saveSession = function (params) {
 	if (!this.storage) return false;
 
 	//convert to string
 	for (let name in params) {
 		let value = params[name];
-		if (value === this.params[name].default) delete params[name];
+		if (value === this.panel.items[name].initial) delete params[name];
 		params[name] = toString(params[name]);
-		if (value === this.params[name].default) delete params[name];
+		if (value === this.panel.items[name].initial) delete params[name];
 	}
 
 	try {
@@ -252,7 +258,7 @@ Params.prototype.saveSession = function (params) {
 };
 
 //put params into location
-Params.prototype.saveHistory = function (params) {
+Prama.prototype.saveHistory = function (params) {
 	var str = this.toString(params);
 
 	location.hash = str;
@@ -261,8 +267,7 @@ Params.prototype.saveHistory = function (params) {
 };
 
 //load params state from local storage
-Params.prototype.load = function () {
-
+Prama.prototype.load = function () {
 	var values = {};
 
 	//load session
@@ -279,7 +284,7 @@ Params.prototype.load = function () {
 };
 
 //load params from session
-Params.prototype.loadSession = function () {
+Prama.prototype.loadSession = function () {
 	if (!this.storage) return {};
 
 	var str = this.storage.getItem(this.key);
@@ -304,7 +309,7 @@ Params.prototype.loadSession = function () {
 };
 
 //load params from history
-Params.prototype.loadHistory = function () {
+Prama.prototype.loadHistory = function () {
 	var params = qs.parse(location.hash.slice(1));
 
 	if (!params) return {};
@@ -315,81 +320,6 @@ Params.prototype.loadHistory = function () {
 
 	return params;
 }
-
-//show/hide popup
-Params.prototype.show = function () {this.popup && this.popup.show(); return this;};
-Params.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
-
-//return value of defined param
-Params.prototype.getParam = function (name) {
-	return this.panel.state[name];
-}
-
-//get cache of params
-Params.prototype.getParams = function (whitelist) {
-	return this.panel.state;
-}
-
-//set param value/options
-Params.prototype.setParamValue = function (name, value) {
-	var sourceTarget;
-	if (value instanceof Element) {
-		sourceTarget = value;
-		value = getValue(sourceTarget);
-	}
-
-	var param = this.params[name];
-
-	param.value = value;
-	param.element.title = `${param.label || param.name}: ${param.value}`;
-
-	param.change && param.change.call(this, value, param);
-	this.emit('change', param.name, param.value, param);
-
-	//update ui
-	var targets = param.element.querySelectorAll('input, select, button, textarea, fieldset');
-	[].forEach.call(targets, target => {
-		if (target === sourceTarget) return;
-
-		if (target.type === 'radio') return;
-
-		if (target.classList.contains('ghost')) {
-			target = target.parentNode.querySelector('.original');
-		}
-
-		if (target.classList.contains('original')) {
-			target.valueLow = value[0];
-			target.valueHigh = value[1];
-			return;
-		}
-
-		setValue(target, value);
-	});
-}
-
-//convert to string
-Params.prototype.toString = function (params) {
-	params = params || this.getParams();
-
-	//convert to string
-	for (let name in params) {
-		let value = params[name];
-		if (value === this.params[name].initial) delete params[name];
-		params[name] = toString(params[name]);
-		if (value === this.params[name].initial) delete params[name];
-	}
-
-	var str = '';
-	try {
-		str = qs.stringify(params, {encode: false});
-	} catch (e) {
-		console.error(e);
-		return '';
-	}
-
-	return str;
-}
-
 
 
 // BLOODY HELPERS

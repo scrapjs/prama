@@ -4,12 +4,7 @@
 
 <em>Para</em>meters <em>ma</em>nager for applications or tests.
 
-Define parameters which your component depends on and _prama_ will take care of settings panel, history of changes, saving/loading states, parameter types etc. Essentially it is a wrapper for [control-panel](https://github.com/freeman-lab).
-
-Examples:
-
-* **[plot-grid](https://dfcreative.github.io/plot-grid)**
-* **[settings constructor](https://dfcreative.github.io/prama)**
+Define parameters which your component depends on and _prama_ will take care of settings panel, history of changes, saving/loading states, parameter types, themes etc. Essentially it is a wrapper for [settings-panel](https://github.com/dfcreative/settings-panel).
 
 ## Usage
 
@@ -20,17 +15,17 @@ var createParams = require('prama');
 
 var params = createParams(
 	title: 'Login',
+	type: 'dropdown',
+	position: 'top-right',
 	fields: [
 		{ label: 'Full name', type: 'text'},
 		{ label: 'Email', type: 'email'},
-		{ label: 'Sign Up', type: 'button', action: () => {
+		{ label: 'Sign In', type: 'button', input: () => {
 				var querystring = params.toString();
-				login(querystring);
+				//...
 			}
 		}
-	],
-	button: true,
-	popup: 'dropdown'
+	]
 );
 ```
 
@@ -44,33 +39,20 @@ const params = new Prama({
 	//menu title
 	title: 'Settings',
 
-	//list or cache of control-panel parameters
-	fields: [] or {},
-
-	//theme name or object for the control-panel
-	theme: 'light' or {
-		fontFamily: '"Hack", monospace',
-		fontSize: '14px',
-		background1: 'rgb(227,227,227)',
-		background2: 'rgb(204,204,204)',
-		background2hover: 'rgb(208,208,208)',
-		foreground1: 'rgb(105,105,105)',
-		text1: 'rgb(36,36,36)',
-		text2: 'rgb(87,87,87)'
+	//list or object of fields
+	fields: [] or {
+		'My field': {type: 'text', ...},
+		...
 	},
 
-	//placement of the button/panel
-	position: 'top-right',
+	//theme for the control-panel, see themes folder
+	theme: require('prama/theme/control'),
 
 	//container element to place panel and button
 	container: document.body,
 
-	//settings for popup or `false` to avoid creating popup
-	popup: {
-		type: 'modal',
-		side: 'center',
-		//... see popoff package for available options
-	},
+	//popup type
+	type: 'dropdown',
 
 	//make panel draggable
 	draggable: true,
@@ -78,20 +60,20 @@ const params = new Prama({
 	//create settings menu button
 	button: true,
 
+	//position of a button
+	position: 'top-right',
+
 	//svg to use for a menu icon
 	icon: `./gears.svg`,
 
-	//reflect state in url (for shareable states), including loading history
+	//reflect state in url
 	history: false,
 
-	//save/load params between sessions
+	//save/load state between sessions, on load is overridden by history
 	session: true,
 
 	//default storage
-	storage: window.sessionStorage,
-
-	//storage key
-	key: 'prama'
+	storage: window.sessionStorage
 });
 
 //Show/hide params menu
@@ -101,9 +83,12 @@ prama.hide();
 //Hook up a callback for any parameter change.
 prama.on('change', (name, value, opts) => {});
 
-//Get string/object representation of state
+//Get string representation of state
 prama.toString();
-prama.toObject();
+
+//Get/set state params
+prama.get(name?) or prama.get();
+prama.set(name?, value|options?) or prama.set(fields);
 ```
 
 ## See also

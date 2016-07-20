@@ -83,15 +83,15 @@ Prama adds `save` and `order` additional field properties. Example:
 <dd>Save/load state between sessions, on load is overridden by history
 
 <dt>storage: window.sessionStorage
-<dd>Default storage
+<dd>Default storage</dd>
 </dl>
 </details>
-<details><summary>**prama.get(name)**</summary>
+<details><summary><small>prama.</small>**get(name)**</summary>
 
 Get single field value by `name`. If name is omitted - the full state will be returned.
 
 </details>
-<details><summary>**prama.get()**</summary>
+<details><summary><small>prama.</small>**get()**</summary>
 
 Return state - an object with values of all fields.
 

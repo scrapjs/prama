@@ -49,10 +49,12 @@ var pm = createParams({
 		},
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: v => {
 			pm.theme = themes[v];
+			if (!pm.get('Palette') || !pm.get('Palette').length) pm.set('Palette', pm.theme.palette);
 		}},
 		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 				let list = document.createElement('ul');
-				let palette = opts.value || pm.theme.palette;
+
+				let palette = opts.value || themes[this.panel.get('Theme')].palette || [];
 
 				if (typeof palette === 'string') {
 					palette = palette.split(',');
@@ -120,7 +122,7 @@ var pm = createParams({
 		// 		pm.position = v;
 		// 	}
 		// },
-		{label: 'Font size', type: 'range', value: 12, min: 8, max: 20, step: .5, change: (v) => {
+		{label: 'Font size', type: 'range', value: 14, min: 8, max: 20, step: .5, change: (v) => {
 			pm.fontSize = v;
 		}},
 		{label: 'Width', type: 'interval', value: [100, 200], min: 100, max: 600, step: 1, change: (v) => {

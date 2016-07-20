@@ -34,14 +34,15 @@ var params = createParams(
 const Prama = require('prama');
 
 <details><summary>**const params = new Prama(options);**</summary>
-Create parameters manager instance based off options.
+> Create parameters manager instance based off options.
+
 #### Options
-<details><summary>title: 'Settings',</summary>
-Display menu title at the top. Can be omitted.
-</details>
-<details><summary>fields: [],</summary>
-List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
-Prama adds `save` and `order` additional field properties. Example:
+title
+  : Display menu title at the top. Can be omitted.
+
+fields
+  : List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
+  Prama adds `save` and `order` additional field properties. Example:
 ```js
 		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
 		{type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
@@ -52,27 +53,37 @@ Prama adds `save` and `order` additional field properties. Example:
 		{type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 		...
 ```
-</details>
-<details><summary>theme: require('prama/theme/control'),</summary>
-Theme, see theme folder</details>
-<details><summary>container: document.body,</summary>
-Container element to place panel and button</details>
-<details><summary>popup: 'dropdown',</summary>
-Popup - type string, options or true/false</details>
-<details><summary>draggable: true,</summary>
-Make panel draggable - true, false or handle selector</details>
-<details><summary>button: true,</summary>
-Create settings menu button</details>
-<details><summary>position: 'top-right',</summary>
-Position of a button</details>
-<details><summary>icon: ./gears.svg,</summary>
-Svg to use for a menu icon</details>
-<details><summary>history: false,</summary>
-Reflect state in url</details>
-<details><summary>session: true,</summary>
-Save/load state between sessions, on load is overridden by history</details>
-<details><summary>storage: window.sessionStorage</summary>
-Default storage</details>
+
+theme: require('prama/theme/control'),
+  : Theme, see theme folder
+
+container: document.body,
+  : Container element to place panel and button
+
+popup: 'dropdown',
+  : Popup - type string, options or true/false
+
+draggable: true,
+  : Make panel draggable - true, false or handle selector
+
+button: true,
+  : Create settings menu button
+
+position: 'top-right',
+  : Position of a button
+
+icon: ./gears.svg,
+  : Svg to use for a menu icon
+
+history: false,
+  : Reflect state in url
+
+session: true,
+  : Save/load state between sessions, on load is overridden by history
+
+storage: window.sessionStorage
+  : Default storage
+
 </details>
 <details><summary>**prama.show();**</summary>
 Show or hide params menu

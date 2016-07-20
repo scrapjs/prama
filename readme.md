@@ -34,56 +34,38 @@ var params = createParams(
 const Prama = require('prama');
 <details><summary>let prama = **new Prama({title, fields, ...})**</summary>
 
-Create settings manager instance based off `options`:
+Create settings manager instance based off options:
 
 <dl>
-<dt>title
+<dt>title: 'Settings'
 <dd>Display menu title at the top of panel. Can be omitted.
 
-<dt>fields
-<dd>List or object of fields, see <a href="https://github.com/dfcreative/settings-panel">settings-panel</a> for fields specification.</dd>
+<dt>fields: []
+<dd>List or object of fields for <a href="https://github.com/dfcreative/settings-panel">settings-panel</a>.</dd> Prama adds <code>save</code> and <code>order</code> additional field properties.
 
-Prama adds `save` and `order` additional field properties. Example:
-```js
-		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
-		{type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
-		{type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
-		{type: 'checkbox', label: 'my checkbox', value: true},
-		{type: 'color', label: 'my color', format: 'rgb', value: 'rgb(10,200,0)', change: value => console.log(value)},
-		{type: 'button', label: 'gimme an alert', change: () => alert('hello!')},
-		{type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
-		...
-```
+<dt>theme: undefined
+<dd>Theme, one of <em>control</em>, <em>dragon</em>, <em>lucy</em>, <em>merka</em>, <em>typer</em> or undefined for default theme. See <a href="https://github.com/dfcreative/prama/tree/master/theme">theme</a> folder.
 
-<dt>theme: require('prama/theme/control'),
-<dd>Theme, see theme folder
+<dt>container: document.body
+<dd>Container element to place panel and settings button.
 
-<dt>container: document.body,
-<dd>Container element to place panel and button
+<dt>popup: 'dropdown'
+<dd>Enable popup — can be a popup type string, popup options or boolean. See <a href="https://github.com/dfcreative/popoff">popoff</a> for popups engine.
 
-<dt>popup: 'dropdown',
-<dd>Popup - type string, options or true/false
+<dt>draggable: true
+<dd>Make panel draggable — can be boolean or handle selector. By default handle is panel title.
 
-<dt>draggable: true,
-<dd>Make panel draggable - true, false or handle selector
+<dt>button: true
+<dd>Create settings menu button at the corner of the page.
 
-<dt>button: true,
-<dd>Create settings menu button
+<dt>history: false
+<dd>Reflect settings state in url.
 
-<dt>position: 'top-right',
-<dd>Position of a button
-
-<dt>icon: ./gears.svg,
-<dd>Svg to use for a menu icon
-
-<dt>history: false,
-<dd>Reflect state in url
-
-<dt>session: true,
-<dd>Save/load state between sessions, on load is overridden by history
+<dt>session: true
+<dd>Save/load settings state between browser sessions, overridden by history.
 
 <dt>storage: window.sessionStorage
-<dd>Default storage</dd>
+<dd>Default storage for session.</dd>
 </dl>
 </details>
 <details><summary>prama.**get(name)**</summary>

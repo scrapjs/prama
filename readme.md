@@ -31,12 +31,12 @@ var params = createParams(
 
 ## API
 
-<details><summary>`const Prama = require('prama');`</summary>
-Require Prama class instance.</details>
-<details><summary>`const params = new Prama({`</summary>
+const Prama = require('prama');
+
+<details><summary>const params = new Prama({</summary>
 Create parameters manager instance based off options.</details>
-`    title: 'Settings',`
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`fields: [],`</summary>
+&nbsp;&nbsp;&nbsp;&nbsp;title: 'Settings',
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;fields: [],</summary>
 List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
 Prama adds `save` and `order` additional field properties. Example:
 ```js
@@ -50,31 +50,34 @@ Prama adds `save` and `order` additional field properties. Example:
 		...
 ```
 </details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`theme: require('prama/theme/control'),`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;theme: require('prama/theme/control'),</summary>
 Theme, see theme folder</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`container: document.body,`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;container: document.body,</summary>
 Container element to place panel and button</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`popup: 'dropdown',`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;popup: 'dropdown',</summary>
 Popup - type string, options or true/false</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`draggable: true,`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;draggable: true,</summary>
 Make panel draggable - true, false or handle selector</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`button: true,`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;button: true,</summary>
 Create settings menu button</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`position: 'top-right',`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;position: 'top-right',</summary>
 Position of a button</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`icon: `./gears.svg`,`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;icon: ./gears.svg,</summary>
 Svg to use for a menu icon</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`history: false,`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;history: false,</summary>
 Reflect state in url</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`session: true,`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;session: true,</summary>
 Save/load state between sessions, on load is overridden by history</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;`storage: window.sessionStorage`</summary>
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;storage: window.sessionStorage</summary>
 Default storage</details>
 `});`
 
-//Show/hide params menu
+<details><summary>
 prama.show();
 prama.hide();
+</summary>
+Show or hide params menu
+</details>
 
 //Hook up a callback for any parameter change.
 prama.on('change', (name, value, opts) => {});

@@ -33,7 +33,7 @@ var params = createParams(
 
 **const Prama = require('prama');**
 
-<details><summary>**const params = new Prama(options);**</summary>
+<details><summary>**let prama = new Prama(options)**</summary>
 
 Create settings manager instance based off `options`:
 
@@ -89,32 +89,37 @@ Prama adds `save` and `order` additional field properties. Example:
 </details>
 <details><summary>**prama.get(name?)**</summary>
 
-Get single property value. If name is omitted - return full state.
+Get single field value. If name is omitted - the full state will be returned.
 
 </details>
-<details><summary>**prama.set(name?, value|options?) or prama.set(fields)**</summary>
+<details><summary>**prama.set(name?, value|options?)**</summary>
 
-Set field value, of if an object passed - update state with passed values.
-
-</details>
-<details><summary>**prama.on('change', (name, value, opts) => {});**</summary>
-
-Hook up a callback for any parameter change.
+Set field value or update field options.
 
 </details>
-<details><summary>**prama.toString();**</summary>
+<details><summary>**prama.set(state)**</summary>
 
-Get string representation of state
-
-</details>
-<details><summary>**prama.show();**</summary>
-
-Show or hide params menu
+Update multiple field values or options. State can be an object or a list.
 
 </details>
-<details><summary>**prama.hide();**</summary>
+<details><summary>**prama.on('change', (name, value, state) => {})**</summary>
 
-Show or hide params menu
+Hook up a callback for any field change. Callback recieves field `name`, new `value` and full `state` arguments.
+
+</details>
+<details><summary>**prama.toString()**</summary>
+
+Get string representation of state. Basically, a querystring.
+
+</details>
+<details><summary>**prama.show()**</summary>
+
+Show panel.
+
+</details>
+<details><summary>**prama.hide()**</summary>
+
+Hide panel.
 
 </details>
 

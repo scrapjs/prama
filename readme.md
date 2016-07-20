@@ -32,7 +32,7 @@ var params = createParams(
 ## API
 
 const Prama = require('prama');
-<details><summary>let prama = **new Prama(options)**</summary>
+<details><summary>let prama = **new Prama({title, fields, ...})**</summary>
 
 Create settings manager instance based off `options`:
 
@@ -86,12 +86,12 @@ Prama adds `save` and `order` additional field properties. Example:
 <dd>Default storage</dd>
 </dl>
 </details>
-<details><summary><sub>prama.</sub>**get(name)**</summary>
+<details><summary>prama.**get(name)**</summary>
 
 Get single field value by `name`. If name is omitted - the full state will be returned.
 
 </details>
-<details><summary><sub>prama.</sub>**get()**</summary>
+<details><summary>prama.**get()**</summary>
 
 Return state - an object with values of all fields.
 

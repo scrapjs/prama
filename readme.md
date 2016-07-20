@@ -35,12 +35,12 @@ var params = createParams(
 Require Prama class instance.</details>
 <details><summary>`const params = new Prama({`</summary>
 Create parameters manager instance based off options.</details>
-<details><summary>`	title: 'Settings',`</summary>
+<details><summary>`    title: 'Settings',`</summary>
 Menu title</details>
-
-<details><summary>`	fields: [`</summary>
-List or object of fields, see settings-panel for fields specification
-Prama adds `save` and `order` field properties</details>
+<details><summary>`    fields: [],`</summary>
+List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
+Prama adds `save` and `order` additional field properties. Example:
+```js
 		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
 		{type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
 		{type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
@@ -49,36 +49,27 @@ Prama adds `save` and `order` field properties</details>
 		{type: 'button', label: 'gimme an alert', change: () => alert('hello!')},
 		{type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 		...
-	],
-
-<details><summary>`	theme: require('prama/theme/control'),`</summary>
+```
+</details>
+<details><summary>`    theme: require('prama/theme/control'),`</summary>
 Theme, see theme folder</details>
-
-<details><summary>`	container: document.body,`</summary>
+<details><summary>`    container: document.body,`</summary>
 Container element to place panel and button</details>
-
-<details><summary>`	popup: 'dropdown',`</summary>
+<details><summary>`    popup: 'dropdown',`</summary>
 Popup - type string, options or true/false</details>
-
-<details><summary>`	draggable: true,`</summary>
+<details><summary>`    draggable: true,`</summary>
 Make panel draggable - true, false or handle selector</details>
-
-<details><summary>`	button: true,`</summary>
+<details><summary>`    button: true,`</summary>
 Create settings menu button</details>
-
-<details><summary>`	position: 'top-right',`</summary>
+<details><summary>`    position: 'top-right',`</summary>
 Position of a button</details>
-
-<details><summary>`	icon: `./gears.svg`,`</summary>
+<details><summary>`    icon: `./gears.svg`,`</summary>
 Svg to use for a menu icon</details>
-
-<details><summary>`	history: false,`</summary>
+<details><summary>`    history: false,`</summary>
 Reflect state in url</details>
-
-<details><summary>`	session: true,`</summary>
+<details><summary>`    session: true,`</summary>
 Save/load state between sessions, on load is overridden by history</details>
-
-<details><summary>`	storage: window.sessionStorage`</summary>
+<details><summary>`    storage: window.sessionStorage`</summary>
 Default storage</details>
 });
 
@@ -95,7 +86,7 @@ prama.toString();
 //Get/set state params
 prama.get(name?) or prama.get();
 prama.set(name?, value|options?) or prama.set(fields);
-```
+
 
 ## See also
 

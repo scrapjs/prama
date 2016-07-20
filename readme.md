@@ -68,34 +68,29 @@ Create settings manager instance based off options:
 <dd>Default storage for session.</dd>
 </dl>
 </details>
-<details><summary>prama.**get(name)**</summary>
+<details><summary>prama.**get('my field')**</summary>
 
-Get single field value by `name`. If name is omitted - the full state will be returned.
+Get single field value by name.
 
 </details>
 <details><summary>prama.**get()**</summary>
 
-Return state - an object with values of all fields.
+Return object with values of all fields
 
 </details>
-<details><summary>prama.**set(name, value|options)**</summary>
+<details><summary>prama.**set('my field', value|options)**</summary>
 
 Set field value or update field options.
 
 </details>
-<details><summary>prama.**set(state)**</summary>
+<details><summary>prama.**set({field1: value, field2: options, ...})**</summary>
 
-Update multiple field values or options. State can be an object or a list.
+Update multiple field values or field options. State can be an object or a list, same as `fields` property in options.
 
 </details>
 <details><summary>prama.**on('change', (name, value, state) => {})**</summary>
 
 Hook up a callback for any field change. Callback recieves field `name`, new `value` and full `state` arguments.
-
-</details>
-<details><summary>prama.**toString()**</summary>
-
-Get string representation of state. Basically, a querystring.
 
 </details>
 <details><summary>prama.**show()**</summary>
@@ -106,6 +101,21 @@ Show panel.
 <details><summary>prama.**hide()**</summary>
 
 Hide panel.
+
+</details>
+<details><summary>prama.**update({title, theme, orientation, palette})**</summary>
+
+Update panel visual options.
+
+</details>
+<details><summary>prama.**toString()**</summary>
+
+Get string representation of state. Basically, a querystring.
+
+</details>
+<details><summary>prama.**toJSON()**</summary>
+
+Get state object with fields filtered for saving. Fields which `save` attribute is set to false will be ignored.
 
 </details>
 

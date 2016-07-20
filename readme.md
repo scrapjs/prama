@@ -38,12 +38,13 @@ var params = createParams(
 Create settings manager instance based off `options`:
 
 <dl>
-<dt>`title`
+<dt>title
 <dd>Display menu title at the top of panel. Can be omitted.
 
-<dt>`fields`
-<dd>List or object of fields, see <a href="https://github.com/dfcreative/settings-panel">settings-panel</a> for fields specification.
-  Prama adds `save` and `order` additional field properties. Example:
+<dt>fields
+<dd>List or object of fields, see <a href="https://github.com/dfcreative/settings-panel">settings-panel</a> for fields specification.</dd>
+
+Prama adds `save` and `order` additional field properties. Example:
 ```js
 		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
 		{type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
@@ -55,34 +56,34 @@ Create settings manager instance based off `options`:
 		...
 ```
 
-<dt>`theme`: require('prama/theme/control'),
+<dt>theme: require('prama/theme/control'),
 <dd>Theme, see theme folder
 
-<dt>`container`: document.body,
+<dt>container: document.body,
 <dd>Container element to place panel and button
 
-<dt>`popup`: 'dropdown',
+<dt>popup: 'dropdown',
 <dd>Popup - type string, options or true/false
 
-<dt>`draggable`: true,
+<dt>draggable: true,
 <dd>Make panel draggable - true, false or handle selector
 
-<dt>`button`: true,
+<dt>button: true,
 <dd>Create settings menu button
 
-<dt>`position`: 'top-right',
+<dt>position: 'top-right',
 <dd>Position of a button
 
-<dt>`icon`: ./gears.svg,
+<dt>icon: ./gears.svg,
 <dd>Svg to use for a menu icon
 
-<dt>`history`: false,
+<dt>history: false,
 <dd>Reflect state in url
 
-<dt>`session`: true,
+<dt>session: true,
 <dd>Save/load state between sessions, on load is overridden by history
 
-<dt>`storage`: window.sessionStorage
+<dt>storage: window.sessionStorage
 <dd>Default storage
 </dl>
 </details>

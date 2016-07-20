@@ -2273,7 +2273,7 @@ var createPanel = require('../settings-panel');
 module.exports = Prama;
 
 
-insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n\tpadding: 1em;\r\n}\r\n\r\n.prama [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-container > .prama-button {\r\n\ttop: 0;\r\n\tright: 0;\r\n\twidth: 3.2rem;\r\n\theight: 3.2rem;\r\n\tline-height: 3.2rem;\r\n\ttext-align: center;\r\n\tdisplay: block;\r\n\tposition: absolute;\r\n\tz-index: 2;\r\n}\r\n\r\n.prama-button i {\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n}\r\n\r\n.prama-button svg {\r\n\tmargin-bottom: .52rem;\r\n\tmax-width: 100%;\r\n\tmax-height: 100%;\r\n}\r\n\r\n");
+insertCss(".prama {\r\n\tfont-family: sans-serif;\r\n\tpadding: 1em;\r\n}\r\n\r\n.prama [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.prama * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.prama-container > .prama-button {\r\n\ttop: 0;\r\n\tright: 0;\r\n\twidth: 3.2rem;\r\n\theight: 3.2rem;\r\n\tline-height: 3.2rem;\r\n\ttext-align: center;\r\n\tdisplay: block;\r\n\tposition: absolute;\r\n\tz-index: 2;\r\n\tcursor: pointer;\r\n}\r\n\r\n.prama-button i {\r\n\theight: 1.6rem;\r\n\twidth: 1.6rem;\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n}\r\n\r\n.prama-button svg {\r\n\tmargin-bottom: .52rem;\r\n\tmax-width: 100%;\r\n\tmax-height: 100%;\r\n}\r\n\r\n");
 
 
 /**
@@ -2359,7 +2359,7 @@ function Prama (opts) {
 
 		if (this.draggable) {
 			this.dragman = draggable(this.popup.element, {
-				handle: '.settings-panel-title'
+				handle: typeof this.draggable === 'string' ? this.draggable : '.settings-panel-title'
 			});
 		}
 
@@ -2455,7 +2455,13 @@ Prama.prototype.storage = self.sessionStorage || self.localStorage;
 Prama.prototype.show = function () {this.popup && this.popup.show(); return this;};
 Prama.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
 
-
+//control-panel wrappers
+Prama.prototype.set = function () {
+	this.panel.set.apply(this.panel, arguments);
+};
+Prama.prototype.get = function () {
+	this.panel.get.apply(this.panel, arguments);
+};
 
 
 
@@ -2612,7 +2618,7 @@ function fromString (value) {
 	return value;
 }
 }).call(this,require("buffer").Buffer)
-},{"../settings-panel":76,"buffer":2,"draggy":11,"events":3,"inherits":20,"insert-styles":22,"is-mobile":24,"is-plain-obj":25,"just-extend":28,"popoff":57,"qs":60,"scope-css":64}],7:[function(require,module,exports){
+},{"../settings-panel":93,"buffer":2,"draggy":15,"events":3,"inherits":24,"insert-styles":26,"is-mobile":30,"is-plain-obj":32,"just-extend":35,"popoff":70,"qs":74,"scope-css":78}],7:[function(require,module,exports){
 /* The following list is defined in React's core */
 var IS_UNITLESS = {
   animationIterationCount: true,
@@ -2817,7 +2823,173 @@ function toFloat(value){
 
 	return value;
 }
-},{"mucss/border":29,"mucss/is-fixed":33,"mucss/margin":34,"mucss/offset":35,"mucss/padding":36}],9:[function(require,module,exports){
+},{"mucss/border":42,"mucss/is-fixed":46,"mucss/margin":47,"mucss/offset":48,"mucss/padding":49}],9:[function(require,module,exports){
+
+/**
+ * Expose `Emitter`.
+ */
+
+if (typeof module !== 'undefined') {
+  module.exports = Emitter;
+}
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  function on() {
+    this.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks['$' + event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks['$' + event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  var this$1 = this;
+
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks['$' + event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this$1, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks['$' + event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+},{}],10:[function(require,module,exports){
 /**
  * Define stateful property on an object
  */
@@ -2865,7 +3037,7 @@ function defineState (target, property, descriptor, isFn) {
 
 	return target;
 }
-},{"st8":68}],10:[function(require,module,exports){
+},{"st8":84}],11:[function(require,module,exports){
 var prefix = require('prefix-style')
 var toCamelCase = require('to-camel-case')
 var cache = { 'float': 'cssFloat' }
@@ -2924,7 +3096,210 @@ module.exports.get = function (element, properties) {
   }
 }
 
-},{"add-px-to-style":7,"prefix-style":59,"to-camel-case":70}],11:[function(require,module,exports){
+},{"add-px-to-style":7,"prefix-style":72,"to-camel-case":86}],12:[function(require,module,exports){
+'use strict';
+
+var prefix = require('prefix');
+var isArray = require('is-array');
+var properties = require('./lib/properties');
+var applyDefaultUnit = require('./lib/default-unit');
+
+var _has = Object.prototype.hasOwnProperty;
+var transformProp = prefix('transform');
+var propNameAliases = {
+  x: 'translateX',
+  y: 'translateY',
+  z: 'translateZ',
+  origin: 'transformOrigin'
+};
+
+exports = module.exports = transform;
+function transform(target, opts) {
+  var transformOutput = [];
+  var propName;
+  var propValue;
+  var propData;
+
+  replaceAliases(opts);
+
+  for (propName in opts) {
+    if (!_has.call(opts, propName)) continue;
+
+    propValue = opts[propName];
+
+    // If it's a transform property.
+    if (_has.call(properties.transform, propName)) {
+      propData = properties.transform[propName];
+
+      if (isArray(propValue)) {
+        propValue = propValue.join(propData.separator);
+      }
+
+      transformOutput.push(
+        propName + '(' + applyDefaultUnit(
+          propValue,
+          propData.defaultUnit,
+          propData.separator
+        ) + ')'
+      );
+
+      continue;
+    }
+
+    // For other properties like transform-origin.
+    if (_has.call(properties, propName)) {
+      propData = properties[propName];
+
+      if (isArray(propValue)) {
+        propValue = propValue.join(propData.separator);
+      }
+
+      target.style[prefix(propName)] = applyDefaultUnit(
+        propValue,
+        propData.defaultUnit,
+        propData.separator
+      );
+
+      continue;
+    }
+
+    console.warn(
+      'dom-transform: this property (`' + propName + '`) is not supported.'
+    );
+  }
+
+  // Apply transform property values.
+  target.style[transformProp] = transformOutput.join(' ');
+}
+
+exports.get = get;
+function get(target, props) {
+  var s = target.style;
+
+  if (typeof props === 'string') {
+    if (_has.call(properties.transform, props)) {
+      return s[transformProp];
+    }
+
+    return s[prefix(props)];
+  }
+
+  if (!props) {
+    props = getPropertiesName();
+  }
+
+  var values = {};
+  props.forEach(function(propName) {
+    values[propName] = s[prefix(propName)];
+  });
+
+  return values;
+}
+
+exports.reset = reset;
+function reset(target, props) {
+  var s = target.style;
+
+  if (typeof props === 'string') {
+    s[prefix(props)] = null;
+    return;
+  }
+
+  if (!props) {
+    props = getPropertiesName();
+  }
+
+  props.forEach(function(propName) {
+    s[prefix(propName)] = null;
+  });
+}
+
+exports.isSupported = isSupported;
+function isSupported() {
+  return transformProp.length > 0;
+}
+
+function replaceAliases(obj) {
+  var propName;
+  for (propName in obj) {
+    if (_has.call(propNameAliases, propName)) {
+      obj[propNameAliases[propName]] = obj[propName];
+      delete obj[propName];
+    }
+  }
+}
+
+function getPropertiesName() {
+  return Object.keys(properties).map(function(propName) {
+    return propName;
+  });
+}
+
+},{"./lib/default-unit":13,"./lib/properties":14,"is-array":28,"prefix":73}],13:[function(require,module,exports){
+'use strict';
+
+var trim = require('trim');
+var NUMBER_REGEX = /^-?\d+(\.\d+)?$/;
+
+module.exports = function(value, unit, separator) {
+  separator = separator || ',';
+
+  if (typeof value === 'number') {
+    return '' + value + unit;
+  }
+
+  // Allow to use either the defined separator or space
+  // to delimitate the values.
+  // Ex: '10 10' or '10, 10'.
+  var separatorRegExp = new RegExp(separator, 'g');
+  var values = value.split(separatorRegExp.test(value) ? separator : ' ');
+
+  return values.map(function(v) {
+    v = trim(v);
+
+    if (NUMBER_REGEX.test(v)) {
+      v += unit;
+    }
+
+    return v;
+  }).join(separator);
+};
+
+},{"trim":89}],14:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  transform: {
+    translate: {defaultUnit: 'px'},
+    translate3d: {defaultUnit: 'px'},
+    translateX: {defaultUnit: 'px'},
+    translateY: {defaultUnit: 'px'},
+    translateZ: {defaultUnit: 'px'},
+    scale: {defaultUnit: ''},
+    scale3d: {defaultUnit: ''},
+    scaleX: {defaultUnit: ''},
+    scaleY: {defaultUnit: ''},
+    scaleZ: {defaultUnit: ''},
+    rotate: {defaultUnit: 'deg'},
+    rotate3d: {defaultUnit: ''},
+    rotateX: {defaultUnit: 'deg'},
+    rotateY: {defaultUnit: 'deg'},
+    rotateZ: {defaultUnit: 'deg'},
+    skew: {defaultUnit: 'deg'},
+    skewX: {defaultUnit: 'deg'},
+    skewY: {defaultUnit: 'deg'},
+    perspective: {defaultUnit: 'px'},
+    matrix: {defaultUnit: ''},
+    matrix3d: {defaultUnit: ''}
+  },
+
+  transformOrigin: {
+    defaultUnit: 'px',
+    separator: ' '
+  }
+};
+
+},{}],15:[function(require,module,exports){
 /**
  * Simple draggable component
  *
@@ -3901,7 +4276,7 @@ function q (str) {
 
 
 module.exports = Draggable;
-},{"define-state":9,"emmy/emit":12,"emmy/off":14,"emmy/on":15,"events":3,"get-client-xy":16,"get-uid":17,"inherits":20,"intersects":23,"mucss/css":30,"mucss/is-fixed":33,"mucss/offset":35,"mucss/parse-value":37,"mucss/selection":41,"mucss/translate":42,"mumath/clamp":43,"mumath/mod":44,"mumath/round":46,"mutype/is-array":48,"mutype/is-fn":50,"mutype/is-number":52,"mutype/is-string":54,"xtend/mutable":73}],12:[function(require,module,exports){
+},{"define-state":10,"emmy/emit":16,"emmy/off":18,"emmy/on":19,"events":3,"get-client-xy":20,"get-uid":21,"inherits":24,"intersects":27,"mucss/css":43,"mucss/is-fixed":46,"mucss/offset":48,"mucss/parse-value":50,"mucss/selection":54,"mucss/translate":55,"mumath/clamp":56,"mumath/mod":57,"mumath/round":59,"mutype/is-array":61,"mutype/is-fn":63,"mutype/is-number":65,"mutype/is-string":67,"xtend/mutable":90}],16:[function(require,module,exports){
 /**
  * @module emmy/emit
  */
@@ -4021,7 +4396,7 @@ function emit(target, eventName, data, bubbles){
 
 	return target;
 }
-},{"./listeners":13,"icicle":19,"mutype/is-event":49,"mutype/is-node":51,"mutype/is-string":54,"sliced":65}],13:[function(require,module,exports){
+},{"./listeners":17,"icicle":23,"mutype/is-event":62,"mutype/is-node":64,"mutype/is-string":67,"sliced":81}],17:[function(require,module,exports){
 /**
  * A storage of per-target callbacks.
  * WeakMap is the most safe solution.
@@ -4155,7 +4530,7 @@ function hasTags(cb, tags){
 
 
 module.exports = listeners;
-},{}],14:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * @module emmy/off
  */
@@ -4263,7 +4638,7 @@ function off(target, evt, fn) {
 
 	return target;
 }
-},{"./listeners":13,"icicle":19,"mutype/is-array":48,"sliced":65}],15:[function(require,module,exports){
+},{"./listeners":17,"icicle":23,"mutype/is-array":61,"sliced":81}],19:[function(require,module,exports){
 /**
  * @module emmy/on
  */
@@ -4348,7 +4723,7 @@ on.wrap = function(target, evt, fn, condition){
 
 	return cb;
 };
-},{"./listeners":13,"icicle":19,"mutype/is-object":53}],16:[function(require,module,exports){
+},{"./listeners":17,"icicle":23,"mutype/is-object":66}],20:[function(require,module,exports){
 /**
  * Get clientY/clientY from an event.
  * If index is passed, treat it as index of global touches, not the targetTouches.
@@ -4407,14 +4782,14 @@ getClientXY.y = getClientY;
 getClientXY.findTouch = findTouch;
 
 module.exports = getClientXY;
-},{}],17:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /** generate unique id for selector */
 var counter = Date.now() % 1e9;
 
 module.exports = function getUid(){
 	return (Math.random() * 1e9 >>> 0) + (counter++);
 };
-},{}],18:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = asString
 module.exports.add = append
 
@@ -4454,7 +4829,7 @@ function makeArray(arr) {
   return Array.isArray(arr) ? arr : [arr]
 }
 
-},{}],19:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * @module Icicle
  */
@@ -4526,7 +4901,7 @@ function isLocked(target, name){
 	var locks = lockCache.get(target);
 	return (locks && locks[name]);
 }
-},{}],20:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -4551,7 +4926,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],21:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var containers = []; // will store container HTMLElement references
 var styleElements = []; // will store {prepend: HTMLElement, append: HTMLElement}
 
@@ -4599,7 +4974,7 @@ function createStyleElement() {
     return styleElement;
 }
 
-},{}],22:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (global){
 'use strict'
 
@@ -4635,7 +5010,7 @@ function createStyle (id) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],23:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /** @module  intersects */
 module.exports = intersects;
 
@@ -4677,7 +5052,61 @@ function intersects (a, b, tolerance){
 
 	return false;
 }
-},{}],24:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
+
+/**
+ * isArray
+ */
+
+var isArray = Array.isArray;
+
+/**
+ * toString
+ */
+
+var str = Object.prototype.toString;
+
+/**
+ * Whether or not the given `val`
+ * is an array.
+ *
+ * example:
+ *
+ *        isArray([]);
+ *        // > true
+ *        isArray(arguments);
+ *        // > false
+ *        isArray('');
+ *        // > false
+ *
+ * @param {mixed} val
+ * @return {bool}
+ */
+
+module.exports = isArray || function (val) {
+  return !! val && '[object Array]' == str.call(val);
+};
+
+},{}],29:[function(require,module,exports){
+/**
+ * Determine if an object is Buffer
+ *
+ * Author:   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * License:  MIT
+ *
+ * `npm install is-buffer`
+ */
+
+module.exports = function (obj) {
+  return !!(obj != null &&
+    (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
+      (obj.constructor &&
+      typeof obj.constructor.isBuffer === 'function' &&
+      obj.constructor.isBuffer(obj))
+    ))
+}
+
+},{}],30:[function(require,module,exports){
 module.exports = isMobile;
 
 function isMobile (ua) {
@@ -4690,7 +5119,28 @@ function isMobile (ua) {
   return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(ua) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(ua.substr(0,4));
 }
 
-},{}],25:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
+/*!
+ * is-number <https://github.com/jonschlinkert/is-number>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+'use strict';
+
+var typeOf = require('kind-of');
+
+module.exports = function isNumber(num) {
+  var type = typeOf(num);
+  if (type !== 'number' && type !== 'string') {
+    return false;
+  }
+  var n = +num;
+  return (n - n + 1) >= 0 && num !== '';
+};
+
+},{"kind-of":36}],32:[function(require,module,exports){
 'use strict';
 var toString = Object.prototype.toString;
 
@@ -4699,7 +5149,7 @@ module.exports = function (x) {
 	return toString.call(x) === '[object Object]' && (prototype = Object.getPrototypeOf(x), prototype === null || prototype === Object.getPrototypeOf({}));
 };
 
-},{}],26:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*!
  * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
  *
@@ -4738,7 +5188,7 @@ module.exports = function isPlainObject(o) {
   return true;
 };
 
-},{"isobject":27}],27:[function(require,module,exports){
+},{"isobject":34}],34:[function(require,module,exports){
 /*!
  * isobject <https://github.com/jonschlinkert/isobject>
  *
@@ -4753,7 +5203,7 @@ module.exports = function isObject(val) {
     && !Array.isArray(val);
 };
 
-},{}],28:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 module.exports = extend;
 
 /*
@@ -4803,7 +5253,1964 @@ function extend(obj1, obj2 /*, [objn]*/) {
   return result;
 }
 
-},{}],29:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
+(function (Buffer){
+var isBuffer = require('is-buffer');
+var toString = Object.prototype.toString;
+
+/**
+ * Get the native `typeof` a value.
+ *
+ * @param  {*} `val`
+ * @return {*} Native javascript type
+ */
+
+module.exports = function kindOf(val) {
+  // primitivies
+  if (typeof val === 'undefined') {
+    return 'undefined';
+  }
+  if (val === null) {
+    return 'null';
+  }
+  if (val === true || val === false || val instanceof Boolean) {
+    return 'boolean';
+  }
+  if (typeof val === 'string' || val instanceof String) {
+    return 'string';
+  }
+  if (typeof val === 'number' || val instanceof Number) {
+    return 'number';
+  }
+
+  // functions
+  if (typeof val === 'function' || val instanceof Function) {
+    return 'function';
+  }
+
+  // array
+  if (typeof Array.isArray !== 'undefined' && Array.isArray(val)) {
+    return 'array';
+  }
+
+  // check for instances of RegExp and Date before calling `toString`
+  if (val instanceof RegExp) {
+    return 'regexp';
+  }
+  if (val instanceof Date) {
+    return 'date';
+  }
+
+  // other objects
+  var type = toString.call(val);
+
+  if (type === '[object RegExp]') {
+    return 'regexp';
+  }
+  if (type === '[object Date]') {
+    return 'date';
+  }
+  if (type === '[object Arguments]') {
+    return 'arguments';
+  }
+
+  // buffer
+  if (typeof Buffer !== 'undefined' && isBuffer(val)) {
+    return 'buffer';
+  }
+
+  // es6: Map, WeakMap, Set, WeakSet
+  if (type === '[object Set]') {
+    return 'set';
+  }
+  if (type === '[object WeakSet]') {
+    return 'weakset';
+  }
+  if (type === '[object Map]') {
+    return 'map';
+  }
+  if (type === '[object WeakMap]') {
+    return 'weakmap';
+  }
+  if (type === '[object Symbol]') {
+    return 'symbol';
+  }
+
+  // typed arrays
+  if (type === '[object Int8Array]') {
+    return 'int8array';
+  }
+  if (type === '[object Uint8Array]') {
+    return 'uint8array';
+  }
+  if (type === '[object Uint8ClampedArray]') {
+    return 'uint8clampedarray';
+  }
+  if (type === '[object Int16Array]') {
+    return 'int16array';
+  }
+  if (type === '[object Uint16Array]') {
+    return 'uint16array';
+  }
+  if (type === '[object Int32Array]') {
+    return 'int32array';
+  }
+  if (type === '[object Uint32Array]') {
+    return 'uint32array';
+  }
+  if (type === '[object Float32Array]') {
+    return 'float32array';
+  }
+  if (type === '[object Float64Array]') {
+    return 'float64array';
+  }
+
+  // must be a plain object
+  return 'object';
+};
+
+}).call(this,require("buffer").Buffer)
+},{"buffer":2,"is-buffer":29}],37:[function(require,module,exports){
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]';
+
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/**
+ * The base implementation of `_.flatten` with support for restricting flattening.
+ *
+ * @private
+ * @param {Array} array The array to flatten.
+ * @param {number} depth The maximum recursion depth.
+ * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
+ * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
+ * @param {Array} [result=[]] The initial result value.
+ * @returns {Array} Returns the new flattened array.
+ */
+function baseFlatten(array, depth, predicate, isStrict, result) {
+  var index = -1,
+      length = array.length;
+
+  predicate || (predicate = isFlattenable);
+  result || (result = []);
+
+  while (++index < length) {
+    var value = array[index];
+    if (depth > 0 && predicate(value)) {
+      if (depth > 1) {
+        // Recursively flatten arrays (susceptible to call stack limits).
+        baseFlatten(value, depth - 1, predicate, isStrict, result);
+      } else {
+        arrayPush(result, value);
+      }
+    } else if (!isStrict) {
+      result[result.length] = value;
+    }
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/**
+ * Gets the "length" property value of `object`.
+ *
+ * **Note:** This function is used to avoid a
+ * [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792) that affects
+ * Safari on at least iOS 8.1-8.3 ARM64.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {*} Returns the "length" value.
+ */
+var getLength = baseProperty('length');
+
+/**
+ * Checks if `value` is a flattenable `arguments` object or array.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is flattenable, else `false`.
+ */
+function isFlattenable(value) {
+  return isArray(value) || isArguments(value);
+}
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+function isArguments(value) {
+  // Safari 8.1 incorrectly makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @type {Function}
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength(getLength(value)) && !isFunction(value);
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array and weak map constructors,
+  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length,
+ *  else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/6.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+module.exports = baseFlatten;
+
+},{}],38:[function(require,module,exports){
+(function (global){
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/** Used as the internal argument placeholder. */
+var PLACEHOLDER = '__lodash_placeholder__';
+
+/** Used to compose bitmasks for wrapper metadata. */
+var BIND_FLAG = 1,
+    BIND_KEY_FLAG = 2,
+    CURRY_BOUND_FLAG = 4,
+    CURRY_FLAG = 8,
+    CURRY_RIGHT_FLAG = 16,
+    PARTIAL_FLAG = 32,
+    PARTIAL_RIGHT_FLAG = 64,
+    ARY_FLAG = 128,
+    FLIP_FLAG = 512;
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_SAFE_INTEGER = 9007199254740991,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/** Used to determine if values are of the language type `Object`. */
+var objectTypes = {
+  'function': true,
+  'object': true
+};
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Detect free variable `exports`. */
+var freeExports = (objectTypes[typeof exports] && exports && !exports.nodeType)
+  ? exports
+  : undefined;
+
+/** Detect free variable `module`. */
+var freeModule = (objectTypes[typeof module] && module && !module.nodeType)
+  ? module
+  : undefined;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = checkGlobal(freeExports && freeModule && typeof global == 'object' && global);
+
+/** Detect free variable `self`. */
+var freeSelf = checkGlobal(objectTypes[typeof self] && self);
+
+/** Detect free variable `window`. */
+var freeWindow = checkGlobal(objectTypes[typeof window] && window);
+
+/** Detect `this` as the global object. */
+var thisGlobal = checkGlobal(objectTypes[typeof this] && this);
+
+/**
+ * Used as a reference to the global object.
+ *
+ * The `this` value is used if it's the global object to avoid Greasemonkey's
+ * restricted `window` object, otherwise the `window` object is used.
+ */
+var root = freeGlobal ||
+  ((freeWindow !== (thisGlobal && thisGlobal.window)) && freeWindow) ||
+    freeSelf || thisGlobal || Function('return this')();
+
+/**
+ * A faster alternative to `Function#apply`, this function invokes `func`
+ * with the `this` binding of `thisArg` and the arguments of `args`.
+ *
+ * @private
+ * @param {Function} func The function to invoke.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} args The arguments to invoke `func` with.
+ * @returns {*} Returns the result of `func`.
+ */
+function apply(func, thisArg, args) {
+  var length = args.length;
+  switch (length) {
+    case 0: return func.call(thisArg);
+    case 1: return func.call(thisArg, args[0]);
+    case 2: return func.call(thisArg, args[0], args[1]);
+    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+  }
+  return func.apply(thisArg, args);
+}
+
+/**
+ * Checks if `value` is a global object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {null|Object} Returns `value` if it's a global object, else `null`.
+ */
+function checkGlobal(value) {
+  return (value && value.Object === Object) ? value : null;
+}
+
+/**
+ * Gets the number of `placeholder` occurrences in `array`.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} placeholder The placeholder to search for.
+ * @returns {number} Returns the placeholder count.
+ */
+function countHolders(array, placeholder) {
+  var length = array.length,
+      result = 0;
+
+  while (length--) {
+    if (array[length] === placeholder) {
+      result++;
+    }
+  }
+  return result;
+}
+
+/**
+ * Replaces all `placeholder` elements in `array` with an internal placeholder
+ * and returns an array of their indexes.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {*} placeholder The placeholder to replace.
+ * @returns {Array} Returns the new array of placeholder indexes.
+ */
+function replaceHolders(array, placeholder) {
+  var index = -1,
+      length = array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (value === placeholder || value === PLACEHOLDER) {
+      array[index] = PLACEHOLDER;
+      result[resIndex++] = index;
+    }
+  }
+  return result;
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var objectCreate = Object.create;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max,
+    nativeMin = Math.min;
+
+/**
+ * The base implementation of `_.create` without support for assigning
+ * properties to the created object.
+ *
+ * @private
+ * @param {Object} prototype The object to inherit from.
+ * @returns {Object} Returns the new object.
+ */
+function baseCreate(proto) {
+  return isObject(proto) ? objectCreate(proto) : {};
+}
+
+/**
+ * Creates an array that is the composition of partially applied arguments,
+ * placeholders, and provided arguments into a single array of arguments.
+ *
+ * @private
+ * @param {Array} args The provided arguments.
+ * @param {Array} partials The arguments to prepend to those provided.
+ * @param {Array} holders The `partials` placeholder indexes.
+ * @params {boolean} [isCurried] Specify composing for a curried function.
+ * @returns {Array} Returns the new array of composed arguments.
+ */
+function composeArgs(args, partials, holders, isCurried) {
+  var argsIndex = -1,
+      argsLength = args.length,
+      holdersLength = holders.length,
+      leftIndex = -1,
+      leftLength = partials.length,
+      rangeLength = nativeMax(argsLength - holdersLength, 0),
+      result = Array(leftLength + rangeLength),
+      isUncurried = !isCurried;
+
+  while (++leftIndex < leftLength) {
+    result[leftIndex] = partials[leftIndex];
+  }
+  while (++argsIndex < holdersLength) {
+    if (isUncurried || argsIndex < argsLength) {
+      result[holders[argsIndex]] = args[argsIndex];
+    }
+  }
+  while (rangeLength--) {
+    result[leftIndex++] = args[argsIndex++];
+  }
+  return result;
+}
+
+/**
+ * This function is like `composeArgs` except that the arguments composition
+ * is tailored for `_.partialRight`.
+ *
+ * @private
+ * @param {Array} args The provided arguments.
+ * @param {Array} partials The arguments to append to those provided.
+ * @param {Array} holders The `partials` placeholder indexes.
+ * @params {boolean} [isCurried] Specify composing for a curried function.
+ * @returns {Array} Returns the new array of composed arguments.
+ */
+function composeArgsRight(args, partials, holders, isCurried) {
+  var argsIndex = -1,
+      argsLength = args.length,
+      holdersIndex = -1,
+      holdersLength = holders.length,
+      rightIndex = -1,
+      rightLength = partials.length,
+      rangeLength = nativeMax(argsLength - holdersLength, 0),
+      result = Array(rangeLength + rightLength),
+      isUncurried = !isCurried;
+
+  while (++argsIndex < rangeLength) {
+    result[argsIndex] = args[argsIndex];
+  }
+  var offset = argsIndex;
+  while (++rightIndex < rightLength) {
+    result[offset + rightIndex] = partials[rightIndex];
+  }
+  while (++holdersIndex < holdersLength) {
+    if (isUncurried || argsIndex < argsLength) {
+      result[offset + holders[holdersIndex]] = args[argsIndex++];
+    }
+  }
+  return result;
+}
+
+/**
+ * Copies the values of `source` to `array`.
+ *
+ * @private
+ * @param {Array} source The array to copy values from.
+ * @param {Array} [array=[]] The array to copy values to.
+ * @returns {Array} Returns `array`.
+ */
+function copyArray(source, array) {
+  var index = -1,
+      length = source.length;
+
+  array || (array = Array(length));
+  while (++index < length) {
+    array[index] = source[index];
+  }
+  return array;
+}
+
+/**
+ * Creates a function that wraps `func` to invoke it with the optional `this`
+ * binding of `thisArg`.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper`
+ *  for more details.
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createBaseWrapper(func, bitmask, thisArg) {
+  var isBind = bitmask & BIND_FLAG,
+      Ctor = createCtorWrapper(func);
+
+  function wrapper() {
+    var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+    return fn.apply(isBind ? thisArg : this, arguments);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that produces an instance of `Ctor` regardless of
+ * whether it was invoked as part of a `new` expression or by `call` or `apply`.
+ *
+ * @private
+ * @param {Function} Ctor The constructor to wrap.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createCtorWrapper(Ctor) {
+  return function() {
+    // Use a `switch` statement to work with class constructors. See
+    // http://ecma-international.org/ecma-262/6.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist
+    // for more details.
+    var args = arguments;
+    switch (args.length) {
+      case 0: return new Ctor;
+      case 1: return new Ctor(args[0]);
+      case 2: return new Ctor(args[0], args[1]);
+      case 3: return new Ctor(args[0], args[1], args[2]);
+      case 4: return new Ctor(args[0], args[1], args[2], args[3]);
+      case 5: return new Ctor(args[0], args[1], args[2], args[3], args[4]);
+      case 6: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+      case 7: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+    }
+    var thisBinding = baseCreate(Ctor.prototype),
+        result = Ctor.apply(thisBinding, args);
+
+    // Mimic the constructor's `return` behavior.
+    // See https://es5.github.io/#x13.2.2 for more details.
+    return isObject(result) ? result : thisBinding;
+  };
+}
+
+/**
+ * Creates a function that wraps `func` to enable currying.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper`
+ *  for more details.
+ * @param {number} arity The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createCurryWrapper(func, bitmask, arity) {
+  var Ctor = createCtorWrapper(func);
+
+  function wrapper() {
+    var arguments$1 = arguments;
+
+    var length = arguments.length,
+        args = Array(length),
+        index = length,
+        placeholder = getHolder(wrapper);
+
+    while (index--) {
+      args[index] = arguments$1[index];
+    }
+    var holders = (length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder)
+      ? []
+      : replaceHolders(args, placeholder);
+
+    length -= holders.length;
+    if (length < arity) {
+      return createRecurryWrapper(
+        func, bitmask, createHybridWrapper, wrapper.placeholder, undefined,
+        args, holders, undefined, undefined, arity - length);
+    }
+    var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+    return apply(fn, this, args);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that wraps `func` to invoke it with optional `this`
+ * binding of `thisArg`, partial application, and currying.
+ *
+ * @private
+ * @param {Function|string} func The function or method name to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper`
+ *  for more details.
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @param {Array} [partials] The arguments to prepend to those provided to
+ *  the new function.
+ * @param {Array} [holders] The `partials` placeholder indexes.
+ * @param {Array} [partialsRight] The arguments to append to those provided
+ *  to the new function.
+ * @param {Array} [holdersRight] The `partialsRight` placeholder indexes.
+ * @param {Array} [argPos] The argument positions of the new function.
+ * @param {number} [ary] The arity cap of `func`.
+ * @param {number} [arity] The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createHybridWrapper(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary, arity) {
+  var isAry = bitmask & ARY_FLAG,
+      isBind = bitmask & BIND_FLAG,
+      isBindKey = bitmask & BIND_KEY_FLAG,
+      isCurried = bitmask & (CURRY_FLAG | CURRY_RIGHT_FLAG),
+      isFlip = bitmask & FLIP_FLAG,
+      Ctor = isBindKey ? undefined : createCtorWrapper(func);
+
+  function wrapper() {
+    var arguments$1 = arguments;
+
+    var length = arguments.length,
+        args = Array(length),
+        index = length;
+
+    while (index--) {
+      args[index] = arguments$1[index];
+    }
+    if (isCurried) {
+      var placeholder = getHolder(wrapper),
+          holdersCount = countHolders(args, placeholder);
+    }
+    if (partials) {
+      args = composeArgs(args, partials, holders, isCurried);
+    }
+    if (partialsRight) {
+      args = composeArgsRight(args, partialsRight, holdersRight, isCurried);
+    }
+    length -= holdersCount;
+    if (isCurried && length < arity) {
+      var newHolders = replaceHolders(args, placeholder);
+      return createRecurryWrapper(
+        func, bitmask, createHybridWrapper, wrapper.placeholder, thisArg,
+        args, newHolders, argPos, ary, arity - length
+      );
+    }
+    var thisBinding = isBind ? thisArg : this,
+        fn = isBindKey ? thisBinding[func] : func;
+
+    length = args.length;
+    if (argPos) {
+      args = reorder(args, argPos);
+    } else if (isFlip && length > 1) {
+      args.reverse();
+    }
+    if (isAry && ary < length) {
+      args.length = ary;
+    }
+    if (this && this !== root && this instanceof wrapper) {
+      fn = Ctor || createCtorWrapper(fn);
+    }
+    return fn.apply(thisBinding, args);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that wraps `func` to invoke it with the `this` binding
+ * of `thisArg` and `partials` prepended to the arguments it receives.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper`
+ *  for more details.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} partials The arguments to prepend to those provided to
+ *  the new function.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createPartialWrapper(func, bitmask, thisArg, partials) {
+  var isBind = bitmask & BIND_FLAG,
+      Ctor = createCtorWrapper(func);
+
+  function wrapper() {
+    var arguments$1 = arguments;
+
+    var argsIndex = -1,
+        argsLength = arguments.length,
+        leftIndex = -1,
+        leftLength = partials.length,
+        args = Array(leftLength + argsLength),
+        fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+
+    while (++leftIndex < leftLength) {
+      args[leftIndex] = partials[leftIndex];
+    }
+    while (argsLength--) {
+      args[leftIndex++] = arguments$1[++argsIndex];
+    }
+    return apply(fn, isBind ? thisArg : this, args);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that wraps `func` to continue currying.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper`
+ *  for more details.
+ * @param {Function} wrapFunc The function to create the `func` wrapper.
+ * @param {*} placeholder The placeholder value.
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @param {Array} [partials] The arguments to prepend to those provided to
+ *  the new function.
+ * @param {Array} [holders] The `partials` placeholder indexes.
+ * @param {Array} [argPos] The argument positions of the new function.
+ * @param {number} [ary] The arity cap of `func`.
+ * @param {number} [arity] The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createRecurryWrapper(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary, arity) {
+  var isCurry = bitmask & CURRY_FLAG,
+      newHolders = isCurry ? holders : undefined,
+      newHoldersRight = isCurry ? undefined : holders,
+      newPartials = isCurry ? partials : undefined,
+      newPartialsRight = isCurry ? undefined : partials;
+
+  bitmask |= (isCurry ? PARTIAL_FLAG : PARTIAL_RIGHT_FLAG);
+  bitmask &= ~(isCurry ? PARTIAL_RIGHT_FLAG : PARTIAL_FLAG);
+
+  if (!(bitmask & CURRY_BOUND_FLAG)) {
+    bitmask &= ~(BIND_FLAG | BIND_KEY_FLAG);
+  }
+
+  var result = wrapFunc(func, bitmask, thisArg, newPartials, newHolders, newPartialsRight, newHoldersRight, argPos, ary, arity);
+  result.placeholder = placeholder;
+  return result;
+}
+
+/**
+ * Creates a function that either curries or invokes `func` with optional
+ * `this` binding and partially applied arguments.
+ *
+ * @private
+ * @param {Function|string} func The function or method name to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags.
+ *  The bitmask may be composed of the following flags:
+ *     1 - `_.bind`
+ *     2 - `_.bindKey`
+ *     4 - `_.curry` or `_.curryRight` of a bound function
+ *     8 - `_.curry`
+ *    16 - `_.curryRight`
+ *    32 - `_.partial`
+ *    64 - `_.partialRight`
+ *   128 - `_.rearg`
+ *   256 - `_.ary`
+ *   512 - `_.flip`
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @param {Array} [partials] The arguments to be partially applied.
+ * @param {Array} [holders] The `partials` placeholder indexes.
+ * @param {Array} [argPos] The argument positions of the new function.
+ * @param {number} [ary] The arity cap of `func`.
+ * @param {number} [arity] The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createWrapper(func, bitmask, thisArg, partials, holders, argPos, ary, arity) {
+  var isBindKey = bitmask & BIND_KEY_FLAG;
+  if (!isBindKey && typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  var length = partials ? partials.length : 0;
+  if (!length) {
+    bitmask &= ~(PARTIAL_FLAG | PARTIAL_RIGHT_FLAG);
+    partials = holders = undefined;
+  }
+  ary = ary === undefined ? ary : nativeMax(toInteger(ary), 0);
+  arity = arity === undefined ? arity : toInteger(arity);
+  length -= holders ? holders.length : 0;
+
+  if (bitmask & PARTIAL_RIGHT_FLAG) {
+    var partialsRight = partials,
+        holdersRight = holders;
+
+    partials = holders = undefined;
+  }
+
+  var newData = [
+    func, bitmask, thisArg, partials, holders, partialsRight, holdersRight,
+    argPos, ary, arity
+  ];
+
+  func = newData[0];
+  bitmask = newData[1];
+  thisArg = newData[2];
+  partials = newData[3];
+  holders = newData[4];
+  arity = newData[9] = newData[9] == null
+    ? (isBindKey ? 0 : func.length)
+    : nativeMax(newData[9] - length, 0);
+
+  if (!arity && bitmask & (CURRY_FLAG | CURRY_RIGHT_FLAG)) {
+    bitmask &= ~(CURRY_FLAG | CURRY_RIGHT_FLAG);
+  }
+  if (!bitmask || bitmask == BIND_FLAG) {
+    var result = createBaseWrapper(func, bitmask, thisArg);
+  } else if (bitmask == CURRY_FLAG || bitmask == CURRY_RIGHT_FLAG) {
+    result = createCurryWrapper(func, bitmask, arity);
+  } else if ((bitmask == PARTIAL_FLAG || bitmask == (BIND_FLAG | PARTIAL_FLAG)) && !holders.length) {
+    result = createPartialWrapper(func, bitmask, thisArg, partials);
+  } else {
+    result = createHybridWrapper.apply(undefined, newData);
+  }
+  return result;
+}
+
+/**
+ * Gets the argument placeholder value for `func`.
+ *
+ * @private
+ * @param {Function} func The function to inspect.
+ * @returns {*} Returns the placeholder value.
+ */
+function getHolder(func) {
+  var object = func;
+  return object.placeholder;
+}
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length &&
+    (typeof value == 'number' || reIsUint.test(value)) &&
+    (value > -1 && value % 1 == 0 && value < length);
+}
+
+/**
+ * Reorder `array` according to the specified indexes where the element at
+ * the first index is assigned as the first element, the element at
+ * the second index is assigned as the second element, and so on.
+ *
+ * @private
+ * @param {Array} array The array to reorder.
+ * @param {Array} indexes The arranged array indexes.
+ * @returns {Array} Returns `array`.
+ */
+function reorder(array, indexes) {
+  var arrLength = array.length,
+      length = nativeMin(indexes.length, arrLength),
+      oldArray = copyArray(array);
+
+  while (length--) {
+    var index = indexes[length];
+    array[length] = isIndex(index, arrLength) ? oldArray[index] : undefined;
+  }
+  return array;
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array and weak map constructors,
+  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/6.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This function is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/6.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = isFunction(value.valueOf) ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = createWrapper;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],39:[function(require,module,exports){
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+var createWrapper = require('lodash._createwrapper'),
+    rest = require('lodash.rest');
+
+/** Used as the internal argument placeholder. */
+var PLACEHOLDER = '__lodash_placeholder__';
+
+/** Used to compose bitmasks for wrapper metadata. */
+var BIND_FLAG = 1,
+    PARTIAL_FLAG = 32;
+
+/**
+ * Replaces all `placeholder` elements in `array` with an internal placeholder
+ * and returns an array of their indexes.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {*} placeholder The placeholder to replace.
+ * @returns {Array} Returns the new array of placeholder indexes.
+ */
+function replaceHolders(array, placeholder) {
+  var index = -1,
+      length = array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (value === placeholder || value === PLACEHOLDER) {
+      array[index] = PLACEHOLDER;
+      result[resIndex++] = index;
+    }
+  }
+  return result;
+}
+
+/**
+ * Gets the argument placeholder value for `func`.
+ *
+ * @private
+ * @param {Function} func The function to inspect.
+ * @returns {*} Returns the placeholder value.
+ */
+function getHolder(func) {
+  var object = func;
+  return object.placeholder;
+}
+
+/**
+ * Creates a function that invokes `func` with the `this` binding of `thisArg`
+ * and `partials` prepended to the arguments it receives.
+ *
+ * The `_.bind.placeholder` value, which defaults to `_` in monolithic builds,
+ * may be used as a placeholder for partially applied arguments.
+ *
+ * **Note:** Unlike native `Function#bind` this method doesn't set the "length"
+ * property of bound functions.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to bind.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {...*} [partials] The arguments to be partially applied.
+ * @returns {Function} Returns the new bound function.
+ * @example
+ *
+ * var greet = function(greeting, punctuation) {
+ *   return greeting + ' ' + this.user + punctuation;
+ * };
+ *
+ * var object = { 'user': 'fred' };
+ *
+ * var bound = _.bind(greet, object, 'hi');
+ * bound('!');
+ * // => 'hi fred!'
+ *
+ * // Bound with placeholders.
+ * var bound = _.bind(greet, object, _, '!');
+ * bound('hi');
+ * // => 'hi fred!'
+ */
+var bind = rest(function(func, thisArg, partials) {
+  var bitmask = BIND_FLAG;
+  if (partials.length) {
+    var holders = replaceHolders(partials, getHolder(bind));
+    bitmask |= PARTIAL_FLAG;
+  }
+  return createWrapper(func, bitmask, thisArg, partials, holders);
+});
+
+// Assign default placeholders.
+bind.placeholder = {};
+
+module.exports = bind;
+
+},{"lodash._createwrapper":38,"lodash.rest":41}],40:[function(require,module,exports){
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+var baseFlatten = require('lodash._baseflatten'),
+    bind = require('lodash.bind'),
+    rest = require('lodash.rest');
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/**
+ * A specialized version of `_.forEach` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns `array`.
+ */
+function arrayEach(array, iteratee) {
+  var index = -1,
+      length = array.length;
+
+  while (++index < length) {
+    if (iteratee(array[index], index, array) === false) {
+      break;
+    }
+  }
+  return array;
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Converts `value` to a string key if it's not a string or symbol.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {string|symbol} Returns the key.
+ */
+function toKey(value) {
+  if (typeof value == 'string' || isSymbol(value)) {
+    return value;
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Binds methods of an object to the object itself, overwriting the existing
+ * method.
+ *
+ * **Note:** This method doesn't set the "length" property of bound functions.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Util
+ * @param {Object} object The object to bind and assign the bound methods to.
+ * @param {...(string|string[])} methodNames The object method names to bind.
+ * @returns {Object} Returns `object`.
+ * @example
+ *
+ * var view = {
+ *   'label': 'docs',
+ *   'onClick': function() {
+ *     console.log('clicked ' + this.label);
+ *   }
+ * };
+ *
+ * _.bindAll(view, 'onClick');
+ * jQuery(element).on('click', view.onClick);
+ * // => Logs 'clicked docs' when clicked.
+ */
+var bindAll = rest(function(object, methodNames) {
+  arrayEach(baseFlatten(methodNames, 1), function(key) {
+    key = toKey(key);
+    object[key] = bind(object[key], object);
+  });
+  return object;
+});
+
+module.exports = bindAll;
+
+},{"lodash._baseflatten":37,"lodash.bind":39,"lodash.rest":41}],41:[function(require,module,exports){
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * A faster alternative to `Function#apply`, this function invokes `func`
+ * with the `this` binding of `thisArg` and the arguments of `args`.
+ *
+ * @private
+ * @param {Function} func The function to invoke.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} args The arguments to invoke `func` with.
+ * @returns {*} Returns the result of `func`.
+ */
+function apply(func, thisArg, args) {
+  var length = args.length;
+  switch (length) {
+    case 0: return func.call(thisArg);
+    case 1: return func.call(thisArg, args[0]);
+    case 2: return func.call(thisArg, args[0], args[1]);
+    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+  }
+  return func.apply(thisArg, args);
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max;
+
+/**
+ * Creates a function that invokes `func` with the `this` binding of the
+ * created function and arguments from `start` and beyond provided as
+ * an array.
+ *
+ * **Note:** This method is based on the
+ * [rest parameter](https://mdn.io/rest_parameters).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Function
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @returns {Function} Returns the new function.
+ * @example
+ *
+ * var say = _.rest(function(what, names) {
+ *   return what + ' ' + _.initial(names).join(', ') +
+ *     (_.size(names) > 1 ? ', & ' : '') + _.last(names);
+ * });
+ *
+ * say('hello', 'fred', 'barney', 'pebbles');
+ * // => 'hello fred, barney, & pebbles'
+ */
+function rest(func, start) {
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  start = nativeMax(start === undefined ? (func.length - 1) : toInteger(start), 0);
+  return function() {
+    var args = arguments,
+        index = -1,
+        length = nativeMax(args.length - start, 0),
+        array = Array(length);
+
+    while (++index < length) {
+      array[index] = args[start + index];
+    }
+    switch (start) {
+      case 0: return func.call(this, array);
+      case 1: return func.call(this, args[0], array);
+      case 2: return func.call(this, args[0], args[1], array);
+    }
+    var otherArgs = Array(start + 1);
+    index = -1;
+    while (++index < start) {
+      otherArgs[index] = args[index];
+    }
+    otherArgs[start] = array;
+    return apply(func, this, otherArgs);
+  };
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array and weak map constructors,
+  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/6.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This function is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/6.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = isFunction(value.valueOf) ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = rest;
+
+},{}],42:[function(require,module,exports){
 /**
  * Parse element’s borders
  *
@@ -4830,7 +7237,7 @@ module.exports = function(el){
 		parse(style.borderBottomWidth)
 	);
 };
-},{"./parse-value":37,"./rect":39}],30:[function(require,module,exports){
+},{"./parse-value":50,"./rect":52}],43:[function(require,module,exports){
 /**
  * Get or set element’s style, prefix-agnostic.
  *
@@ -4889,13 +7296,13 @@ function prefixize(name){
 	if (fakeStyle[prefix + uName] !== undefined) return prefix + uName;
 	return '';
 }
-},{"./fake-element":31,"./prefix":38}],31:[function(require,module,exports){
+},{"./fake-element":44,"./prefix":51}],44:[function(require,module,exports){
 /** Just a fake element to test styles
  * @module mucss/fake-element
  */
 
 module.exports = document.createElement('div');
-},{}],32:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /**
  * Window scrollbar detector.
  *
@@ -4909,7 +7316,7 @@ exports.x = function () {
 exports.y = function () {
 	return window.innerWidth > document.documentElement.clientWidth;
 };
-},{}],33:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /**
  * Detect whether element is placed to fixed container or is fixed itself.
  *
@@ -4934,7 +7341,7 @@ module.exports = function (el) {
 	}
 	return false;
 };
-},{}],34:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /**
  * Get margins of an element.
  * @module mucss/margins
@@ -4963,7 +7370,7 @@ module.exports = function(el){
 		parse(style.marginBottom)
 	);
 };
-},{"./parse-value":37,"./rect":39}],35:[function(require,module,exports){
+},{"./parse-value":50,"./rect":52}],48:[function(require,module,exports){
 /**
  * Calculate absolute offsets of an element, relative to the document.
  *
@@ -5044,7 +7451,7 @@ function offsets (el) {
 
 	return result;
 };
-},{"./has-scroll":32,"./is-fixed":33,"./rect":39,"./scrollbar":40,"./translate":42}],36:[function(require,module,exports){
+},{"./has-scroll":45,"./is-fixed":46,"./rect":52,"./scrollbar":53,"./translate":55}],49:[function(require,module,exports){
 /**
  * Caclulate paddings of an element.
  * @module  mucss/paddings
@@ -5075,7 +7482,7 @@ module.exports = function(el){
 		parse(style.paddingBottom)
 	);
 };
-},{"./parse-value":37,"./rect":39}],37:[function(require,module,exports){
+},{"./parse-value":50,"./rect":52}],50:[function(require,module,exports){
 /**
  * Returns parsed css value.
  *
@@ -5091,7 +7498,7 @@ module.exports = function (str){
 };
 
 //FIXME: add parsing units
-},{}],38:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /**
  * Vendor prefixes
  * Method of http://davidwalsh.name/vendor-prefix
@@ -5121,7 +7528,7 @@ else {
 		js: pre[0].toUpperCase() + pre.substr(1)
 	};
 }
-},{}],39:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /**
  * Simple rect constructor.
  * It is just faster and smaller than constructing an object.
@@ -5145,7 +7552,7 @@ module.exports = function Rect (l,t,r,b) {
 	this.width=Math.abs(this.right - this.left);
 	this.height=Math.abs(this.bottom - this.top);
 };
-},{}],40:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 /**
  * Calculate scrollbar width.
  *
@@ -5170,7 +7577,7 @@ module.exports = scrollDiv.offsetWidth - scrollDiv.clientWidth;
 
 // Delete fake DIV
 document.documentElement.removeChild(scrollDiv);
-},{}],41:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /**
  * Enable/disable selectability of an element
  * @module mucss/selection
@@ -5207,7 +7614,7 @@ exports.enable = function(el){
 function pd(e){
 	e.preventDefault();
 }
-},{"./css":30}],42:[function(require,module,exports){
+},{"./css":43}],55:[function(require,module,exports){
 /**
  * Parse translate3d
  *
@@ -5234,7 +7641,7 @@ module.exports = function (el) {
 		return parseValue(value);
 	});
 };
-},{"./css":30,"./parse-value":37}],43:[function(require,module,exports){
+},{"./css":43,"./parse-value":50}],56:[function(require,module,exports){
 /**
  * Clamp value.
  * Detects proper clamp min/max.
@@ -5249,7 +7656,7 @@ module.exports = function (el) {
 module.exports = require('./wrap')(function(a, min, max){
 	return max > min ? Math.max(Math.min(a,max),min) : Math.max(Math.min(a,min),max);
 });
-},{"./wrap":47}],44:[function(require,module,exports){
+},{"./wrap":60}],57:[function(require,module,exports){
 /**
  * Looping function for any framesize.
  * Like fmod.
@@ -5280,7 +7687,7 @@ module.exports = require('./wrap')(function (value, left, right) {
 
 	return value;
 });
-},{"./wrap":47}],45:[function(require,module,exports){
+},{"./wrap":60}],58:[function(require,module,exports){
 /**
  * @module  mumath/precision
  *
@@ -5300,7 +7707,7 @@ module.exports = require('./wrap')(function(n){
 
 	return !d ? 0 : s.length - d;
 });
-},{"./wrap":47}],46:[function(require,module,exports){
+},{"./wrap":60}],59:[function(require,module,exports){
 /**
  * Precision round
  *
@@ -5323,7 +7730,7 @@ module.exports = require('./wrap')(function(value, step) {
 	value = Math.round(value / step) * step;
 	return parseFloat(value.toFixed(precision(step)));
 });
-},{"./precision":45,"./wrap":47}],47:[function(require,module,exports){
+},{"./precision":58,"./wrap":60}],60:[function(require,module,exports){
 /**
  * Get fn wrapped with array/object attrs recognition
  *
@@ -5365,27 +7772,27 @@ module.exports = function(fn){
 		}
 	};
 };
-},{}],48:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 module.exports = function(a){
 	return a instanceof Array;
 }
-},{}],49:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports = function(target){
 	return typeof Event !== 'undefined' && target instanceof Event;
 };
-},{}],50:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 module.exports = function(a){
 	return !!(a && a.apply);
 }
-},{}],51:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports = function(target){
 	return typeof document !== 'undefined' && target instanceof Node;
 };
-},{}],52:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'number' || a instanceof Number;
 }
-},{}],53:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 /**
  * @module mutype/is-object
  */
@@ -5397,13 +7804,13 @@ module.exports = function(o){
 	// return obj === Object(obj);
 	return !!o && typeof o === 'object' && o.constructor === Object;
 };
-},{}],54:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 module.exports = function(a){
 	return typeof a === 'string' || a instanceof String;
 }
-},{}],55:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports=[["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#7e5686","#a5aad9","#e8f9a2","#f8a13f","#ba3c3d"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#7e5686","#a5aad9","#e8f9a2","#f8a13f","#ba3c3d"],["#379f7a","#78ae62","#bbb749","#e0fbac","#1f1c0d"]]
-},{}],56:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /**
 * @module  placer
 *
@@ -5839,7 +8246,7 @@ function getParentRect (target) {
 
 	return rect;
 }
-},{"aligner":8,"mucss/border":29,"mucss/css":30,"mucss/has-scroll":32,"mucss/is-fixed":33,"mucss/margin":34,"mucss/offset":35,"mucss/parse-value":37,"mucss/scrollbar":40,"soft-extend":66}],57:[function(require,module,exports){
+},{"aligner":8,"mucss/border":42,"mucss/css":43,"mucss/has-scroll":45,"mucss/is-fixed":46,"mucss/margin":47,"mucss/offset":48,"mucss/parse-value":50,"mucss/scrollbar":53,"soft-extend":82}],70:[function(require,module,exports){
 /**
  * @module  popup
  */
@@ -6437,7 +8844,7 @@ Popup.prototype.animend = function (cb) {
 		cb.call(that);
 	}
 }
-},{"./overlay":58,"events":3,"get-uid":17,"inherits":20,"insert-css":21,"mucss/has-scroll":32,"mucss/scrollbar":40,"placer":56,"xtend/mutable":73}],58:[function(require,module,exports){
+},{"./overlay":71,"events":3,"get-uid":21,"inherits":24,"insert-css":25,"mucss/has-scroll":45,"mucss/scrollbar":53,"placer":69,"xtend/mutable":90}],71:[function(require,module,exports){
 /**
  * @module  popoff/overlay
  *
@@ -6554,7 +8961,7 @@ Overlay.prototype.hide = function () {
 
 	return this;
 };
-},{"events":3,"inherits":20,"xtend/mutable":73}],59:[function(require,module,exports){
+},{"events":3,"inherits":24,"xtend/mutable":90}],72:[function(require,module,exports){
 var div = null
 var prefixes = [ 'Webkit', 'Moz', 'O', 'ms' ]
 
@@ -6586,7 +8993,78 @@ module.exports = function prefixStyle (prop) {
   return false
 }
 
-},{}],60:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
+// check document first so it doesn't error in node.js
+var style = typeof document != 'undefined'
+  ? document.createElement('p').style
+  : {}
+
+var prefixes = ['O', 'ms', 'Moz', 'Webkit']
+var upper = /([A-Z])/g
+var memo = {}
+
+/**
+ * prefix `key`
+ *
+ *   prefix('transform') // => WebkitTransform
+ *
+ * @param {String} key
+ * @return {String}
+ * @api public
+ */
+function prefix(key){
+  // Camel case
+  key = key.replace(/-([a-z])/g, function(_, char){
+    return char.toUpperCase()
+  })
+
+  // Without prefix
+  if (style[key] !== undefined) return key
+
+  // With prefix
+  var Key = key.charAt(0).toUpperCase() + key.slice(1)
+  var i = prefixes.length
+  while (i--) {
+    var name = prefixes[i] + Key
+    if (style[name] !== undefined) return name
+  }
+
+  return key
+}
+
+/**
+ * Memoized version of `prefix`
+ *
+ * @param {String} key
+ * @return {String}
+ * @api public
+ */
+function prefixMemozied(key){
+  return key in memo
+    ? memo[key]
+    : memo[key] = prefix(key)
+}
+
+/**
+ * Create a dashed prefix
+ *
+ * @param {String} key
+ * @return {String}
+ * @api public
+ */
+function prefixDashed(key){
+  key = prefix(key)
+  if (upper.test(key)) {
+    key = '-' + key.replace(upper, '-$1')
+    upper.lastIndex = 0
+  }
+  return key.toLowerCase()
+}
+
+module.exports = prefixMemozied
+module.exports.dash = prefixDashed
+
+},{}],74:[function(require,module,exports){
 'use strict';
 
 var Stringify = require('./stringify');
@@ -6597,7 +9075,7 @@ module.exports = {
     parse: Parse
 };
 
-},{"./parse":61,"./stringify":62}],61:[function(require,module,exports){
+},{"./parse":75,"./stringify":76}],75:[function(require,module,exports){
 'use strict';
 
 var Utils = require('./utils');
@@ -6766,7 +9244,7 @@ module.exports = function (str, opts) {
     return Utils.compact(obj);
 };
 
-},{"./utils":63}],62:[function(require,module,exports){
+},{"./utils":77}],76:[function(require,module,exports){
 'use strict';
 
 var Utils = require('./utils');
@@ -6905,7 +9383,7 @@ module.exports = function (object, opts) {
     return keys.join(delimiter);
 };
 
-},{"./utils":63}],63:[function(require,module,exports){
+},{"./utils":77}],77:[function(require,module,exports){
 'use strict';
 
 var hexTable = (function () {
@@ -7071,7 +9549,7 @@ exports.isBuffer = function (obj) {
     return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
 };
 
-},{}],64:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 module.exports = scope;
 scope.replace = replace;
 
@@ -7096,7 +9574,374 @@ function scope (css, parent) {
 function replace (css, replacer) {
 	return css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, replacer);
 }
-},{}],65:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
+'use strict';
+
+var bindAll = require('lodash.bindall');
+var Emitter = require('component-emitter');
+var isNumber = require('is-number');
+var tinycolor = require('tinycolor2');
+var transform = require('dom-transform');
+var clamp = require('./src/utils/maths/clamp');
+
+/**
+ * Creates a new Colorpicker
+ * @param {Object} options
+ * @param {String|Number|Object} options.color The default color that the colorpicker will display. Default is #FFFFFF. It can be a hexadecimal number or an hex String.
+ * @param {String|Number|Object} options.background The background color of the colorpicker. Default is transparent. It can be a hexadecimal number or an hex String.
+ * @param {DomElement} options.el A dom node to add the colorpicker to. You can also use `colorPicker.appendTo(domNode)` afterwards if you prefer.
+ * @param {Number} options.width Desired width of the color picker. Default is 175.
+ * @param {Number} options.height Desired height of the color picker. Default is 150.
+ */
+function SimpleColorPicker(options) {
+  // options
+  options = options || {};
+
+  // properties
+  this.color = null;
+  this.width = 0;
+  this.height = 0;
+  this.hue = 0;
+  this.choosing = false;
+  this.position = {x: 0, y: 0};
+  this.huePosition = 0;
+  this.saturationWidth = 0;
+  this.maxHue = 0;
+  this.inputIsNumber = false;
+
+  // bind methods to scope (only if needed)
+  bindAll(this, '_onSaturationMouseMove', '_onSaturationMouseDown', '_onSaturationMouseUp', '_onHueMouseDown', '_onHueMouseUp', '_onHueMouseMove');
+
+  // create dom
+  this.$el = document.createElement('div');
+  this.$el.className = 'Scp';
+  this.$el.innerHTML = [
+    '<div class="Scp-saturation">',
+      '<div class="Scp-brightness"></div>',
+      '<div class="Scp-sbSelector"></div>',
+    '</div>',
+    '<div class="Scp-hue">',
+      '<div class="Scp-hSelector"></div>',
+    '</div>'
+  ].join('\n');
+
+  // dom accessors
+  this.$saturation = this.$el.querySelector('.Scp-saturation');
+  this.$hue = this.$el.querySelector('.Scp-hue');
+  this.$sbSelector = this.$el.querySelector('.Scp-sbSelector');
+  this.$hSelector = this.$el.querySelector('.Scp-hSelector');
+
+  // event listeners
+  this.$saturation.addEventListener('mousedown', this._onSaturationMouseDown);
+  this.$saturation.addEventListener('touchstart', this._onSaturationMouseDown);
+  this.$hue.addEventListener('mousedown', this._onHueMouseDown);
+  this.$hue.addEventListener('touchstart', this._onHueMouseDown);
+
+  // some styling and DOMing from options
+  if (options.el) {
+    this.appendTo(options.el);
+  }
+  if (options.background) {
+    this.setBackgroundColor(options.background);
+  }
+  this.setSize(options.width || 175, options.height || 150);
+  this.setColor(options.color);
+
+  return this;
+}
+
+Emitter(SimpleColorPicker.prototype);
+
+/* =============================================================================
+  Public API
+============================================================================= */
+/**
+ * Add the colorPicker instance to a domElement.
+ * @param  {domElement} domElement
+ * @return {colorPicker} returns itself for chaining purpose
+ */
+SimpleColorPicker.prototype.appendTo = function(domElement) {
+  domElement.appendChild(this.$el);
+  return this;
+};
+
+/**
+ * Removes colorpicker from is parent and kill all listeners.
+ * Call this method for proper destroy.
+ */
+SimpleColorPicker.prototype.remove = function() {
+  this.$saturation.removeEventListener('mousedown', this._onSaturationMouseDown);
+  this.$saturation.removeEventListener('touchstart', this._onSaturationMouseDown);
+  this.$hue.removeEventListener('mousedown', this._onHueMouseDown);
+  this.$hue.removeEventListener('touchstart', this._onHueMouseDown);
+  this._onSaturationMouseUp();
+  this._onHueMouseUp();
+  this.off();
+  if (this.$el.parentNode) {
+    this.$el.parentNode.removeChild(this.$el);
+  }
+};
+
+/**
+ * Manually set the current color of the colorpicker. This is the method
+ * used on instantiation to convert `color` option to actual color for
+ * the colorpicker. Param can be a hexadecimal number or an hex String.
+ * @param {String|Number} color hex color desired
+ */
+SimpleColorPicker.prototype.setColor = function(color) {
+  if(isNumber(color)) {
+    this.inputIsNumber = true;
+    color = '#' + ('00000' + (color | 0).toString(16)).substr(-6);
+  }
+  else {
+    this.inputIsNumber = false;
+  }
+  this.color = tinycolor(color);
+
+  var hsvColor = this.color.toHsv();
+
+  if(!isNaN(hsvColor.h)) {
+    this.hue = hsvColor.h;
+  }
+
+  this._moveSelectorTo(this.saturationWidth * hsvColor.s, (1 - hsvColor.v) * this.height);
+  this._moveHueTo((1 - (this.hue / 360)) * this.height);
+
+  this._updateHue();
+  return this;
+};
+
+/**
+ * Set size of the color picker for a given width and height. Note that
+ * a padding of 5px will be added if you chose to use the background option
+ * of the constructor.
+ * @param {Number} width
+ * @param {Number} height
+ */
+SimpleColorPicker.prototype.setSize = function(width, height) {
+  this.width = width;
+  this.height = height;
+  this.$el.style.width = this.width + 'px';
+  this.$el.style.height = this.height + 'px';
+  this.saturationWidth = this.width - 25;
+  this.maxHue = this.height - 2;
+  return this;
+};
+
+/**
+ * Set the background color of the colorpicker. It also adds a 5px padding
+ * for design purpose.
+ * @param {String|Number} color hex color desired for background
+ */
+SimpleColorPicker.prototype.setBackgroundColor = function(color) {
+  if(isNumber(color)) {
+    color = '#' + ('00000' + (color | 0).toString(16)).substr(-6);
+  }
+  this.$el.style.padding = '5px';
+  this.$el.style.background = tinycolor(color).toHexString();
+};
+
+/**
+ * Removes background of the colorpicker if previously set. It's no use
+ * calling this method if you didn't set the background option on start
+ * or if you didn't call setBackgroundColor previously.
+ */
+SimpleColorPicker.prototype.setNoBackground = function() {
+  this.$el.style.padding = '0px';
+  this.$el.style.background = 'none';
+};
+
+/**
+ * Registers callback to the update event of the colorpicker.
+ * ColorPicker inherits from [component/emitter](https://github.com/component/emitter)
+ * so you could do the same thing by calling `colorPicker.on('update');`
+ * @param  {Function} callback
+ * @return {colorPicker} returns itself for chaining purpose
+ */
+SimpleColorPicker.prototype.onChange = function(callback) {
+  this.on('update', callback);
+  this.emit('update', this.getHexString());
+  return this;
+};
+
+/* =============================================================================
+  Color getters
+============================================================================= */
+/**
+ * Main color getter, will return a formatted color string depending on input
+ * or a number depending on the last setColor call.
+ * @return {Number|String}
+ */
+SimpleColorPicker.prototype.getColor = function() {
+  if(this.inputIsNumber) {
+    return this.getHexNumber();
+  }
+  return this.color.toString();
+};
+
+/**
+ * Returns color as css hex string (ex: '#FF0000').
+ * @return {String}
+ */
+SimpleColorPicker.prototype.getHexString = function() {
+  return this.color.toHexString().toUpperCase();
+};
+
+/**
+ * Returns color as number (ex: 0xFF0000).
+ * @return {Number}
+ */
+SimpleColorPicker.prototype.getHexNumber = function() {
+  return parseInt(this.color.toHex(), 16);
+};
+
+/**
+ * Returns color as {r: 255, g: 0, b: 0} object.
+ * @return {Object}
+ */
+SimpleColorPicker.prototype.getRGB = function() {
+  return this.color.toRgb();
+};
+
+/**
+ * Returns color as {h: 100, s: 1, v: 1} object.
+ * @return {Object}
+ */
+SimpleColorPicker.prototype.getHSV = function() {
+  return this.color.toHsv();
+};
+
+/**
+ * Returns true if color is perceived as dark
+ * @return {Boolean}
+ */
+SimpleColorPicker.prototype.isDark = function() {
+  return this.color.isDark();
+};
+
+/**
+ * Returns true if color is perceived as light
+ * @return {Boolean}
+ */
+SimpleColorPicker.prototype.isLight = function() {
+  return this.color.isLight();
+};
+
+/* =============================================================================
+  "Private" Methods LOL silly javascript
+============================================================================= */
+SimpleColorPicker.prototype._moveSelectorTo = function(x, y) {
+  this.position.x = clamp(x, 0, this.saturationWidth);
+  this.position.y = clamp(y, 0, this.height);
+
+  transform(this.$sbSelector, {
+    x: this.position.x,
+    y: this.position.y
+  });
+};
+
+SimpleColorPicker.prototype._updateColorFromPosition = function() {
+  this.color = tinycolor({h: this.hue, s: this.position.x / this.saturationWidth, v: 1 - (this.position.y / this.height)});
+  this._updateColor();
+};
+
+SimpleColorPicker.prototype._moveHueTo = function(y) {
+  this.huePosition = clamp(y, 0, this.maxHue);
+
+  transform(this.$hSelector, {
+    y: this.huePosition
+  });
+};
+
+SimpleColorPicker.prototype._updateHueFromPosition = function() {
+  var hsvColor = this.color.toHsv();
+  this.hue = 360 * (1 - (this.huePosition / this.maxHue));
+  this.color = tinycolor({h: this.hue, s: hsvColor.s, v: hsvColor.v});
+  this._updateHue();
+};
+
+SimpleColorPicker.prototype._updateHue = function() {
+  var hueColor = tinycolor({h: this.hue, s: 1, v: 1});
+  this.$saturation.style.background = 'linear-gradient(to right, #fff, ' + hueColor.toHexString() + ')';
+  this._updateColor();
+};
+
+SimpleColorPicker.prototype._updateColor = function() {
+  this.$sbSelector.style.background = this.color.toHexString();
+  this.$sbSelector.style.borderColor = this.color.isDark() ? '#fff' : '#000';
+  this.emit('update', this.color.toHexString());
+};
+
+/* =============================================================================
+  Events handlers
+============================================================================= */
+SimpleColorPicker.prototype._onSaturationMouseDown = function(e) {
+  this.choosing = true;
+  var sbOffset = this.$saturation.getBoundingClientRect();
+  var xPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientX : e.clientX;
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveSelectorTo(xPos - sbOffset.left, yPos - sbOffset.top);
+  this._updateColorFromPosition();
+  window.addEventListener('mouseup', this._onSaturationMouseUp);
+  window.addEventListener('touchend', this._onSaturationMouseUp);
+  window.addEventListener('mousemove', this._onSaturationMouseMove);
+  window.addEventListener('touchmove', this._onSaturationMouseMove);
+  e.preventDefault();
+};
+
+SimpleColorPicker.prototype._onSaturationMouseMove = function(e) {
+  var sbOffset = this.$saturation.getBoundingClientRect();
+  var xPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientX : e.clientX;
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveSelectorTo(xPos - sbOffset.left, yPos - sbOffset.top);
+  this._updateColorFromPosition();
+};
+
+SimpleColorPicker.prototype._onSaturationMouseUp = function() {
+  this.choosing = false;
+  window.removeEventListener('mouseup', this._onSaturationMouseUp);
+  window.removeEventListener('touchend', this._onSaturationMouseUp);
+  window.removeEventListener('mousemove', this._onSaturationMouseMove);
+  window.removeEventListener('touchmove', this._onSaturationMouseMove);
+};
+
+SimpleColorPicker.prototype._onHueMouseDown = function(e) {
+  this.choosing = true;
+  var hOffset = this.$hue.getBoundingClientRect();
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveHueTo(yPos - hOffset.top);
+  this._updateHueFromPosition();
+  window.addEventListener('mouseup', this._onHueMouseUp);
+  window.addEventListener('touchend', this._onHueMouseUp);
+  window.addEventListener('mousemove', this._onHueMouseMove);
+  window.addEventListener('touchmove', this._onHueMouseMove);
+  e.preventDefault();
+};
+
+SimpleColorPicker.prototype._onHueMouseMove = function(e) {
+  var hOffset = this.$hue.getBoundingClientRect();
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveHueTo(yPos - hOffset.top);
+  this._updateHueFromPosition();
+};
+
+SimpleColorPicker.prototype._onHueMouseUp = function() {
+  this.choosing = false;
+  window.removeEventListener('mouseup', this._onHueMouseUp);
+  window.removeEventListener('touchend', this._onHueMouseUp);
+  window.removeEventListener('mousemove', this._onHueMouseMove);
+  window.removeEventListener('touchmove', this._onHueMouseMove);
+};
+
+module.exports = SimpleColorPicker;
+
+},{"./src/utils/maths/clamp":80,"component-emitter":9,"dom-transform":12,"is-number":31,"lodash.bindall":40,"tinycolor2":85}],80:[function(require,module,exports){
+'use strict';
+
+module.exports = function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+};
+},{}],81:[function(require,module,exports){
 
 /**
  * An Array.prototype.slice.call(arguments) alternative
@@ -7130,7 +9975,7 @@ module.exports = function (args, slice, sliceEnd) {
   return ret;
 }
 
-},{}],66:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 /**
  * Append all not-existing props to the initial object
  *
@@ -7154,7 +9999,7 @@ module.exports = function(){
 
 	return res;
 };
-},{}],67:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 /**!
  * Sortable
  * @author	RubaXa   <trash@rubaxa.org>
@@ -8409,7 +11254,7 @@ module.exports = function(){
 	return Sortable;
 });
 
-},{}],68:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 /**
  * @module  st8
  *
@@ -8590,7 +11435,7 @@ function getValue(holder, meth, ctx){
 
 
 module.exports = State;
-},{"events":3,"is-plain-object":26}],69:[function(require,module,exports){
+},{"events":3,"is-plain-object":33}],85:[function(require,module,exports){
 // TinyColor v1.4.1
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -9787,7 +12632,7 @@ else {
 
 })(Math);
 
-},{}],70:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 
 var space = require('to-space-case')
 
@@ -9810,7 +12655,7 @@ function toCamelCase(string) {
   })
 }
 
-},{"to-space-case":72}],71:[function(require,module,exports){
+},{"to-space-case":88}],87:[function(require,module,exports){
 
 /**
  * Export.
@@ -9879,7 +12724,7 @@ function uncamelize(string) {
   })
 }
 
-},{}],72:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 
 var clean = require('to-no-case')
 
@@ -9902,7 +12747,23 @@ function toSpaceCase(string) {
   }).trim()
 }
 
-},{"to-no-case":71}],73:[function(require,module,exports){
+},{"to-no-case":87}],89:[function(require,module,exports){
+
+exports = module.exports = trim;
+
+function trim(str){
+  return str.replace(/^\s*|\s*$/g, '');
+}
+
+exports.left = function(str){
+  return str.replace(/^\s*/, '');
+};
+
+exports.right = function(str){
+  return str.replace(/\s*$/, '');
+};
+
+},{}],90:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -9923,7 +12784,7 @@ function extend(target) {
     return target
 }
 
-},{}],74:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 var extend = require('just-extend');
 var createParams = require('./');
 var insertCss = require('insert-styles');
@@ -9931,6 +12792,7 @@ var palettes = require('nice-color-palettes/500');
 var createPopup = require('popoff');
 var css = require('dom-css');
 var sortable = require('sortablejs');
+var Picker = require('simple-color-picker');
 
 
 //prepare body
@@ -9966,9 +12828,11 @@ var pm = createParams({
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: function (v) {
 			pm.theme = themes[v];
 		}},
-		{label: 'Palette', type: 'custom', options: palettes, value: palettes[0], save: false, create: function (opts) {
+		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
+				var this$1 = this;
+
 				var list = document.createElement('ul');
-				var palette = opts.value;
+				var palette = opts.value || pm.theme.palette;
 
 				if (typeof palette === 'string') {
 					palette = palette.split(',');
@@ -9976,13 +12840,17 @@ var pm = createParams({
 
 				css(list, {
 					listStyle: 'none',
-					margin: 0,
-					padding: 0
+					margin: '.5em 0 0',
+					padding: 0,
+					height: '2em',
+					display: 'inline-block',
+					boxShadow: "0 0 .666em " + palette[3]
 				});
 
 				palette.forEach(function (color) {
 					var item = document.createElement('li');
 					item.title = color;
+					item.setAttribute('data-id', color);
 					css(item, {
 						height: '2em',
 						width: '2em',
@@ -9990,16 +12858,41 @@ var pm = createParams({
 						background: color
 					});
 					list.appendChild(item);
+
+					//create picker for each color
+					var picker = new Picker({
+						el: item,
+						color: color
+					});
+					picker.$el.style.display = 'none';
+					item.onmouseout = function (e) {
+						picker.$el.style.display = 'none'
+					}
+					item.onmouseover = function () {
+						picker.$el.style.display = ''
+					}
+					picker.onChange(function (color) {
+						css(item, {background: color});
+						item.setAttribute('data-id', color);
+						sortman && this$1.emit('change', sortman.toArray());
+					})
 				});
 
 				var sortman = new sortable(list, {
-					group: 'palette'
+					onUpdate: function (e) {
+						this$1.emit('change', sortman.toArray());
+					}
+				});
+
+				setTimeout(function () {
+					this$1.emit('init', palette);
 				});
 
 				return list;
 			},
 			change: function (v) {
 				if (!v) pm.palette = null;
+				else if (Array.isArray(v)) pm.palette = v;
 				else pm.palette = v.split(/\s*,\s*/);
 			}
 		},
@@ -10008,14 +12901,14 @@ var pm = createParams({
 		// 	}
 		// },
 		{label: 'Font size', type: 'range', value: 12, min: 8, max: 20, step: .5, change: function (v) {
-
+			pm.fontSize = v;
 		}},
 		{label: 'Width', type: 'interval', value: [100, 200], min: 100, max: 600, step: 1, change: function (v) {
 
 		}},
-		{label: 'Draggable', type: 'checkbox', value: true, style: "width: 33%; display: inline-block; margin: 4em 0 0;", orientation: 'bottom' },
-		{label: 'History', type: 'checkbox', value: false, style: "width: 33%; display: inline-block; margin: 4em 0 0;", orientation: 'bottom' },
-		{label: 'Session', type: 'checkbox', value: false, style: "width: 33%; display: inline-block; margin: 4em 0 0;", orientation: 'bottom' }
+		{label: 'Draggable', type: 'checkbox', value: true, style: "width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;", orientation: 'bottom' },
+		{label: 'History', type: 'checkbox', value: false, style: "width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;", orientation: 'bottom' },
+		{label: 'Session', type: 'checkbox', value: false, style: "width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;", orientation: 'bottom' }
 	],
 	button: true
 }).on('change', function () {
@@ -10023,7 +12916,7 @@ var pm = createParams({
 });
 
 pm.show();
-},{"./":6,"./theme/lucy":75,"dom-css":10,"insert-styles":22,"just-extend":28,"nice-color-palettes/500":55,"popoff":57,"sortablejs":67}],75:[function(require,module,exports){
+},{"./":6,"./theme/lucy":92,"dom-css":11,"insert-styles":26,"just-extend":35,"nice-color-palettes/500":68,"popoff":70,"simple-color-picker":79,"sortablejs":83}],92:[function(require,module,exports){
 /**
  * @module  prama/theme/lucy
  *
@@ -10039,14 +12932,19 @@ fonts.add({
 	'Ubuntu Mono': true
 });
 
-module.exports = function () {
-var defaultPalette = [
+module.exports = lucy;
+
+lucy.palette = [
 	'#00FFFA',
 	'#999',
 	'#eee',
-	'#333',
+	'#222',
 	'#333'
 ];
+
+function lucy () {
+var defaultPalette = lucy.palette;
+
 var palette = this.palette || defaultPalette;
 
 var bg = palette[4] || defaultPalette[4];
@@ -10056,15 +12954,15 @@ var active = palette[2];
 var dark = palette[3];
 
 var mono = '"Ubuntu Mono", monospace';
-var fontSize = 14;
+var fontSize = this.fontSize || '1em';
 
 
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
 
-return ("\n\t.prama {\n\t\tbackground: " + (alpha(bg, .9)) + ";\n\t\tcolor: " + primary + ";\n\t\tborder-radius: .666em;\n\t\twidth: 24em;\n\t}\n\n\t.prama-button {\n\t\tcolor: " + primary + ";\n\t\tfill: " + primary + ";\n\t}\n\n\t.popoff-close:hover {\n\t\tcolor: " + active + ";\n\t}\n\n\t.settings-panel {\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: \"Ubuntu Condensed\", sans-serif;\n\t}\n\n\t.settings-panel-title {\n\t\tfont-size: 2em;\n\t\tfont-weight: normal;\n\t\tletter-spacing: 0;\n\t\ttext-transform: none;\n\t\ttext-shadow: 0 0 .666em " + (alpha(primary, .2)) + ";\n\t}\n\n\t.settings-panel-orientation-top .settings-panel-field,\n\t.settings-panel-orientation-bottom .settings-panel-field {\n\t\ttext-align: center;\n\t}\n\n\t.settings-panel-field--interval .settings-panel-input,\n\t.settings-panel-field--interval .settings-panel-input,\n\t.settings-panel-field--range .settings-panel-input {\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea,\n\t.settings-panel input:not([type=\"range\"]),\n\t.settings-panel-select {\n\t\tpadding-left: .5em;\n\t\tpadding-right: .5em;\n\t\ttext-align: left;\n\t}\n\n\t/** Inputs fill */\n\t.settings-panel-interval,\n\t.settings-panel-value,\n\t.settings-panel-select,\n\t.settings-panel-text,\n\t.settings-panel-checkbox-label {\n\t\tbackground: none;\n\t\tcolor: " + secondary + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text {\n\t\tborder: none;\n\t\tbackground: none;\n\t}\n\n\t.settings-panel-textarea {\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: auto;\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: ' ';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: absolute;\n\t\tright: 2.5%;\n\t\tz-index: 1;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 1.1em;\n\t\tborder-top: .5em solid " + secondary + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\ttop: .4em;\n\t\tborder-bottom: .5em solid " + secondary + ";\n\t\tborder-top: 0px transparent;\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tcolor: " + secondary + ";\n\t\tfont-family: " + mono + ";\n\t\t// vertical-align: top;\n\t\t// display: inline-block;\n\t\t// border: none;\n\t\t// margin: 0;\n\t\t// border-radius: 0;\n\t\t// padding: 0;\n\t\t// height: auto;\n\t\t// background: none;\n\t\t// vertical-align: top;\n\t\t// border: none;\n\t\t// position: relative;\n\t\t// overflow: hidden;\n\t}\n\t.settings-panel-switch-input {\n\t\t// display: none;\n\t}\n\t.settings-panel-switch-label {\n\t\t// position: relative;\n\t\t// height: 2em;\n\t\t// line-height: 2em;\n\t\t// min-width: 4em;\n\t\t// padding: 0 1em;\n\t\t// z-index: 2;\n\t\t// float: left;\n\t\t// text-align: center;\n\t\t// cursor: pointer;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\t// background: black;\n\t\t// color: white;\n\t}\n\n\n\t/** Slider */\n\t.settings-panel-range {\n\t\ttext-align: left;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder-radius: 1em;\n\t\tcolor: " + secondary + ";\n\t\tmargin-left: 15%;\n\t\twidth: 70%;\n\t}\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t\tcolor: " + primary + ";\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + secondary + ";\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + secondary + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tmargin-top: -.5em;\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + secondary + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tmargin-top: 0px;\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + secondary + ";\n\t\tborder-radius: 1em;\n\t}\n\t.settings-panel-field--interval .settings-panel-value:first-child {\n\t\ttext-align: right;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: " + secondary + ";\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-field--checkbox {\n\t}\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tvertical-align: top;\n\t\twidth: 4.5em;\n\t\theight: 2em;\n\t\tcursor: pointer;\n\t\tbackground: " + secondary + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tposition: absolute;\n\t\tcontent: \"\";\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tleft: .5em;\n\t\tbottom: .5em;\n\t\tbackground-color: " + active + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tbackground: " + secondary + ";\n\t\tbox-shadow: none;\n\t}\n\t.settings-panel-checkbox:focus + .settings-panel-checkbox-label {\n\t\tbox-shadow: 0 0 1px gray;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tleft: calc(100% - 1.6em);\n\t\tbox-shadow: none;\n\t\tbackground-color: " + active + ";\n\t}\n\n\n\t/** Placeholders */\n\t.settings-panel ::-webkit-input-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\t.settings-panel ::-moz-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\t.settings-panel :-ms-input-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\t.settings-panel :-moz-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\n")}
-},{"add-px-to-style":7,"google-fonts":18,"tinycolor2":69}],76:[function(require,module,exports){
+return ("\n\t.prama {\n\t\tbackground: " + (alpha(bg, .9)) + ";\n\t\tcolor: " + primary + ";\n\t\tborder-radius: .666em;\n\t\twidth: 24em;\n\t\tbox-shadow: 0 .5em 3em -1em " + dark + ";\n\t\toverflow: visible;\n\t}\n\n\t.prama-button {\n\t\tcolor: " + bg + ";\n\t\tfill: " + bg + ";\n\t}\n\t.prama-button:hover {\n\t\tcolor: " + active + ";\n\t\tfill: " + active + ";\n\t}\n\n\t.popoff-close {\n\t\tcolor: " + secondary + ";\n\t}\n\t.popoff-close:hover {\n\t\tcolor: " + active + ";\n\t}\n\n\t.settings-panel {\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: \"Ubuntu Condensed\", sans-serif;\n\t\tpadding: 0 1em;\n\t}\n\n\t.settings-panel-title {\n\t\tfont-size: 2.2em;\n\t\tfont-weight: normal;\n\t\tletter-spacing: 0;\n\t\ttext-transform: none;\n\t\ttext-shadow: 0 0 .666em " + (alpha(primary, .2)) + ";\n\t}\n\n\t.settings-panel-orientation-top .settings-panel-field,\n\t.settings-panel-orientation-bottom .settings-panel-field {\n\t\ttext-align: center;\n\t}\n\n\t.settings-panel-label {\n\t\tvertical-align: top;\n\t\tpadding-top: .5em;\n\t}\n\t.settings-panel-orientation-left .settings-panel-label,\n\t.settings-panel-orientation-right .settings-panel-label {\n\t\twidth: 6em;\n\t}\n\n\t.settings-panel-field--interval .settings-panel-input,\n\t.settings-panel-field--range .settings-panel-input {\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea,\n\t.settings-panel-text,\n\t.settings-panel-select {\n\t\tpadding-left: .5em;\n\t\tpadding-right: .5em;\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:hover,\n\t.settings-panel-select:hover {\n\t\tcolor: " + active + ";\n\t}\n\n\t/** Inputs fill */\n\t.settings-panel-interval,\n\t.settings-panel-value,\n\t.settings-panel-select,\n\t.settings-panel-text,\n\t.settings-panel-checkbox-label {\n\t\tbackground: none;\n\t\tfont-family: " + mono + ";\n\t\tcolor: " + secondary + ";\n\t}\n\n\t/** Panel value */\n\t.settings-panel-value {\n\t\tpadding-right: 0;\n\t}\n\t.settings-panel-value:focus {\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text {\n\t\tborder: none;\n\t\tbackground: none;\n\t}\n\n\t.settings-panel-textarea {\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: auto;\n\t\tpadding-right: 1em;\n\t\tmargin-right: -.5em;\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: ' ';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: 0;\n\t\tborder-top: .5em solid " + secondary + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select:focus {\n\t\tcolor: " + active + "\n\t}\n\t.settings-panel-select:focus + .settings-panel-select-triangle {\n\t\tborder-top-color: " + active + ";\n\t}\n\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tcolor: " + secondary + ";\n\t\tfont-family: " + mono + ";\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tcursor: pointer;\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-switch-label:last-child {\n\t\tmargin-right: 0;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + active + ";\n\t\tfont-weight: bold;\n\t}\n\n\n\t/** Slider */\n\t.settings-panel-range {\n\t\ttext-align: left;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder-radius: 1em;\n\t\tcolor: " + secondary + ";\n\t\tmargin-left: 15%;\n\t\twidth: 70%;\n\t}\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t\tcolor: " + primary + ";\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range:focus::-moz-range-track {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + secondary + ";\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + active + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tmargin-top: -.5em;\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + active + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tmargin-top: 0px;\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + secondary + ";\n\t\tborder-radius: 1em;\n\t}\n\t.settings-panel-field--interval .settings-panel-value:first-child {\n\t\ttext-align: right;\n\t\tpadding-left: 0;\n\t\tpadding-right: .5em;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: inherit;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: inherit;\n\t}\n\n\t.settings-panel-interval-dragging .settings-panel-interval-handle {\n\t\tbackground: " + active + ";\n\t}\n\n\t.settings-panel-field--range .settings-panel-input:before {\n\t\tcontent: attr(data-min);\n\t\tposition: absolute;\n\t\twidth: 15%;\n\t\tcolor: " + secondary + ";\n\t\ttext-align: right;\n\t\tline-height: 2em;\n\t\theight: 2em;\n\t\tpadding-right: .5em;\n\t\tbox-sizing: border-box;\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-field--checkbox .settings-panel-label {\n\t\tmargin-bottom: .5em;\n\t}\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tvertical-align: top;\n\t\twidth: 4.5em;\n\t\theight: 2em;\n\t\tcursor: pointer;\n\t\tbackground: " + secondary + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t\tbox-shadow: 0 0 .666em transparent;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tposition: absolute;\n\t\tcontent: \"\";\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tleft: .5em;\n\t\tbottom: .5em;\n\t\tbackground-color: " + active + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tbackground: " + secondary + ";\n\t\tbox-shadow: 0 0 .666em " + dark + ";\n\t}\n\t.settings-panel-checkbox:focus + .settings-panel-checkbox-label {\n\t\tbox-shadow: 0 0 .666em " + dark + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tleft: calc(100% - 1.6em);\n\t\tbackground-color: " + active + ";\n\t}\n\n\n\t/** Placeholders */\n\t.settings-panel ::-webkit-input-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel ::-moz-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel :-ms-input-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel :-moz-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel ::-moz-selection {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel ::selection {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\n")}
+},{"add-px-to-style":7,"google-fonts":22,"tinycolor2":85}],93:[function(require,module,exports){
 /**
  * @module settings-panel
  */
@@ -10084,7 +12982,7 @@ var scopeCss = require('scope-css');
 module.exports = Panel
 
 
-insertCss(".settings-panel {\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tcursor: default;\r\n\ttext-align: left;\r\n\tbox-sizing: border-box;\r\n\tfont-family: sans-serif;\r\n\tfont-size: 1rem;\r\n\twidth: 36em;\r\n\tmax-width: 100%;\r\n\tpadding: 1em;\r\n}\r\n\r\n.settings-panel [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.settings-panel * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.settings-panel input,\r\n.settings-panel button,\r\n.settings-panel textarea,\r\n.settings-panel select {\r\n\tfont-family: inherit;\r\n\tfont-size: inherit;\r\n}\r\n\r\n\r\n.settings-panel a {\r\n\tcolor: inherit;\r\n\ttext-decoration: none;\r\n}\r\n\r\n\r\n/** Placeholders */\r\n.settings-panel ::-webkit-input-placeholder {\r\n}\r\n.settings-panel ::-moz-placeholder {\r\n}\r\n.settings-panel :-ms-input-placeholder {\r\n}\r\n.settings-panel :-moz-placeholder {\r\n}\r\n\r\n\r\n/** Basic layout */\r\n.settings-panel-field {\r\n\tposition: relative;\r\n\tmin-height: 2em;\r\n\tmargin-bottom: 1em;\r\n\tdisplay: table;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-field:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n/*.settings-panel-field:after {\r\n\tcontent: attr(data-help);\r\n\tdisplay: block;\r\n\tmargin-left: 33%;\r\n\tfont-size: .8em;\r\n}*/\r\n.settings-panel-label {\r\n\tleft: 0;\r\n\tdisplay: table-cell;\r\n\tline-height: 1.2;\r\n\tvertical-align: middle;\r\n\tpadding-top: 0;\r\n}\r\n.settings-panel-input {\r\n\tdisplay: table-cell;\r\n\tvertical-align: middle;\r\n\tposition: relative;\r\n\tmin-height: 2em;\r\n}\r\n\r\n.settings-panel-orientation-top .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: auto;\r\n\tmargin-right: 0;\r\n\tpadding-top: 0;\r\n\tline-height: 1.5;\r\n}\r\n.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: auto;\r\n\tmargin-right: 0;\r\n\tline-height: 1.5;\r\n\tpadding-top: 0;\r\n\tborder-top: 2.5em solid transparent;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n}\r\n.settings-panel-orientation-left .settings-panel-label {\r\n\twidth: 9em;\r\n\tpadding-right: 1em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label {\r\n\tdisplay: block;\r\n\tmargin-right: 0;\r\n\tfloat: right;\r\n\twidth: 9em;\r\n\tpadding-left: 1em;\r\n\tpadding-top: .4em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: calc(100% - 9em);\r\n}\r\n\r\n\r\n.settings-panel-title {\r\n\twidth: 100%;\r\n\tfont-size: 1.6em;\r\n\tmin-height: 2em;\r\n\tline-height: 1.25;\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 0;\r\n\ttext-align: center;\r\n}\r\n\r\n\r\n/** Button */\r\n.settings-panel-button {\r\n\tvertical-align: top;\r\n\tmargin-left: 9em;\r\n\tmin-height: 2em;\r\n\tline-height: 1;\r\n\tpadding: .2em 1em;\r\n}\r\n\r\n\r\n/** Default text and alike style */\r\n.settings-panel-text {\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-textarea {\r\n\tmin-height: 2em;\r\n\twidth: 100%;\r\n\tpadding-top: .4em;\r\n}\r\n\r\n/** Checkbox style */\r\n.settings-panel-checkbox {\r\n\tdisplay: inline-block;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tvertical-align: middle;\r\n\tmargin: 0;\r\n}\r\n\r\n\r\n/** Color picker style */\r\n.settings-panel-color {\r\n\tposition: relative;\r\n\twidth: 2em;\r\n\theight: 2em;\r\n\tposition: absolute;\r\n}\r\n.settings-panel-color-value {\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tpadding: 0 0 0 2.5em;\r\n}\r\n.Scp {\r\n\t-webkit-user-select: none;\r\n\t\t -moz-user-select: none;\r\n\t\t\t-ms-user-select: none;\r\n\t\t\t\t\tuser-select: none;\r\n\tmargin-top: 2em;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\tcursor: pointer;\r\n}\r\n.Scp-saturation {\r\n\tposition: relative;\r\n\twidth: calc(100% - 25px);\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to right, #fff 0%, #f00 100%);\r\n\tfloat: left;\r\n}\r\n.Scp-brightness {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);\r\n}\r\n.Scp-sbSelector {\r\n\tborder: 1px solid;\r\n\tposition: absolute;\r\n\twidth: 14px;\r\n\theight: 14px;\r\n\tbackground: #fff;\r\n\tborder-radius: 10px;\r\n\ttop: -7px;\r\n\tleft: -7px;\r\n\tbox-sizing: border-box;\r\n\tz-index: 10;\r\n}\r\n.Scp-hue {\r\n\twidth: 20px;\r\n\theight: 100%;\r\n\tposition: relative;\r\n\tfloat: left;\r\n\tbackground: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);\r\n}\r\n.Scp-hSelector {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #000;\r\n\tright: -3px;\r\n\twidth: 10px;\r\n\theight: 2px;\r\n}\r\n\r\n\r\n\r\n/** Interval style */\r\n.settings-panel-field--interval {\r\n\theight: 2em;\r\n}\r\n.settings-panel-field--interval .settings-panel-input {\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-interval {\r\n\t-webkit-appearance: none;\r\n\tposition: absolute;\r\n\theight: 2em;\r\n\tmargin: 0px 0;\r\n\twidth: 70%;\r\n\tleft: 15%;\r\n\tbackground: #ddd;\r\n\tcursor: ew-resize;\r\n\t-webkit-touch-callout: none;\r\n\t-webkit-user-select: none;\r\n\t-khtml-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n}\r\n.settings-panel-interval-fill {\r\n\ttop: 0;\r\n\tleft: 0;\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n}\r\n.settings-panel-interval-handle {\r\n\tbackground: #7a4;\r\n\tposition: absolute;\r\n\theight: 2em;\r\n\tmin-width: 1px;\r\n}\r\n.settings-panel.settings-panel-interval-dragging * {\r\n\t-webkit-touch-callout: none !important;\r\n\t-webkit-user-select: none !important;\r\n\t-khtml-user-select: none !important;\r\n\t-moz-user-select: none !important;\r\n\t-ms-user-select: none !important;\r\n\tuser-select: none !important;\r\n\r\n\tcursor: ew-resize !important;\r\n}\r\n\r\n.settings-panel-interval + .settings-panel-value {\r\n\tright: 0;\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n\r\n/** Range style */\r\n.settings-panel-range {\r\n\twidth: 85%;\r\n\tpadding: 0;\r\n\tmargin: 0px 0;\r\n\theight: 2em;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-range + .settings-panel-value {\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n/** Select style */\r\n.settings-panel-select {\r\n\tdisplay: inline-block;\r\n\twidth: 100%;\r\n\theight: 2em;\r\n}\r\n\r\n/** Value style */\r\n.settings-panel-value {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tpadding: 0 0 0 0em;\r\n\tdisplay: inline-block;\r\n\tcursor: text;\r\n\tdisplay: inline-block;\r\n\tposition: absolute;\r\n\theight: 2em;\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\toutline: none;\r\n\tfont-family: inherit;\r\n\tbackground: none;\r\n\tcolor: inherit;\r\n\twidth: 15%;\r\n}\r\n.settings-panel-value:focus {\r\n\toutline: 0;\r\n\tbox-shadow: 0;\r\n}\r\n\r\n.settings-panel-switch {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tborder: none;\r\n\tdisplay: block;\r\n\tvertical-align: middle;\r\n\tpadding: 0;\r\n\tmargin: 0;\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-switch-input {\r\n\tmargin: 0;\r\n\tvertical-align: top;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n}\r\n.settings-panel-switch-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}");
+insertCss(".settings-panel {\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tcursor: default;\r\n\ttext-align: left;\r\n\tbox-sizing: border-box;\r\n\tfont-family: sans-serif;\r\n\tfont-size: 1rem;\r\n\twidth: 36em;\r\n\tmax-width: 100%;\r\n\tpadding: 1em;\r\n}\r\n\r\n.settings-panel [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.settings-panel * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.settings-panel input,\r\n.settings-panel button,\r\n.settings-panel textarea,\r\n.settings-panel select {\r\n\tfont-family: inherit;\r\n\tfont-size: inherit;\r\n}\r\n\r\n\r\n.settings-panel a {\r\n\tcolor: inherit;\r\n\ttext-decoration: none;\r\n}\r\n\r\n\r\n/** Basic layout */\r\n.settings-panel-field {\r\n\tposition: relative;\r\n\tmin-height: 2em;\r\n\tmargin-bottom: 1em;\r\n\tdisplay: table;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-field:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n/*.settings-panel-field:after {\r\n\tcontent: attr(data-help);\r\n\tdisplay: block;\r\n\tmargin-left: 33%;\r\n\tfont-size: .8em;\r\n}*/\r\n.settings-panel-label {\r\n\tleft: 0;\r\n\tdisplay: table-cell;\r\n\tline-height: 1.2;\r\n\tvertical-align: middle;\r\n\tpadding-top: 0;\r\n}\r\n.settings-panel-input {\r\n\tdisplay: table-cell;\r\n\tvertical-align: middle;\r\n\tposition: relative;\r\n\tmin-height: 2em;\r\n}\r\n\r\n.settings-panel-orientation-top .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: auto;\r\n\tmargin-right: 0;\r\n\tpadding-top: 0;\r\n\tline-height: 1.5;\r\n}\r\n.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: auto;\r\n\tmargin-right: 0;\r\n\tline-height: 1.5;\r\n\tpadding-top: 0;\r\n\tborder-top: 2.5em solid transparent;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n}\r\n.settings-panel-orientation-left .settings-panel-label {\r\n\twidth: 9em;\r\n\tpadding-right: 1em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label {\r\n\tdisplay: block;\r\n\tmargin-right: 0;\r\n\tfloat: right;\r\n\twidth: 9em;\r\n\tpadding-left: 1em;\r\n\tpadding-top: .4em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: calc(100% - 9em);\r\n}\r\n\r\n\r\n.settings-panel-title {\r\n\twidth: 100%;\r\n\tfont-size: 1.6em;\r\n\tmin-height: 2em;\r\n\tline-height: 1.25;\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 0;\r\n\ttext-align: center;\r\n}\r\n\r\n\r\n/** Button */\r\n.settings-panel-button {\r\n\tvertical-align: top;\r\n\tmargin-left: 9em;\r\n\tmin-height: 2em;\r\n\tline-height: 1;\r\n\tpadding: .2em 1em;\r\n}\r\n\r\n\r\n/** Default text and alike style */\r\n.settings-panel-text {\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-textarea {\r\n\tmin-height: 2em;\r\n\twidth: 100%;\r\n\tpadding-top: .4em;\r\n}\r\n\r\n/** Checkbox style */\r\n.settings-panel-field--checkbox .settings-panel-input {\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-checkbox {\r\n\tdisplay: inline-block;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tvertical-align: middle;\r\n\tmargin: 0;\r\n}\r\n\r\n\r\n/** Color picker style */\r\n.settings-panel-color {\r\n\tposition: relative;\r\n\twidth: 2em;\r\n\theight: 2em;\r\n\tposition: absolute;\r\n}\r\n.settings-panel-color-value {\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tpadding: 0 0 0 2.5em;\r\n}\r\n.Scp {\r\n\t-webkit-user-select: none;\r\n\t\t -moz-user-select: none;\r\n\t\t\t-ms-user-select: none;\r\n\t\t\t\t\tuser-select: none;\r\n\tmargin-top: 2em;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\tcursor: pointer;\r\n}\r\n.Scp-saturation {\r\n\tposition: relative;\r\n\twidth: calc(100% - 25px);\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to right, #fff 0%, #f00 100%);\r\n\tfloat: left;\r\n}\r\n.Scp-brightness {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);\r\n}\r\n.Scp-sbSelector {\r\n\tborder: 1px solid;\r\n\tposition: absolute;\r\n\twidth: 14px;\r\n\theight: 14px;\r\n\tbackground: #fff;\r\n\tborder-radius: 10px;\r\n\ttop: -7px;\r\n\tleft: -7px;\r\n\tbox-sizing: border-box;\r\n\tz-index: 10;\r\n}\r\n.Scp-hue {\r\n\twidth: 20px;\r\n\theight: 100%;\r\n\tposition: relative;\r\n\tfloat: left;\r\n\tbackground: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);\r\n}\r\n.Scp-hSelector {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #000;\r\n\tright: -3px;\r\n\twidth: 10px;\r\n\theight: 2px;\r\n}\r\n\r\n\r\n\r\n/** Interval style */\r\n.settings-panel-field--interval {\r\n\theight: 2em;\r\n}\r\n.settings-panel-field--interval .settings-panel-input {\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-interval {\r\n\t-webkit-appearance: none;\r\n\tposition: absolute;\r\n\theight: 2em;\r\n\tmargin: 0px 0;\r\n\twidth: 70%;\r\n\tleft: 15%;\r\n\tbackground: #ddd;\r\n\tcursor: ew-resize;\r\n\t-webkit-touch-callout: none;\r\n\t-webkit-user-select: none;\r\n\t-khtml-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n}\r\n.settings-panel-interval-fill {\r\n\ttop: 0;\r\n\tleft: 0;\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n}\r\n.settings-panel-interval-handle {\r\n\tbackground: #7a4;\r\n\tposition: absolute;\r\n\theight: 2em;\r\n\tmin-width: 1px;\r\n}\r\n.settings-panel.settings-panel-interval-dragging * {\r\n\t-webkit-touch-callout: none !important;\r\n\t-webkit-user-select: none !important;\r\n\t-khtml-user-select: none !important;\r\n\t-moz-user-select: none !important;\r\n\t-ms-user-select: none !important;\r\n\tuser-select: none !important;\r\n\r\n\tcursor: ew-resize !important;\r\n}\r\n\r\n.settings-panel-interval + .settings-panel-value {\r\n\tright: 0;\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n\r\n/** Range style */\r\n.settings-panel-range {\r\n\twidth: 85%;\r\n\tpadding: 0;\r\n\tmargin: 0px 0;\r\n\theight: 2em;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-range + .settings-panel-value {\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n/** Select style */\r\n.settings-panel-select {\r\n\tdisplay: inline-block;\r\n\twidth: 100%;\r\n\theight: 2em;\r\n}\r\n\r\n/** Value style */\r\n.settings-panel-value {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tpadding: 0 0 0 0em;\r\n\tdisplay: inline-block;\r\n\tcursor: text;\r\n\tdisplay: inline-block;\r\n\tposition: absolute;\r\n\theight: 2em;\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\toutline: none;\r\n\tfont-family: inherit;\r\n\tbackground: none;\r\n\tcolor: inherit;\r\n\twidth: 15%;\r\n}\r\n.settings-panel-value:focus {\r\n\toutline: 0;\r\n\tbox-shadow: 0;\r\n}\r\n\r\n.settings-panel-switch {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tborder: none;\r\n\tdisplay: block;\r\n\tvertical-align: middle;\r\n\tpadding: 0;\r\n\tmargin: 0;\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-switch-input {\r\n\tmargin: 0;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n}\r\n.settings-panel-switch-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}");
 
 
 /**
@@ -10379,7 +13277,7 @@ Panel.prototype.className;
  * Additional visual setup
  */
 Panel.prototype.orientation = 'left';
-},{"./src/button":128,"./src/checkbox":129,"./src/color":130,"./src/custom":131,"./src/interval":132,"./src/range":133,"./src/select":134,"./src/switch":135,"./src/text":136,"./src/textarea":137,"add-px-to-style":77,"dom-css":83,"events":3,"get-uid":87,"inherits":88,"insert-styles":90,"is-plain-obj":94,"just-extend":95,"param-case":112,"scope-css":115}],77:[function(require,module,exports){
+},{"./src/button":145,"./src/checkbox":146,"./src/color":147,"./src/custom":148,"./src/interval":149,"./src/range":150,"./src/select":151,"./src/switch":152,"./src/text":153,"./src/textarea":154,"add-px-to-style":94,"dom-css":100,"events":3,"get-uid":104,"inherits":105,"insert-styles":107,"is-plain-obj":111,"just-extend":112,"param-case":129,"scope-css":132}],94:[function(require,module,exports){
 /* The following list is defined in React's core */
 var IS_UNITLESS = {
   animationIterationCount: true,
@@ -10421,7 +13319,7 @@ module.exports = function(name, value) {
     return value;
   }
 };
-},{}],78:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 /*!
 	Autosize 3.0.16
 	license: MIT
@@ -10696,7 +13594,7 @@ module.exports = function(name, value) {
 
 	module.exports = autosize;
 });
-},{}],79:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 /**
  * @module  caret-position/get
  *
@@ -10746,7 +13644,7 @@ module.exports = function (input) {
 	}
 	return result;
 };
-},{}],80:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 /**
  * @module  caret-position
  */
@@ -10760,7 +13658,7 @@ function caret(a,b,c){
 
 caret.get = require('./get');
 caret.set = require('./set');
-},{"./get":79,"./set":81}],81:[function(require,module,exports){
+},{"./get":96,"./set":98}],98:[function(require,module,exports){
 /**
  * @module  caret-position/set
  *
@@ -10784,7 +13682,7 @@ module.exports = function(input, start, end) {
 		range.select();
 	}
 };
-},{}],82:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -10950,7 +13848,7 @@ Emitter.prototype.listeners = function(event){
 Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
-},{}],83:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 var prefix = require('prefix-style')
 var toCamelCase = require('to-camel-case')
 var cache = { 'float': 'cssFloat' }
@@ -11009,7 +13907,7 @@ module.exports.get = function (element, properties) {
   }
 }
 
-},{"add-px-to-style":77,"prefix-style":113,"to-camel-case":123}],84:[function(require,module,exports){
+},{"add-px-to-style":94,"prefix-style":130,"to-camel-case":140}],101:[function(require,module,exports){
 'use strict';
 
 var trim = require('trim');
@@ -11097,7 +13995,7 @@ function numToString(value) {
   return value;
 }
 
-},{"./lib/properties":86,"prefix":114,"trim":126}],85:[function(require,module,exports){
+},{"./lib/properties":103,"prefix":131,"trim":143}],102:[function(require,module,exports){
 'use strict';
 
 exports = module.exports = compose;
@@ -11116,7 +14014,7 @@ function compose() {
   };
 }
 
-},{}],86:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 'use strict';
 
 var trim = require('trim');
@@ -11239,14 +14137,14 @@ function defaultUnit(unit) {
   };
 }
 
-},{"./compose":85,"trim":126}],87:[function(require,module,exports){
+},{"./compose":102,"trim":143}],104:[function(require,module,exports){
 /** generate unique id for selector */
 var counter = Date.now() % 1e9;
 
 module.exports = function getUid(){
 	return (Math.random() * 1e9 >>> 0) + (counter++);
 };
-},{}],88:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -11271,7 +14169,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],89:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 /**
  * @module  input-number
  */
@@ -11360,7 +14258,7 @@ function numerify (input, opts) {
 
 	return input;
 }
-},{"caret-position2":80,"mumath/clamp":108,"mumath/round":110}],90:[function(require,module,exports){
+},{"caret-position2":97,"mumath/clamp":125,"mumath/round":127}],107:[function(require,module,exports){
 (function (global){
 'use strict'
 
@@ -11396,7 +14294,7 @@ function createStyle (id) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],91:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module.exports = isMobile;
 
 function isMobile (ua) {
@@ -11409,7 +14307,7 @@ function isMobile (ua) {
   return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(ua) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(ua.substr(0,4));
 }
 
-},{}],92:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 /*!
  * is-number <https://github.com/jonschlinkert/is-number>
  *
@@ -11425,7 +14323,7 @@ module.exports = function isNumber(n) {
     || n === 0;
 };
 
-},{}],93:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 (function(root) {
   'use strict';
 
@@ -11451,7 +14349,7 @@ module.exports = function isNumber(n) {
 
 })(this);
 
-},{}],94:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 'use strict';
 var toString = Object.prototype.toString;
 
@@ -11460,7 +14358,7 @@ module.exports = function (x) {
 	return toString.call(x) === '[object Object]' && (prototype = Object.getPrototypeOf(x), prototype === null || prototype === Object.getPrototypeOf({}));
 };
 
-},{}],95:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module.exports = extend;
 
 /*
@@ -11510,7 +14408,7 @@ function extend(obj1, obj2 /*, [objn]*/) {
   return result;
 }
 
-},{}],96:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -11643,7 +14541,7 @@ function isLength(value) {
 
 module.exports = baseFlatten;
 
-},{"lodash.isarguments":102,"lodash.isarray":103}],97:[function(require,module,exports){
+},{"lodash.isarguments":119,"lodash.isarray":120}],114:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -11680,7 +14578,7 @@ function baseFunctions(object, props) {
 
 module.exports = baseFunctions;
 
-},{"lodash.isfunction":104}],98:[function(require,module,exports){
+},{"lodash.isfunction":121}],115:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -12363,7 +15261,7 @@ function toNumber(value) {
 
 module.exports = createWrapper;
 
-},{"lodash._root":99}],99:[function(require,module,exports){
+},{"lodash._root":116}],116:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -12426,7 +15324,7 @@ function checkGlobal(value) {
 module.exports = root;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],100:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 /**
  * lodash 3.1.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -12486,7 +15384,7 @@ var bindAll = restParam(function(object, methodNames) {
 
 module.exports = bindAll;
 
-},{"lodash._baseflatten":96,"lodash._createwrapper":98,"lodash.functions":101,"lodash.restparam":106}],101:[function(require,module,exports){
+},{"lodash._baseflatten":113,"lodash._createwrapper":115,"lodash.functions":118,"lodash.restparam":123}],118:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -12519,7 +15417,7 @@ function functions(object) {
 
 module.exports = functions;
 
-},{"lodash._basefunctions":97,"lodash.keysin":105}],102:[function(require,module,exports){
+},{"lodash._basefunctions":114,"lodash.keysin":122}],119:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -12764,7 +15662,7 @@ function isObjectLike(value) {
 
 module.exports = isArguments;
 
-},{}],103:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -12946,7 +15844,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],104:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -13023,7 +15921,7 @@ function isObject(value) {
 
 module.exports = isFunction;
 
-},{}],105:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -13157,7 +16055,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"lodash.isarguments":102,"lodash.isarray":103}],106:[function(require,module,exports){
+},{"lodash.isarguments":119,"lodash.isarray":120}],123:[function(require,module,exports){
 /**
  * lodash 3.6.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -13226,7 +16124,7 @@ function restParam(func, start) {
 
 module.exports = restParam;
 
-},{}],107:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 /**
  * Special language-specific overrides.
  *
@@ -13282,7 +16180,7 @@ module.exports = function (str, locale) {
   return str.toLowerCase()
 }
 
-},{}],108:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 /**
  * Clamp value.
  * Detects proper clamp min/max.
@@ -13297,7 +16195,7 @@ module.exports = function (str, locale) {
 module.exports = require('./wrap')(function(a, min, max){
 	return max > min ? Math.max(Math.min(a,max),min) : Math.max(Math.min(a,min),max);
 });
-},{"./wrap":111}],109:[function(require,module,exports){
+},{"./wrap":128}],126:[function(require,module,exports){
 /**
  * @module  mumath/precision
  *
@@ -13317,7 +16215,7 @@ module.exports = require('./wrap')(function(n){
 
 	return !d ? 0 : s.length - d;
 });
-},{"./wrap":111}],110:[function(require,module,exports){
+},{"./wrap":128}],127:[function(require,module,exports){
 /**
  * Precision round
  *
@@ -13340,7 +16238,7 @@ module.exports = require('./wrap')(function(value, step) {
 	value = Math.round(value / step) * step;
 	return parseFloat(value.toFixed(precision(step)));
 });
-},{"./precision":109,"./wrap":111}],111:[function(require,module,exports){
+},{"./precision":126,"./wrap":128}],128:[function(require,module,exports){
 /**
  * Get fn wrapped with array/object attrs recognition
  *
@@ -13382,7 +16280,7 @@ module.exports = function(fn){
 		}
 	};
 };
-},{}],112:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 var sentenceCase = require('sentence-case')
 
 /**
@@ -13396,7 +16294,7 @@ module.exports = function (string, locale) {
   return sentenceCase(string, locale, '-')
 }
 
-},{"sentence-case":116}],113:[function(require,module,exports){
+},{"sentence-case":133}],130:[function(require,module,exports){
 var div = null
 var prefixes = [ 'Webkit', 'Moz', 'O', 'ms' ]
 
@@ -13428,14 +16326,14 @@ module.exports = function prefixStyle (prop) {
   return false
 }
 
-},{}],114:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 function identity(x) { return x; }
 
 module.exports = identity;
 module.exports.dash = identity;
 module.exports.dash = identity;
 
-},{}],115:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 module.exports = scope;
 scope.replace = replace;
 
@@ -13458,7 +16356,7 @@ function scope (css, parent) {
 function replace (css, replacer) {
 	return css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, replacer);
 }
-},{}],116:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var lowerCase = require('lower-case')
 
 var NON_WORD_REGEXP = require('./vendor/non-word-regexp')
@@ -13500,16 +16398,16 @@ module.exports = function (str, locale, replacement) {
   return lowerCase(str, locale)
 }
 
-},{"./vendor/camel-case-regexp":117,"./vendor/non-word-regexp":118,"./vendor/trailing-digit-regexp":119,"lower-case":107}],117:[function(require,module,exports){
+},{"./vendor/camel-case-regexp":134,"./vendor/non-word-regexp":135,"./vendor/trailing-digit-regexp":136,"lower-case":124}],134:[function(require,module,exports){
 module.exports = /([\u0061-\u007A\u00B5\u00DF-\u00F6\u00F8-\u00FF\u0101\u0103\u0105\u0107\u0109\u010B\u010D\u010F\u0111\u0113\u0115\u0117\u0119\u011B\u011D\u011F\u0121\u0123\u0125\u0127\u0129\u012B\u012D\u012F\u0131\u0133\u0135\u0137\u0138\u013A\u013C\u013E\u0140\u0142\u0144\u0146\u0148\u0149\u014B\u014D\u014F\u0151\u0153\u0155\u0157\u0159\u015B\u015D\u015F\u0161\u0163\u0165\u0167\u0169\u016B\u016D\u016F\u0171\u0173\u0175\u0177\u017A\u017C\u017E-\u0180\u0183\u0185\u0188\u018C\u018D\u0192\u0195\u0199-\u019B\u019E\u01A1\u01A3\u01A5\u01A8\u01AA\u01AB\u01AD\u01B0\u01B4\u01B6\u01B9\u01BA\u01BD-\u01BF\u01C6\u01C9\u01CC\u01CE\u01D0\u01D2\u01D4\u01D6\u01D8\u01DA\u01DC\u01DD\u01DF\u01E1\u01E3\u01E5\u01E7\u01E9\u01EB\u01ED\u01EF\u01F0\u01F3\u01F5\u01F9\u01FB\u01FD\u01FF\u0201\u0203\u0205\u0207\u0209\u020B\u020D\u020F\u0211\u0213\u0215\u0217\u0219\u021B\u021D\u021F\u0221\u0223\u0225\u0227\u0229\u022B\u022D\u022F\u0231\u0233-\u0239\u023C\u023F\u0240\u0242\u0247\u0249\u024B\u024D\u024F-\u0293\u0295-\u02AF\u0371\u0373\u0377\u037B-\u037D\u0390\u03AC-\u03CE\u03D0\u03D1\u03D5-\u03D7\u03D9\u03DB\u03DD\u03DF\u03E1\u03E3\u03E5\u03E7\u03E9\u03EB\u03ED\u03EF-\u03F3\u03F5\u03F8\u03FB\u03FC\u0430-\u045F\u0461\u0463\u0465\u0467\u0469\u046B\u046D\u046F\u0471\u0473\u0475\u0477\u0479\u047B\u047D\u047F\u0481\u048B\u048D\u048F\u0491\u0493\u0495\u0497\u0499\u049B\u049D\u049F\u04A1\u04A3\u04A5\u04A7\u04A9\u04AB\u04AD\u04AF\u04B1\u04B3\u04B5\u04B7\u04B9\u04BB\u04BD\u04BF\u04C2\u04C4\u04C6\u04C8\u04CA\u04CC\u04CE\u04CF\u04D1\u04D3\u04D5\u04D7\u04D9\u04DB\u04DD\u04DF\u04E1\u04E3\u04E5\u04E7\u04E9\u04EB\u04ED\u04EF\u04F1\u04F3\u04F5\u04F7\u04F9\u04FB\u04FD\u04FF\u0501\u0503\u0505\u0507\u0509\u050B\u050D\u050F\u0511\u0513\u0515\u0517\u0519\u051B\u051D\u051F\u0521\u0523\u0525\u0527\u0561-\u0587\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E01\u1E03\u1E05\u1E07\u1E09\u1E0B\u1E0D\u1E0F\u1E11\u1E13\u1E15\u1E17\u1E19\u1E1B\u1E1D\u1E1F\u1E21\u1E23\u1E25\u1E27\u1E29\u1E2B\u1E2D\u1E2F\u1E31\u1E33\u1E35\u1E37\u1E39\u1E3B\u1E3D\u1E3F\u1E41\u1E43\u1E45\u1E47\u1E49\u1E4B\u1E4D\u1E4F\u1E51\u1E53\u1E55\u1E57\u1E59\u1E5B\u1E5D\u1E5F\u1E61\u1E63\u1E65\u1E67\u1E69\u1E6B\u1E6D\u1E6F\u1E71\u1E73\u1E75\u1E77\u1E79\u1E7B\u1E7D\u1E7F\u1E81\u1E83\u1E85\u1E87\u1E89\u1E8B\u1E8D\u1E8F\u1E91\u1E93\u1E95-\u1E9D\u1E9F\u1EA1\u1EA3\u1EA5\u1EA7\u1EA9\u1EAB\u1EAD\u1EAF\u1EB1\u1EB3\u1EB5\u1EB7\u1EB9\u1EBB\u1EBD\u1EBF\u1EC1\u1EC3\u1EC5\u1EC7\u1EC9\u1ECB\u1ECD\u1ECF\u1ED1\u1ED3\u1ED5\u1ED7\u1ED9\u1EDB\u1EDD\u1EDF\u1EE1\u1EE3\u1EE5\u1EE7\u1EE9\u1EEB\u1EED\u1EEF\u1EF1\u1EF3\u1EF5\u1EF7\u1EF9\u1EFB\u1EFD\u1EFF-\u1F07\u1F10-\u1F15\u1F20-\u1F27\u1F30-\u1F37\u1F40-\u1F45\u1F50-\u1F57\u1F60-\u1F67\u1F70-\u1F7D\u1F80-\u1F87\u1F90-\u1F97\u1FA0-\u1FA7\u1FB0-\u1FB4\u1FB6\u1FB7\u1FBE\u1FC2-\u1FC4\u1FC6\u1FC7\u1FD0-\u1FD3\u1FD6\u1FD7\u1FE0-\u1FE7\u1FF2-\u1FF4\u1FF6\u1FF7\u210A\u210E\u210F\u2113\u212F\u2134\u2139\u213C\u213D\u2146-\u2149\u214E\u2184\u2C30-\u2C5E\u2C61\u2C65\u2C66\u2C68\u2C6A\u2C6C\u2C71\u2C73\u2C74\u2C76-\u2C7B\u2C81\u2C83\u2C85\u2C87\u2C89\u2C8B\u2C8D\u2C8F\u2C91\u2C93\u2C95\u2C97\u2C99\u2C9B\u2C9D\u2C9F\u2CA1\u2CA3\u2CA5\u2CA7\u2CA9\u2CAB\u2CAD\u2CAF\u2CB1\u2CB3\u2CB5\u2CB7\u2CB9\u2CBB\u2CBD\u2CBF\u2CC1\u2CC3\u2CC5\u2CC7\u2CC9\u2CCB\u2CCD\u2CCF\u2CD1\u2CD3\u2CD5\u2CD7\u2CD9\u2CDB\u2CDD\u2CDF\u2CE1\u2CE3\u2CE4\u2CEC\u2CEE\u2CF3\u2D00-\u2D25\u2D27\u2D2D\uA641\uA643\uA645\uA647\uA649\uA64B\uA64D\uA64F\uA651\uA653\uA655\uA657\uA659\uA65B\uA65D\uA65F\uA661\uA663\uA665\uA667\uA669\uA66B\uA66D\uA681\uA683\uA685\uA687\uA689\uA68B\uA68D\uA68F\uA691\uA693\uA695\uA697\uA723\uA725\uA727\uA729\uA72B\uA72D\uA72F-\uA731\uA733\uA735\uA737\uA739\uA73B\uA73D\uA73F\uA741\uA743\uA745\uA747\uA749\uA74B\uA74D\uA74F\uA751\uA753\uA755\uA757\uA759\uA75B\uA75D\uA75F\uA761\uA763\uA765\uA767\uA769\uA76B\uA76D\uA76F\uA771-\uA778\uA77A\uA77C\uA77F\uA781\uA783\uA785\uA787\uA78C\uA78E\uA791\uA793\uA7A1\uA7A3\uA7A5\uA7A7\uA7A9\uA7FA\uFB00-\uFB06\uFB13-\uFB17\uFF41-\uFF5A])([\u0041-\u005A\u00C0-\u00D6\u00D8-\u00DE\u0100\u0102\u0104\u0106\u0108\u010A\u010C\u010E\u0110\u0112\u0114\u0116\u0118\u011A\u011C\u011E\u0120\u0122\u0124\u0126\u0128\u012A\u012C\u012E\u0130\u0132\u0134\u0136\u0139\u013B\u013D\u013F\u0141\u0143\u0145\u0147\u014A\u014C\u014E\u0150\u0152\u0154\u0156\u0158\u015A\u015C\u015E\u0160\u0162\u0164\u0166\u0168\u016A\u016C\u016E\u0170\u0172\u0174\u0176\u0178\u0179\u017B\u017D\u0181\u0182\u0184\u0186\u0187\u0189-\u018B\u018E-\u0191\u0193\u0194\u0196-\u0198\u019C\u019D\u019F\u01A0\u01A2\u01A4\u01A6\u01A7\u01A9\u01AC\u01AE\u01AF\u01B1-\u01B3\u01B5\u01B7\u01B8\u01BC\u01C4\u01C7\u01CA\u01CD\u01CF\u01D1\u01D3\u01D5\u01D7\u01D9\u01DB\u01DE\u01E0\u01E2\u01E4\u01E6\u01E8\u01EA\u01EC\u01EE\u01F1\u01F4\u01F6-\u01F8\u01FA\u01FC\u01FE\u0200\u0202\u0204\u0206\u0208\u020A\u020C\u020E\u0210\u0212\u0214\u0216\u0218\u021A\u021C\u021E\u0220\u0222\u0224\u0226\u0228\u022A\u022C\u022E\u0230\u0232\u023A\u023B\u023D\u023E\u0241\u0243-\u0246\u0248\u024A\u024C\u024E\u0370\u0372\u0376\u0386\u0388-\u038A\u038C\u038E\u038F\u0391-\u03A1\u03A3-\u03AB\u03CF\u03D2-\u03D4\u03D8\u03DA\u03DC\u03DE\u03E0\u03E2\u03E4\u03E6\u03E8\u03EA\u03EC\u03EE\u03F4\u03F7\u03F9\u03FA\u03FD-\u042F\u0460\u0462\u0464\u0466\u0468\u046A\u046C\u046E\u0470\u0472\u0474\u0476\u0478\u047A\u047C\u047E\u0480\u048A\u048C\u048E\u0490\u0492\u0494\u0496\u0498\u049A\u049C\u049E\u04A0\u04A2\u04A4\u04A6\u04A8\u04AA\u04AC\u04AE\u04B0\u04B2\u04B4\u04B6\u04B8\u04BA\u04BC\u04BE\u04C0\u04C1\u04C3\u04C5\u04C7\u04C9\u04CB\u04CD\u04D0\u04D2\u04D4\u04D6\u04D8\u04DA\u04DC\u04DE\u04E0\u04E2\u04E4\u04E6\u04E8\u04EA\u04EC\u04EE\u04F0\u04F2\u04F4\u04F6\u04F8\u04FA\u04FC\u04FE\u0500\u0502\u0504\u0506\u0508\u050A\u050C\u050E\u0510\u0512\u0514\u0516\u0518\u051A\u051C\u051E\u0520\u0522\u0524\u0526\u0531-\u0556\u10A0-\u10C5\u10C7\u10CD\u1E00\u1E02\u1E04\u1E06\u1E08\u1E0A\u1E0C\u1E0E\u1E10\u1E12\u1E14\u1E16\u1E18\u1E1A\u1E1C\u1E1E\u1E20\u1E22\u1E24\u1E26\u1E28\u1E2A\u1E2C\u1E2E\u1E30\u1E32\u1E34\u1E36\u1E38\u1E3A\u1E3C\u1E3E\u1E40\u1E42\u1E44\u1E46\u1E48\u1E4A\u1E4C\u1E4E\u1E50\u1E52\u1E54\u1E56\u1E58\u1E5A\u1E5C\u1E5E\u1E60\u1E62\u1E64\u1E66\u1E68\u1E6A\u1E6C\u1E6E\u1E70\u1E72\u1E74\u1E76\u1E78\u1E7A\u1E7C\u1E7E\u1E80\u1E82\u1E84\u1E86\u1E88\u1E8A\u1E8C\u1E8E\u1E90\u1E92\u1E94\u1E9E\u1EA0\u1EA2\u1EA4\u1EA6\u1EA8\u1EAA\u1EAC\u1EAE\u1EB0\u1EB2\u1EB4\u1EB6\u1EB8\u1EBA\u1EBC\u1EBE\u1EC0\u1EC2\u1EC4\u1EC6\u1EC8\u1ECA\u1ECC\u1ECE\u1ED0\u1ED2\u1ED4\u1ED6\u1ED8\u1EDA\u1EDC\u1EDE\u1EE0\u1EE2\u1EE4\u1EE6\u1EE8\u1EEA\u1EEC\u1EEE\u1EF0\u1EF2\u1EF4\u1EF6\u1EF8\u1EFA\u1EFC\u1EFE\u1F08-\u1F0F\u1F18-\u1F1D\u1F28-\u1F2F\u1F38-\u1F3F\u1F48-\u1F4D\u1F59\u1F5B\u1F5D\u1F5F\u1F68-\u1F6F\u1FB8-\u1FBB\u1FC8-\u1FCB\u1FD8-\u1FDB\u1FE8-\u1FEC\u1FF8-\u1FFB\u2102\u2107\u210B-\u210D\u2110-\u2112\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u2130-\u2133\u213E\u213F\u2145\u2183\u2C00-\u2C2E\u2C60\u2C62-\u2C64\u2C67\u2C69\u2C6B\u2C6D-\u2C70\u2C72\u2C75\u2C7E-\u2C80\u2C82\u2C84\u2C86\u2C88\u2C8A\u2C8C\u2C8E\u2C90\u2C92\u2C94\u2C96\u2C98\u2C9A\u2C9C\u2C9E\u2CA0\u2CA2\u2CA4\u2CA6\u2CA8\u2CAA\u2CAC\u2CAE\u2CB0\u2CB2\u2CB4\u2CB6\u2CB8\u2CBA\u2CBC\u2CBE\u2CC0\u2CC2\u2CC4\u2CC6\u2CC8\u2CCA\u2CCC\u2CCE\u2CD0\u2CD2\u2CD4\u2CD6\u2CD8\u2CDA\u2CDC\u2CDE\u2CE0\u2CE2\u2CEB\u2CED\u2CF2\uA640\uA642\uA644\uA646\uA648\uA64A\uA64C\uA64E\uA650\uA652\uA654\uA656\uA658\uA65A\uA65C\uA65E\uA660\uA662\uA664\uA666\uA668\uA66A\uA66C\uA680\uA682\uA684\uA686\uA688\uA68A\uA68C\uA68E\uA690\uA692\uA694\uA696\uA722\uA724\uA726\uA728\uA72A\uA72C\uA72E\uA732\uA734\uA736\uA738\uA73A\uA73C\uA73E\uA740\uA742\uA744\uA746\uA748\uA74A\uA74C\uA74E\uA750\uA752\uA754\uA756\uA758\uA75A\uA75C\uA75E\uA760\uA762\uA764\uA766\uA768\uA76A\uA76C\uA76E\uA779\uA77B\uA77D\uA77E\uA780\uA782\uA784\uA786\uA78B\uA78D\uA790\uA792\uA7A0\uA7A2\uA7A4\uA7A6\uA7A8\uA7AA\uFF21-\uFF3A\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19])/g
 
-},{}],118:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 module.exports = /[^\u0041-\u005A\u0061-\u007A\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0\u08A2-\u08AC\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097F\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D\u0C58\u0C59\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191C\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA697\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA80-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19]+/g
 
-},{}],119:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 module.exports = /([\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19])([^\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19])/g
 
-},{}],120:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 'use strict';
 
 var bindAll = require('lodash.bindall');
@@ -13872,13 +16770,13 @@ SimpleColorPicker.prototype._onHueMouseUp = function() {
 
 module.exports = SimpleColorPicker;
 
-},{"./src/utils/maths/clamp":121,"component-emitter":82,"dom-transform":84,"is-number":92,"lodash.bindall":100,"tinycolor2":122}],121:[function(require,module,exports){
+},{"./src/utils/maths/clamp":138,"component-emitter":99,"dom-transform":101,"is-number":109,"lodash.bindall":117,"tinycolor2":139}],138:[function(require,module,exports){
 'use strict';
 
 module.exports = function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 };
-},{}],122:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 // TinyColor v1.4.1
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -15075,7 +17973,7 @@ else {
 
 })(Math);
 
-},{}],123:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 
 var space = require('to-space-case')
 
@@ -15098,7 +17996,7 @@ function toCamelCase(string) {
   })
 }
 
-},{"to-space-case":125}],124:[function(require,module,exports){
+},{"to-space-case":142}],141:[function(require,module,exports){
 
 /**
  * Export.
@@ -15167,7 +18065,7 @@ function uncamelize(string) {
   })
 }
 
-},{}],125:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 
 var clean = require('to-no-case')
 
@@ -15190,7 +18088,7 @@ function toSpaceCase(string) {
   }).trim()
 }
 
-},{"to-no-case":124}],126:[function(require,module,exports){
+},{"to-no-case":141}],143:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -15206,7 +18104,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],127:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -15227,7 +18125,7 @@ function extend(target) {
     return target
 }
 
-},{}],128:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
@@ -15252,7 +18150,7 @@ function Button (opts) {
 }
 
 Button.prototype.label = false;
-},{"dom-css":83,"events":3,"inherits":88}],129:[function(require,module,exports){
+},{"dom-css":100,"events":3,"inherits":105}],146:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var format = require('param-case')
@@ -15283,7 +18181,7 @@ function Checkbox (opts) {
 		self.emit('input', data.target.checked)
 	}
 }
-},{"events":3,"inherits":88,"param-case":112}],130:[function(require,module,exports){
+},{"events":3,"inherits":105,"param-case":129}],147:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var ColorPicker = require('simple-color-picker')
 var inherits = require('inherits')
@@ -15376,7 +18274,7 @@ function Color (opts) {
 		}
 	}
 }
-},{"dom-css":83,"events":3,"inherits":88,"input-number":89,"param-case":112,"simple-color-picker":120,"tinycolor2":122}],131:[function(require,module,exports){
+},{"dom-css":100,"events":3,"inherits":105,"input-number":106,"param-case":129,"simple-color-picker":137,"tinycolor2":139}],148:[function(require,module,exports){
 /**
  * @module  settings-panel/src/custom
  *
@@ -15411,10 +18309,6 @@ function Custom (opts) {
 		throw Error('`create` should be a function returning html element or string');
 	}
 
-	setTimeout(function () {
-		this$1.emit('init', el.value)
-	});
-
 	opts.container.addEventListener('input', function (data) {
 		this$1.emit('input', data.target.value)
 	});
@@ -15422,7 +18316,7 @@ function Custom (opts) {
 		this$1.emit('change', data.target.value)
 	});
 }
-},{"events":3,"inherits":88,"just-extend":95}],132:[function(require,module,exports){
+},{"events":3,"inherits":105,"just-extend":112}],149:[function(require,module,exports){
 var isNumeric = require('is-numeric')
 var css = require('dom-css')
 var isMobile = require('is-mobile')()
@@ -15674,7 +18568,7 @@ function Range (opts) {
 		this$1.emit('input', [scaledLValue, scaledRValue])
 	}
 }
-},{"./value":138,"dom-css":83,"events":3,"inherits":88,"is-mobile":91,"is-numeric":93,"mumath/clamp":108,"mumath/precision":109,"param-case":112}],133:[function(require,module,exports){
+},{"./value":155,"dom-css":100,"events":3,"inherits":105,"is-mobile":108,"is-numeric":110,"mumath/clamp":125,"mumath/precision":126,"param-case":129}],150:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var isNumeric = require('is-numeric')
@@ -15778,6 +18672,10 @@ function Range (opts) {
 	input.step = opts.step
 	input.value = opts.value
 
+	//preser container data for display
+	opts.container.setAttribute('data-min', opts.min);
+	opts.container.setAttribute('data-max', opts.max);
+
 	if (opts.scale === 'log') {
 		//FIXME: not every log is of precision 3
 		var prec = 3;
@@ -15817,7 +18715,7 @@ function Range (opts) {
 		this$1.emit('input', scaledValue)
 	}
 }
-},{"./value":138,"dom-css":83,"events":3,"inherits":88,"is-numeric":93,"mumath/precision":109,"param-case":112}],134:[function(require,module,exports){
+},{"./value":155,"dom-css":100,"events":3,"inherits":105,"is-numeric":110,"mumath/precision":126,"param-case":129}],151:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var format = require('param-case')
@@ -15840,9 +18738,6 @@ function Select (opts) {
 
 	upTriangle = document.createElement('span')
 	upTriangle.className = 'settings-panel-select-triangle settings-panel-select-triangle--up'
-
-	opts.container.appendChild(downTriangle)
-	opts.container.appendChild(upTriangle)
 
 	if (Array.isArray(opts.options)) {
 		for (i = 0; i < opts.options.length; i++) {
@@ -15869,6 +18764,8 @@ function Select (opts) {
 	}
 
 	opts.container.appendChild(input)
+	opts.container.appendChild(downTriangle)
+	opts.container.appendChild(upTriangle)
 
 	setTimeout(function () {
 		this$1.emit('init', opts.value)
@@ -15878,7 +18775,7 @@ function Select (opts) {
 		this$1.emit('input', data.target.value)
 	}
 }
-},{"events":3,"inherits":88,"param-case":112}],135:[function(require,module,exports){
+},{"events":3,"inherits":105,"param-case":129}],152:[function(require,module,exports){
 var inherits = require('inherits');
 var Emitter = require('events').EventEmitter;
 var format = require('param-case');
@@ -15912,7 +18809,7 @@ function Switch (opts) {
 	}
 
 	function createOption (label, value) {
-		var html = "<label for=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" class=\"settings-panel-switch-label\">\n\t\t\t<input type=\"radio\" class=\"settings-panel-switch-input\" " + (value === opts.value ? 'checked' : '') + " id=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" name=\"" + (opts.label) + "\" data-value=\"" + value + "\"/>\n\t\t\t" + label + "\n\t\t</label>";
+		var html = "<input type=\"radio\" class=\"settings-panel-switch-input\" " + (value === opts.value ? 'checked' : '') + " id=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" name=\"" + (opts.label) + "\" data-value=\"" + value + "\"/>\n\t\t<label for=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" class=\"settings-panel-switch-label\">" + label + "</label>";
 		return html;
 	}
 
@@ -15928,7 +18825,7 @@ function Switch (opts) {
 
 	opts.container.appendChild(this.switch);
 }
-},{"events":3,"inherits":88,"param-case":112,"xtend/mutable":127}],136:[function(require,module,exports){
+},{"events":3,"inherits":105,"param-case":129,"xtend/mutable":144}],153:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
@@ -15959,7 +18856,7 @@ function Text (opts) {
 		this$1.emit('input', data.target.value)
 	}
 }
-},{"dom-css":83,"events":3,"inherits":88,"input-number":89}],137:[function(require,module,exports){
+},{"dom-css":100,"events":3,"inherits":105,"input-number":106}],154:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
@@ -15991,7 +18888,7 @@ function Textarea (opts) {
 		this$1.emit('input', data.target.value)
 	}
 }
-},{"autosize":78,"dom-css":83,"events":3,"inherits":88}],138:[function(require,module,exports){
+},{"autosize":95,"dom-css":100,"events":3,"inherits":105}],155:[function(require,module,exports){
 var num = require('input-number');
 
 module.exports = function (opts) {
@@ -16023,4 +18920,4 @@ module.exports = function (opts) {
 
   return value
 }
-},{"input-number":89}]},{},[74]);
+},{"input-number":106}]},{},[91]);

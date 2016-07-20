@@ -32,7 +32,7 @@ var params = createParams(
 ## API
 
 const Prama = require('prama');
-<details><summary>let prama = **new Prama({title, fields, ...})**</summary>
+<details><summary><strong>`let prama = new Prama({title, fields, ...})`</strong></summary>
 
 Create settings manager instance based off options:
 
@@ -68,52 +68,52 @@ Create settings manager instance based off options:
 <dd>Default storage for session.</dd>
 </dl>
 </details>
-<details><summary>prama.**get('my field')**</summary>
+<details><summary><strong>`prama.get('my field')`</strong></summary>
 
 Get single field value by name.
 
 </details>
-<details><summary>prama.**get()**</summary>
+<details><summary><strong>`prama.get()`</strong></summary>
 
 Return object with values of all fields
 
 </details>
-<details><summary>prama.**set('my field', value|options)**</summary>
+<details><summary><strong>`prama.set('my field', value|options)`</strong></summary>
 
 Set field value or update field options.
 
 </details>
-<details><summary>prama.**set({field1: value, field2: options, ...})**</summary>
+<details><summary><strong>`prama.set({field1: value, field2: options, ...})`</strong></summary>
 
 Update multiple field values or field options. State can be an object or a list, same as `fields` property in options.
 
 </details>
-<details><summary>prama.**on('change', (name, value, state) => {})**</summary>
+<details><summary><strong>`prama.on('change', (name, value, state) => {})`</strong></summary>
 
 Hook up a callback for any field change. Callback recieves field `name`, new `value` and full `state` arguments.
 
 </details>
-<details><summary>prama.**show()**</summary>
+<details><summary><strong>`prama.show()`</strong></summary>
 
 Show panel.
 
 </details>
-<details><summary>prama.**hide()**</summary>
+<details><summary><strong>`prama.hide()`</strong></summary>
 
 Hide panel.
 
 </details>
-<details><summary>prama.**update({title, theme, orientation, palette})**</summary>
+<details><summary><strong>`prama.update({title, theme, orientation, palette})`</strong></summary>
 
 Update panel visual options.
 
 </details>
-<details><summary>prama.**toString()**</summary>
+<details><summary><strong>`prama.toString()`</strong></summary>
 
 Get string representation of state. Basically, a querystring.
 
 </details>
-<details><summary>prama.**toJSON()**</summary>
+<details><summary><strong>`prama.toJSON()`</strong></summary>
 
 Get state object with fields filtered for saving. Fields which `save` attribute is set to false will be ignored.
 

@@ -31,12 +31,40 @@ var params = createParams(
 
 ## API
 
+term
+  : definition
+
+longer term
+  : multi-line definition
+  a second line (will be subject to flow and wrapping)
+
+  a second paragraph in the definition
+
+complex term
+  : first definition
+
+  : second definition
+
 const Prama = require('prama');
 
 <details><summary>**const params = new Prama(options);**</summary>
-> Create parameters manager instance based off options.
 
-#### Options
+term
+  : definition
+
+longer term
+  : multi-line definition
+  a second line (will be subject to flow and wrapping)
+
+  a second paragraph in the definition
+
+complex term
+  : first definition
+
+  : second definition
+
+Create parameters manager instance based off options.
+
 title
   : Display menu title at the top. Can be omitted.
 

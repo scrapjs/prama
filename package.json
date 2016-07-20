@@ -1,6 +1,6 @@
 {
   "name": "prama",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Beautiful settings form for application or tests",
   "main": "index.js",
   "dependencies": {

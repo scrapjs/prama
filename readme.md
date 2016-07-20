@@ -35,7 +35,9 @@ const Prama = require('prama');
 
 <details><summary>const params = new Prama({</summary>
 Create parameters manager instance based off options.</details>
-&nbsp;&nbsp;&nbsp;&nbsp;title: 'Settings',
+<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;title: 'Settings',</summary>
+Display menu title at the top. Can be omitted.
+</details>
 <details><summary>&nbsp;&nbsp;&nbsp;&nbsp;fields: [],</summary>
 List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
 Prama adds `save` and `order` additional field properties. Example:
@@ -70,7 +72,7 @@ Reflect state in url</details>
 Save/load state between sessions, on load is overridden by history</details>
 <details><summary>&nbsp;&nbsp;&nbsp;&nbsp;storage: window.sessionStorage</summary>
 Default storage</details>
-`});`
+});
 
 <details><summary>
 prama.show();
@@ -79,15 +81,24 @@ prama.hide();
 Show or hide params menu
 </details>
 
-//Hook up a callback for any parameter change.
+<details><summary>
 prama.on('change', (name, value, opts) => {});
+</summary>
+Hook up a callback for any parameter change.
+</details>
 
-//Get string representation of state
+<details><summary>
 prama.toString();
+</summary>
+Get string representation of state
+</details>
 
-//Get/set state params
+<details><summary>
 prama.get(name?) or prama.get();
 prama.set(name?, value|options?) or prama.set(fields);
+</summary>
+Get/set state params
+</details>
 
 
 ## See also

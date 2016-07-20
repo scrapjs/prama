@@ -31,9 +31,9 @@ var params = createParams(
 
 ## API
 
-<h4>const Prama = require('prama');</h4>
+const Prama = require('prama');
 
-<details><summary><h4>const params = new Prama(options);</h4></summary>
+<details><summary>const params = new Prama(options);</summary>
 Create parameters manager instance based off options.
 #### Options
 <details><summary>&nbsp;&nbsp;&nbsp;&nbsp;title: 'Settings',</summary>

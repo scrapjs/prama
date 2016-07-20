@@ -39,13 +39,20 @@ const params = new Prama({
 	//menu title
 	title: 'Settings',
 
-	//list or object of fields
-	fields: [] or {
-		'My field': {type: 'text', ...},
+	//list or object of fields, see settings-panel for fields specification
+	//prama adds `save` and `order` field properties
+	fields: [
+		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
+		{type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
+		{type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
+		{type: 'checkbox', label: 'my checkbox', value: true},
+		{type: 'color', label: 'my color', format: 'rgb', value: 'rgb(10,200,0)', change: value => console.log(value)},
+		{type: 'button', label: 'gimme an alert', change: () => alert('hello!')},
+		{type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 		...
-	},
+	],
 
-	//theme for the control-panel, see themes folder
+	//theme, see theme folder
 	theme: require('prama/theme/control'),
 
 	//container element to place panel and button

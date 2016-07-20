@@ -4,25 +4,29 @@
   "description": "Beautiful settings form for application or tests",
   "main": "index.js",
   "dependencies": {
+    "add-px-to-style": "^1.0.0",
     "brfs": "^1.4.3",
     "draggy": "^1.6.4",
+    "google-fonts": "^1.0.0",
     "inherits": "^2.0.1",
     "insert-css": "^1.0.0",
+    "insert-styles": "^1.2.1",
     "is-mobile": "^0.2.2",
     "is-plain-obj": "^1.1.0",
     "just-extend": "^1.1.18",
     "popoff": "^2.0.6",
     "qs": "^6.2.0",
+    "scope-css": "^1.0.2",
     "settings-panel": "^1.2.3",
-    "sheetify": "^5.0.3"
+    "tinycolor2": "^1.4.1"
   },
   "browserify": {
     "transform": [
-      "brfs",
-      "sheetify/transform"
+      "brfs"
     ]
   },
   "devDependencies": {
+    "sortablejs": "^1.4.2",
     "bubleify": "^0.5.0",
     "colormap": "^2.2.0",
     "nice-color-palettes": "^1.0.1"

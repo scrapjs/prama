@@ -9,7 +9,8 @@ const isMobile = require('is-mobile');
 const isPlainObject = require('is-plain-obj');
 const Emitter = require('events');
 const draggable = require('draggy');
-const insertCSS = require('insert-css');
+const insertCss = require('insert-styles');
+const scopeCss = require('scope-css');
 const fs = require('fs');
 const qs = require('qs');
 const createPanel = require('../settings-panel');
@@ -17,7 +18,7 @@ const createPanel = require('../settings-panel');
 module.exports = Prama;
 
 
-insertCSS(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
+insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
 
 
 /**
@@ -31,10 +32,6 @@ function Prama (opts) {
 	//ensure container, unless it is explicitly false
 	if (this.container === undefined) {
 		this.container = document.body || document.documentElement;
-	}
-
-	if (this.container) {
-		this.container.classList.add('prama-container');
 	}
 
 	//convert params to object
@@ -77,10 +74,7 @@ function Prama (opts) {
 		container: this.container
 	});
 
-	this.element = this.panel.element;
-
-	this.element.classList.add('prama');
-	this.element.classList.add('prama-' + this.id);
+	this.id = this.panel.id;
 
 	this.panel.on('change', (data, value, state) => {
 		this.emit('change', data, value, state);
@@ -90,7 +84,7 @@ function Prama (opts) {
 	//create settings button
 	this.button = document.createElement('a');
 	this.button.href = '#settings';
-	this.button.classList.add('prama-settings-button');
+	this.button.classList.add('prama-button');
 	this.button.innerHTML = `<i>${this.icon}</i>`;
 	this.button.title = this.title;
 	this.button.addEventListener('click', (e) => {
@@ -99,14 +93,17 @@ function Prama (opts) {
 
 	//create settings button and popup
 	if (this.popup) {
+		if (typeof this.popup === 'string') this.popup = {type: this.popup};
 		this.popup = this.popup || {};
 		this.popup = createPopup(extend(this.popup, {
 			target: this.button,
-			content: this.element
+			content: this.panel.element
 		}));
 
 		if (this.draggable) {
-			this.dragman = draggable(this.popup.element);
+			this.dragman = draggable(this.popup.element, {
+				handle: '.settings-panel-title'
+			});
 		}
 
 		this.popup.on('afterShow', () => {
@@ -114,9 +111,16 @@ function Prama (opts) {
 		});
 	}
 
+	this.element = this.popup && this.popup.element || this.panel.element;
+
+	this.element.classList.add('prama');
+	this.element.classList.add('prama-' + this.id);
+
 	//if container is passed - place ui to it
 	if (this.container) {
 		this.container.appendChild(this.button);
+		this.container.classList.add('prama-container');
+		this.container.classList.add('prama-container-' + this.id);
 	}
 
 	this.update();
@@ -137,13 +141,19 @@ Prama.prototype.update = function (opts) {
 
 	this.panel.update({
 		title: this.title,
-		orientation: this.orientation,
-		css: this.theme
+		orientation: this.orientation
+	});
+
+	let css = this.theme instanceof Function ? this.theme.call(this, opts) : this.theme+'';
+	css = scopeCss(css, '.prama-container-' + this.id).trim();
+
+	insertCss(css, {
+		id: this.id
 	});
 };
 
 //palette for the theme, see nice-color-palettes module
-Prama.prototype.palette = ["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"];
+Prama.prototype.palette;
 
 //labels orientation
 Prama.prototype.orientation = createPanel.prototype.orientation;
@@ -192,32 +202,6 @@ Prama.prototype.hide = function () {this.popup && this.popup.hide(); return this
 
 
 
-//convert to string
-Prama.prototype.toString = function (params) {
-	params = params || this.panel.get();
-
-	//convert to string
-	for (let name in params) {
-		let value = params[name];
-		if (value === this.panel.items[name].initial) delete params[name];
-		params[name] = toString(params[name]);
-		if (value === this.panel.items[name].initial) delete params[name];
-	}
-
-	var str = '';
-	try {
-		str = qs.stringify(params, {encode: false});
-	} catch (e) {
-		console.error(e);
-		return '';
-	}
-
-	return str;
-}
-
-
-
-
 //save params state to local storage
 Prama.prototype.save = function (params) {
 	if (!params) return false;
@@ -237,13 +221,7 @@ Prama.prototype.save = function (params) {
 Prama.prototype.saveSession = function (params) {
 	if (!this.storage) return false;
 
-	//convert to string
-	for (let name in params) {
-		let value = params[name];
-		if (value === this.panel.items[name].initial) delete params[name];
-		params[name] = toString(params[name]);
-		if (value === this.panel.items[name].initial) delete params[name];
-	}
+	params = params || this.toJSON();
 
 	try {
 		var str = JSON.stringify(params);
@@ -266,6 +244,37 @@ Prama.prototype.saveHistory = function (params) {
 
 	return true;
 };
+
+//convert to string
+Prama.prototype.toString = function (params) {
+	params = params || this.toJSON();
+
+	var str = '';
+	try {
+		str = qs.stringify(params, {encode: false});
+	} catch (e) {
+		console.error(e);
+		return '';
+	}
+
+	return str;
+}
+
+//get object with filtered values
+Prama.prototype.toJSON = function () {
+	let params = this.panel.get();
+
+	//convert to string
+	for (let name in params) {
+		if (params[name].save === false) delete params[name];
+		let value = params[name];
+		if (value === this.panel.items[name].initial) delete params[name];
+		params[name] = toString(params[name]);
+		if (value === this.panel.items[name].initial) delete params[name];
+	}
+
+	return params;
+}
 
 //load params state from local storage
 Prama.prototype.load = function () {
@@ -334,6 +343,7 @@ function toString (value) {
 
 //get value from string
 function fromString (value) {
+	if (typeof value !== 'string') return value;
 	if (value === '✔' || value === 'true') return true;
 	if (value === '✘' || value === 'false') return false;
 	if (/\,/.test(value) && !/\s/.test(value)) {

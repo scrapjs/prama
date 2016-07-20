@@ -2457,10 +2457,10 @@ Prama.prototype.hide = function () {this.popup && this.popup.hide(); return this
 
 //control-panel wrappers
 Prama.prototype.set = function () {
-	this.panel.set.apply(this.panel, arguments);
+	return this.panel.set.apply(this.panel, arguments);
 };
 Prama.prototype.get = function () {
-	this.panel.get.apply(this.panel, arguments);
+	return this.panel.get.apply(this.panel, arguments);
 };
 
 
@@ -12827,12 +12827,14 @@ var pm = createParams({
 		},
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: function (v) {
 			pm.theme = themes[v];
+			if (!pm.get('Palette') || !pm.get('Palette').length) pm.set('Palette', pm.theme.palette);
 		}},
 		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 				var this$1 = this;
 
 				var list = document.createElement('ul');
-				var palette = opts.value || pm.theme.palette;
+
+				var palette = opts.value || themes[this.panel.get('Theme')].palette || [];
 
 				if (typeof palette === 'string') {
 					palette = palette.split(',');
@@ -12900,7 +12902,7 @@ var pm = createParams({
 		// 		pm.position = v;
 		// 	}
 		// },
-		{label: 'Font size', type: 'range', value: 12, min: 8, max: 20, step: .5, change: function (v) {
+		{label: 'Font size', type: 'range', value: 14, min: 8, max: 20, step: .5, change: function (v) {
 			pm.fontSize = v;
 		}},
 		{label: 'Width', type: 'interval', value: [100, 200], min: 100, max: 600, step: 1, change: function (v) {
@@ -13058,7 +13060,7 @@ Panel.prototype.set = function (name, value) {
 	}
 
 	var item = this.items[name];
-	if (!item) item = this.items[name] = { label: name };
+	if (!item) item = this.items[name] = { label: name, panel: this };
 
 	var initialValue = item.value;
 

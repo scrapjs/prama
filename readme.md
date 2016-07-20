@@ -86,12 +86,12 @@ Prama adds `save` and `order` additional field properties. Example:
 <dd>Default storage</dd>
 </dl>
 </details>
-<details><summary><small>prama.</small>**get(name)**</summary>
+<details><summary><sub>prama.</sub>**get(name)**</summary>
 
 Get single field value by `name`. If name is omitted - the full state will be returned.
 
 </details>
-<details><summary><small>prama.</small>**get()**</summary>
+<details><summary><sub>prama.</sub>**get()**</summary>
 
 Return state - an object with values of all fields.
 

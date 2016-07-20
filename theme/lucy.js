@@ -18,7 +18,7 @@ let defaultPalette = [
 	'#00FFFA',
 	'#999',
 	'#eee',
-	'#333',
+	'#222',
 	'#333'
 ];
 let palette = this.palette || defaultPalette;
@@ -30,7 +30,7 @@ let active = palette[2];
 let dark = palette[3];
 
 let mono = '"Ubuntu Mono", monospace';
-let fontSize = 14;
+let fontSize = this.fontSize || '1em';
 
 
 function alpha (c, value) {
@@ -46,8 +46,12 @@ return `
 	}
 
 	.prama-button {
-		color: ${primary};
-		fill: ${primary};
+		color: ${bg};
+		fill: ${bg};
+	}
+	.prama-button:hover {
+		color: ${active};
+		fill: ${active};
 	}
 
 	.popoff-close:hover {
@@ -57,10 +61,11 @@ return `
 	.settings-panel {
 		font-size: ${px('font-size', fontSize)};
 		font-family: "Ubuntu Condensed", sans-serif;
+		padding: 0 1em;
 	}
 
 	.settings-panel-title {
-		font-size: 2em;
+		font-size: 2.2em;
 		font-weight: normal;
 		letter-spacing: 0;
 		text-transform: none;
@@ -72,18 +77,32 @@ return `
 		text-align: center;
 	}
 
-	.settings-panel-field--interval .settings-panel-input,
+	.settings-panel-label {
+		vertical-align: top;
+		padding-top: .5em;
+	}
+	.settings-panel-orientation-left .settings-panel-label,
+	.settings-panel-orientation-right .settings-panel-label {
+		width: 6em;
+	}
+
 	.settings-panel-field--interval .settings-panel-input,
 	.settings-panel-field--range .settings-panel-input {
 		text-align: left;
 	}
 
 	.settings-panel-textarea,
-	.settings-panel input:not([type="range"]),
+	.settings-panel-text,
 	.settings-panel-select {
 		padding-left: .5em;
 		padding-right: .5em;
 		text-align: left;
+	}
+
+	.settings-panel-textarea:hover,
+	.settings-panel-text:hover,
+	.settings-panel-select:hover {
+		color: ${active};
 	}
 
 	/** Inputs fill */
@@ -93,7 +112,16 @@ return `
 	.settings-panel-text,
 	.settings-panel-checkbox-label {
 		background: none;
+		font-family: ${mono};
 		color: ${secondary};
+	}
+
+	/** Panel value */
+	.settings-panel-value {
+		padding-right: 0;
+	}
+	.settings-panel-value:focus {
+		color: ${active};
 	}
 
 
@@ -124,6 +152,8 @@ return `
 		-o-appearance:none;
 		appearance:none;
 		width: auto;
+		padding-right: 1em;
+		margin-right: -.5em;
 	}
 	.settings-panel-select::-ms-expand {
 		display:none;
@@ -133,20 +163,30 @@ return `
 		border-right: .3em solid transparent;
 		border-left: .3em solid transparent;
 		line-height: 2em;
-		position: absolute;
-		right: 2.5%;
+		position: relative;
 		z-index: 1;
+		vertical-align: middle;
+		display: inline-block;
+		width: 0;
+		text-align: center;
+		pointer-events: none;
 	}
 	.settings-panel-select-triangle--down {
-		top: 1.1em;
+		top: 0em;
+		left: 0;
 		border-top: .5em solid ${secondary};
 		border-bottom: .0 transparent;
 	}
 	.settings-panel-select-triangle--up {
-		top: .4em;
-		border-bottom: .5em solid ${secondary};
-		border-top: 0px transparent;
+		display: none;
 	}
+	.settings-panel-select:focus {
+		color: ${active}
+	}
+	.settings-panel-select:focus + .settings-panel-select-triangle {
+		border-top-color: ${active};
+	}
+
 
 
 	/** Switch style */
@@ -156,36 +196,22 @@ return `
 		appearance: none;
 		color: ${secondary};
 		font-family: ${mono};
-		// vertical-align: top;
-		// display: inline-block;
-		// border: none;
-		// margin: 0;
-		// border-radius: 0;
-		// padding: 0;
-		// height: auto;
-		// background: none;
-		// vertical-align: top;
-		// border: none;
-		// position: relative;
-		// overflow: hidden;
 	}
 	.settings-panel-switch-input {
-		// display: none;
+		display: none;
 	}
 	.settings-panel-switch-label {
-		// position: relative;
-		// height: 2em;
-		// line-height: 2em;
-		// min-width: 4em;
-		// padding: 0 1em;
-		// z-index: 2;
-		// float: left;
-		// text-align: center;
-		// cursor: pointer;
+		cursor: pointer;
+	}
+	.settings-panel-switch-label:hover {
+		color: ${active};
+	}
+	.settings-panel-switch-label:last-child {
+		margin-right: 0;
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
-		// background: black;
-		// color: white;
+		color: ${active};
+		font-weight: bold;
 	}
 
 
@@ -209,9 +235,15 @@ return `
 		background: ${secondary};
 		height: 1px;
 	}
+	.settings-panel-range:focus::-webkit-slider-runnable-track {
+		background: ${active};
+	}
 	.settings-panel-range::-moz-range-track {
 		background: ${secondary};
 		height: 1px;
+	}
+	.settings-panel-range:focus::-moz-range-track {
+		background: ${active};
 	}
 	.settings-panel-range::-ms-fill-lower {
 		background: ${secondary};
@@ -221,7 +253,7 @@ return `
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		background: ${secondary};
+		background: inherit;
 		border-radius: 1em;
 		height: 1em;
 		width: 1em;
@@ -232,7 +264,7 @@ return `
 		margin-top: -.5em;
 	}
 	.settings-panel-range::-moz-range-thumb {
-		background: ${secondary};
+		background: inherit;
 		border-radius: 1em;
 		height: 1em;
 		width: 1em;
@@ -247,6 +279,8 @@ return `
 	}
 	.settings-panel-field--interval .settings-panel-value:first-child {
 		text-align: right;
+		padding-left: 0;
+		padding-right: .5em;
 	}
 	.settings-panel-interval:after {
 		content: '';
@@ -272,7 +306,7 @@ return `
 		width: 1em;
 		height: 1em;
 		border-radius: 1em;
-		background: ${secondary};
+		background: inherit;
 	}
 	.settings-panel-interval-handle:before {
 		content: '';
@@ -282,12 +316,29 @@ return `
 		width: 1em;
 		height: 1em;
 		border-radius: 1em;
-		background: ${secondary};
+		background: inherit;
+	}
+
+	.settings-panel-interval-dragging .settings-panel-interval-handle {
+		background: ${active};
+	}
+
+	.settings-panel-field--range .settings-panel-input:before {
+		content: attr(data-min);
+		position: absolute;
+		width: 15%;
+		color: ${secondary};
+		text-align: right;
+		line-height: 2em;
+		height: 2em;
+		padding-right: .5em;
+		box-sizing: border-box;
 	}
 
 
 	/** Checkbox */
-	.settings-panel-field--checkbox {
+	.settings-panel-field--checkbox .settings-panel-label {
+		margin-bottom: .5em;
 	}
 	.settings-panel-checkbox {
 		display: none;
@@ -303,6 +354,7 @@ return `
 		-webkit-transition: .4s;
 		transition: .4s;
 		border-radius: 2em;
+		box-shadow: 0 0 .666em ${dark};
 	}
 	.settings-panel-checkbox-label:before {
 		position: absolute;
@@ -332,16 +384,28 @@ return `
 
 	/** Placeholders */
 	.settings-panel ::-webkit-input-placeholder {
-		color: ${secondary};
+		color: ${active};
+		background: ${dark};
 	}
 	.settings-panel ::-moz-placeholder {
-		color: ${secondary};
+		color: ${active};
+		background: ${dark};
 	}
 	.settings-panel :-ms-input-placeholder {
-		color: ${secondary};
+		color: ${active};
+		background: ${dark};
 	}
 	.settings-panel :-moz-placeholder {
-		color: ${secondary};
+		color: ${active};
+		background: ${dark};
+	}
+	.settings-panel ::-moz-selection {
+		color: ${active};
+		background: ${dark};
+	}
+	.settings-panel ::selection {
+		color: ${active};
+		background: ${dark};
 	}
 
 `}

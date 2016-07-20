@@ -18,7 +18,7 @@ insertCss(`
 		margin: 0;
 		position: relative;
 		min-height: 100vh;
-		background: url('./demo/images/landscape.jpg');
+		background: url('./images/landscape.jpg');
 		background-position: center top;
 		background-size: cover;
 	}
@@ -60,7 +60,8 @@ var pm = createParams({
 				css(list, {
 					listStyle: 'none',
 					margin: 0,
-					padding: 0
+					padding: 0,
+					display: 'block'
 				});
 
 				palette.forEach((color) => {
@@ -91,14 +92,14 @@ var pm = createParams({
 		// 	}
 		// },
 		{label: 'Font size', type: 'range', value: 12, min: 8, max: 20, step: .5, change: (v) => {
-
+			pm.fontSize = v;
 		}},
 		{label: 'Width', type: 'interval', value: [100, 200], min: 100, max: 600, step: 1, change: (v) => {
 
 		}},
-		{label: 'Draggable', type: 'checkbox', value: true, style: `width: 33%; display: inline-block; margin: 4em 0 0;`, orientation: 'bottom' },
-		{label: 'History', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin: 4em 0 0;`, orientation: 'bottom' },
-		{label: 'Session', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin: 4em 0 0;`, orientation: 'bottom' }
+		{label: 'Draggable', type: 'checkbox', value: true, style: `width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;`, orientation: 'bottom' },
+		{label: 'History', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;`, orientation: 'bottom' },
+		{label: 'Session', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;`, orientation: 'bottom' }
 	],
 	button: true
 }).on('change', function () {

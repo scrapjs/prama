@@ -102,7 +102,7 @@ function Prama (opts) {
 
 		if (this.draggable) {
 			this.dragman = draggable(this.popup.element, {
-				handle: '.settings-panel-title'
+				handle: typeof this.draggable === 'string' ? this.draggable : '.settings-panel-title'
 			});
 		}
 

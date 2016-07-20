@@ -58,10 +58,10 @@ const params = new Prama({
 	//container element to place panel and button
 	container: document.body,
 
-	//popup type
-	type: 'dropdown',
+	//popup - type string, options or true/false
+	popup: 'dropdown',
 
-	//make panel draggable
+	//make panel draggable - true, false or handle selector
 	draggable: true,
 
 	//create settings menu button

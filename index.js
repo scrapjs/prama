@@ -13,7 +13,7 @@ const insertCss = require('insert-styles');
 const scopeCss = require('scope-css');
 const fs = require('fs');
 const qs = require('qs');
-const createPanel = require('../settings-panel');
+const createPanel = require('settings-panel');
 
 module.exports = Prama;
 

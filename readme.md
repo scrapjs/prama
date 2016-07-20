@@ -33,13 +33,13 @@ var params = createParams(
 
 const Prama = require('prama');
 
-<details><summary>const params = new Prama(options);</summary>
+<details><summary>**const params = new Prama(options);**</summary>
 Create parameters manager instance based off options.
 #### Options
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;title: 'Settings',</summary>
+<details><summary>title: 'Settings',</summary>
 Display menu title at the top. Can be omitted.
 </details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;fields: [],</summary>
+<details><summary>fields: [],</summary>
 List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
 Prama adds `save` and `order` additional field properties. Example:
 ```js
@@ -53,48 +53,43 @@ Prama adds `save` and `order` additional field properties. Example:
 		...
 ```
 </details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;theme: require('prama/theme/control'),</summary>
+<details><summary>theme: require('prama/theme/control'),</summary>
 Theme, see theme folder</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;container: document.body,</summary>
+<details><summary>container: document.body,</summary>
 Container element to place panel and button</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;popup: 'dropdown',</summary>
+<details><summary>popup: 'dropdown',</summary>
 Popup - type string, options or true/false</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;draggable: true,</summary>
+<details><summary>draggable: true,</summary>
 Make panel draggable - true, false or handle selector</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;button: true,</summary>
+<details><summary>button: true,</summary>
 Create settings menu button</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;position: 'top-right',</summary>
+<details><summary>position: 'top-right',</summary>
 Position of a button</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;icon: ./gears.svg,</summary>
+<details><summary>icon: ./gears.svg,</summary>
 Svg to use for a menu icon</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;history: false,</summary>
+<details><summary>history: false,</summary>
 Reflect state in url</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;session: true,</summary>
+<details><summary>session: true,</summary>
 Save/load state between sessions, on load is overridden by history</details>
-<details><summary>&nbsp;&nbsp;&nbsp;&nbsp;storage: window.sessionStorage</summary>
+<details><summary>storage: window.sessionStorage</summary>
 Default storage</details>
 </details>
-
-<details><summary>prama.show();</summary>
+<details><summary>**prama.show();**</summary>
 Show or hide params menu
 </details>
-<details><summary>prama.hide();</summary>
+<details><summary>**prama.hide();**</summary>
 Show or hide params menu
 </details>
-
-<details><summary>prama.on('change', (name, value, opts) => {});</summary>
+<details><summary>**prama.on('change', (name, value, opts) => {});**</summary>
 Hook up a callback for any parameter change.
 </details>
-
-<details><summary>prama.toString();</summary>
+<details><summary>**prama.toString();**</summary>
 Get string representation of state
 </details>
-
-<details><summary>prama.get(name?)</summary>
+<details><summary>**prama.get(name?)**</summary>
 Get single property value. If name is omitted - return full state.
 </details>
-
-<details><summary>prama.set(name?, value|options?) or prama.set(fields)</summary>
+<details><summary>**prama.set(name?, value|options?) or prama.set(fields)**</summary>
 Set field value, of if an object passed - update state with passed values.
 </details>
 

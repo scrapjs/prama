@@ -26,10 +26,11 @@
     ]
   },
   "devDependencies": {
-    "sortablejs": "^1.4.2",
     "bubleify": "^0.5.0",
     "colormap": "^2.2.0",
-    "nice-color-palettes": "^1.0.1"
+    "nice-color-palettes": "^1.0.1",
+    "simple-color-picker": "^0.1.0",
+    "sortablejs": "^1.4.2"
   },
   "scripts": {
     "test": "budo test.js",

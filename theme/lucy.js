@@ -13,14 +13,19 @@ fonts.add({
 	'Ubuntu Mono': true
 });
 
-module.exports = function () {
-let defaultPalette = [
+module.exports = lucy;
+
+lucy.palette = [
 	'#00FFFA',
 	'#999',
 	'#eee',
 	'#222',
 	'#333'
 ];
+
+function lucy () {
+let defaultPalette = lucy.palette;
+
 let palette = this.palette || defaultPalette;
 
 let bg = palette[4] || defaultPalette[4];
@@ -43,6 +48,8 @@ return `
 		color: ${primary};
 		border-radius: .666em;
 		width: 24em;
+		box-shadow: 0 .5em 3em -1em ${dark};
+		overflow: visible;
 	}
 
 	.prama-button {
@@ -54,6 +61,9 @@ return `
 		fill: ${active};
 	}
 
+	.popoff-close {
+		color: ${secondary};
+	}
 	.popoff-close:hover {
 		color: ${active};
 	}
@@ -253,7 +263,7 @@ return `
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		background: inherit;
+		background: ${active};
 		border-radius: 1em;
 		height: 1em;
 		width: 1em;
@@ -264,7 +274,7 @@ return `
 		margin-top: -.5em;
 	}
 	.settings-panel-range::-moz-range-thumb {
-		background: inherit;
+		background: ${active};
 		border-radius: 1em;
 		height: 1em;
 		width: 1em;
@@ -354,7 +364,7 @@ return `
 		-webkit-transition: .4s;
 		transition: .4s;
 		border-radius: 2em;
-		box-shadow: 0 0 .666em ${dark};
+		box-shadow: 0 0 .666em transparent;
 	}
 	.settings-panel-checkbox-label:before {
 		position: absolute;
@@ -370,14 +380,13 @@ return `
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
 		background: ${secondary};
-		box-shadow: none;
+		box-shadow: 0 0 .666em ${dark};
 	}
 	.settings-panel-checkbox:focus + .settings-panel-checkbox-label {
-		box-shadow: 0 0 1px gray;
+		box-shadow: 0 0 .666em ${dark};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
 		left: calc(100% - 1.6em);
-		box-shadow: none;
 		background-color: ${active};
 	}
 

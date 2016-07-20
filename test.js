@@ -5,6 +5,7 @@ const palettes = require('nice-color-palettes/500');
 const createPopup = require('popoff');
 const css = require('dom-css');
 const sortable = require('sortablejs');
+const Picker = require('simple-color-picker');
 
 
 //prepare body
@@ -49,9 +50,9 @@ var pm = createParams({
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: v => {
 			pm.theme = themes[v];
 		}},
-		{label: 'Palette', type: 'custom', options: palettes, value: palettes[0], save: false, create: function (opts) {
+		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 				let list = document.createElement('ul');
-				let palette = opts.value;
+				let palette = opts.value || pm.theme.palette;
 
 				if (typeof palette === 'string') {
 					palette = palette.split(',');
@@ -59,14 +60,17 @@ var pm = createParams({
 
 				css(list, {
 					listStyle: 'none',
-					margin: 0,
+					margin: '.5em 0 0',
 					padding: 0,
-					display: 'block'
+					height: '2em',
+					display: 'inline-block',
+					boxShadow: `0 0 .666em ` + palette[3]
 				});
 
 				palette.forEach((color) => {
 					let item = document.createElement('li');
 					item.title = color;
+					item.setAttribute('data-id', color);
 					css(item, {
 						height: '2em',
 						width: '2em',
@@ -74,16 +78,41 @@ var pm = createParams({
 						background: color
 					});
 					list.appendChild(item);
+
+					//create picker for each color
+					let picker = new Picker({
+						el: item,
+						color: color
+					});
+					picker.$el.style.display = 'none';
+					item.onmouseout = (e) => {
+						picker.$el.style.display = 'none'
+					}
+					item.onmouseover = function () {
+						picker.$el.style.display = ''
+					}
+					picker.onChange((color) => {
+						css(item, {background: color});
+						item.setAttribute('data-id', color);
+						sortman && this.emit('change', sortman.toArray());
+					})
 				});
 
 				let sortman = new sortable(list, {
-					group: 'palette'
+					onUpdate: (e) => {
+						this.emit('change', sortman.toArray());
+					}
+				});
+
+				setTimeout(() => {
+					this.emit('init', palette);
 				});
 
 				return list;
 			},
 			change: (v) => {
 				if (!v) pm.palette = null;
+				else if (Array.isArray(v)) pm.palette = v;
 				else pm.palette = v.split(/\s*,\s*/);
 			}
 		},

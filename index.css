@@ -21,6 +21,7 @@
 	display: block;
 	position: absolute;
 	z-index: 2;
+	cursor: pointer;
 }
 
 .prama-button i {

@@ -198,7 +198,13 @@ Prama.prototype.storage = self.sessionStorage || self.localStorage;
 Prama.prototype.show = function () {this.popup && this.popup.show(); return this;};
 Prama.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
 
-
+//control-panel wrappers
+Prama.prototype.set = function () {
+	this.panel.set.apply(this.panel, arguments);
+};
+Prama.prototype.get = function () {
+	this.panel.get.apply(this.panel, arguments);
+};
 
 
 

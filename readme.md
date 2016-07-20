@@ -75,30 +75,27 @@ Save/load state between sessions, on load is overridden by history</details>
 Default storage</details>
 </details>
 
-<details><summary>
-prama.show();
-prama.hide();
-</summary>
+<details><summary>prama.show();</summary>
+Show or hide params menu
+</details>
+<details><summary>prama.hide();</summary>
 Show or hide params menu
 </details>
 
-<details><summary>
-prama.on('change', (name, value, opts) => {});
-</summary>
+<details><summary>prama.on('change', (name, value, opts) => {});</summary>
 Hook up a callback for any parameter change.
 </details>
 
-<details><summary>
-prama.toString();
-</summary>
+<details><summary>prama.toString();</summary>
 Get string representation of state
 </details>
 
-<details><summary>
-prama.get(name?) or prama.get();
-prama.set(name?, value|options?) or prama.set(fields);
-</summary>
-Get/set state params
+<details><summary>prama.get(name?)</summary>
+Get single property value. If name is omitted - return full state.
+</details>
+
+<details><summary>prama.set(name?, value|options?) or prama.set(fields)</summary>
+Set field value, of if an object passed - update state with passed values.
 </details>
 
 

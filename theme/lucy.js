@@ -71,7 +71,7 @@ return `
 	.settings-panel {
 		font-size: ${px('font-size', fontSize)};
 		font-family: "Ubuntu Condensed", sans-serif;
-		padding: 0 1em;
+		padding: 0 .5em;
 	}
 
 	.settings-panel-title {
@@ -95,6 +95,10 @@ return `
 	.settings-panel-orientation-right .settings-panel-label {
 		width: 6em;
 	}
+	.settings-panel-orientation-top .settings-panel-label,
+	.settings-panel-orientation-bottom .settings-panel-label {
+		width: 100%;
+	}
 
 	.settings-panel-field--interval .settings-panel-input,
 	.settings-panel-field--range .settings-panel-input {
@@ -104,8 +108,8 @@ return `
 	.settings-panel-textarea,
 	.settings-panel-text,
 	.settings-panel-select {
-		padding-left: .5em;
-		padding-right: .5em;
+		padding-left: 0em;
+		padding-right: 0em;
 		text-align: left;
 	}
 

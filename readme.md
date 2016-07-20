@@ -15,7 +15,7 @@ var createParams = require('prama');
 
 var params = createParams(
 	title: 'Login',
-	type: 'dropdown',
+	popup: 'dropdown',
 	position: 'top-right',
 	fields: [
 		{ label: 'Full name', type: 'text'},
@@ -31,11 +31,14 @@ var params = createParams(
 
 ## API
 
-```js
-const Prama = require('prama');
-
+<details>
+<summary>const Prama = require('prama');</summary>
+Require Prama class instance.
+</details>
+<details>
+<summary>const params = new Prama({</summary>
 // create parameters manager instance based off options.
-const params = new Prama({
+</details>
 	//menu title
 	title: 'Settings',
 

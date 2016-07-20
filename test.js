@@ -128,9 +128,9 @@ var pm = createParams({
 		{label: 'Width', type: 'interval', value: [100, 200], min: 100, max: 600, step: 1, change: (v) => {
 
 		}},
-		{label: 'Draggable', type: 'checkbox', value: true, style: `width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;`, orientation: 'bottom' },
-		{label: 'History', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;`, orientation: 'bottom' },
-		{label: 'Session', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin-bottom: 1em; margin-top: 2em;`, orientation: 'bottom' }
+		{label: 'Draggable', type: 'checkbox', value: true, style: `width: 33%; display: inline-block; margin: 2em 0 1em; text-align: center;`, orientation: 'bottom' },
+		{label: 'History', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin: 2em 0 1em; text-align: center;`, orientation: 'bottom' },
+		{label: 'Session', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin: 2em 0 1em; text-align: center;`, orientation: 'bottom' }
 	],
 	button: true
 }).on('change', function () {

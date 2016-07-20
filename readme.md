@@ -31,45 +31,18 @@ var params = createParams(
 
 ## API
 
-term
-  : definition
-
-longer term
-  : multi-line definition
-  a second line (will be subject to flow and wrapping)
-
-  a second paragraph in the definition
-
-complex term
-  : first definition
-
-  : second definition
-
-const Prama = require('prama');
+**const Prama = require('prama');**
 
 <details><summary>**const params = new Prama(options);**</summary>
 
-term
-  : definition
-
-longer term
-  : multi-line definition
-  a second line (will be subject to flow and wrapping)
-
-  a second paragraph in the definition
-
-complex term
-  : first definition
-
-  : second definition
-
 Create parameters manager instance based off options.
 
-title
-  : Display menu title at the top. Can be omitted.
+<dl>
+<dt>title
+<dd>Display menu title at the top. Can be omitted.
 
-fields
-  : List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
+<dt>fields
+<dd>List or object of fields, see [settings-panel](https://github.com/dfcreative/settings-panel) for fields specification.
   Prama adds `save` and `order` additional field properties. Example:
 ```js
 		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
@@ -82,36 +55,36 @@ fields
 		...
 ```
 
-theme: require('prama/theme/control'),
-  : Theme, see theme folder
+<dt>theme: require('prama/theme/control'),
+<dd>Theme, see theme folder
 
-container: document.body,
-  : Container element to place panel and button
+<dt>container: document.body,
+<dd>Container element to place panel and button
 
-popup: 'dropdown',
-  : Popup - type string, options or true/false
+<dt>popup: 'dropdown',
+<dd>Popup - type string, options or true/false
 
-draggable: true,
-  : Make panel draggable - true, false or handle selector
+<dt>draggable: true,
+<dd>Make panel draggable - true, false or handle selector
 
-button: true,
-  : Create settings menu button
+<dt>button: true,
+<dd>Create settings menu button
 
-position: 'top-right',
-  : Position of a button
+<dt>position: 'top-right',
+<dd>Position of a button
 
-icon: ./gears.svg,
-  : Svg to use for a menu icon
+<dt>icon: ./gears.svg,
+<dd>Svg to use for a menu icon
 
-history: false,
-  : Reflect state in url
+<dt>history: false,
+<dd>Reflect state in url
 
-session: true,
-  : Save/load state between sessions, on load is overridden by history
+<dt>session: true,
+<dd>Save/load state between sessions, on load is overridden by history
 
-storage: window.sessionStorage
-  : Default storage
-
+<dt>storage: window.sessionStorage
+<dd>Default storage
+</dl>
 </details>
 <details><summary>**prama.show();**</summary>
 Show or hide params menu

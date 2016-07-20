@@ -31,9 +31,9 @@ var params = createParams(
 
 ## API
 
-`const Prama = require('prama');`
+**const Prama = require('prama');**
 
-<details><summary>`const params = new Prama(options);`</summary>
+<details><summary>**const params = new Prama(options);**</summary>
 
 Create settings manager instance based off `options`:
 
@@ -87,32 +87,32 @@ Prama adds `save` and `order` additional field properties. Example:
 <dd>Default storage
 </dl>
 </details>
-<details><summary>`prama.get(name?)`</summary>
+<details><summary>**prama.get(name?)**</summary>
 
 Get single property value. If name is omitted - return full state.
 
 </details>
-<details><summary>`prama.set(name?, value|options?) or prama.set(fields)`</summary>
+<details><summary>**prama.set(name?, value|options?) or prama.set(fields)**</summary>
 
 Set field value, of if an object passed - update state with passed values.
 
 </details>
-<details><summary>`prama.on('change', (name, value, opts) => {});`</summary>
+<details><summary>**prama.on('change', (name, value, opts) => {});**</summary>
 
 Hook up a callback for any parameter change.
 
 </details>
-<details><summary>`prama.toString();`</summary>
+<details><summary>**prama.toString();**</summary>
 
 Get string representation of state
 
 </details>
-<details><summary>`prama.show();`</summary>
+<details><summary>**prama.show();**</summary>
 
 Show or hide params menu
 
 </details>
-<details><summary>`prama.hide();`</summary>
+<details><summary>**prama.hide();**</summary>
 
 Show or hide params menu
 

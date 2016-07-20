@@ -38,22 +38,22 @@ Create settings manager instance based off options:
 
 <dl>
 <dt>title: 'Settings'
-<dd>Display menu title at the top of panel. Can be omitted.
+<dd>Display menu title at the top of the panel. Can be omitted.
 
 <dt>fields: []
 <dd>List or object of fields for <a href="https://github.com/dfcreative/settings-panel">settings-panel</a>.</dd> Prama adds <code>save</code> and <code>order</code> additional field properties.
 
-<dt>theme: undefined
-<dd>Theme, one of <em>control</em>, <em>dragon</em>, <em>lucy</em>, <em>merka</em>, <em>typer</em> or undefined for default theme. See <a href="https://github.com/dfcreative/prama/tree/master/theme">theme</a> folder.
+<dt>theme: null
+<dd>Theme, one of <em>control</em>, <em>dragon</em>, <em>lucy</em>, <em>merka</em>, <em>typer</em> or false for default theme. Require theme as <code>theme: require('prama/theme/name')</code>. See <a href="https://github.com/dfcreative/prama/tree/master/theme">theme</a> folder.
 
 <dt>container: document.body
 <dd>Container element to place panel and settings button.
 
 <dt>popup: 'dropdown'
-<dd>Enable popup — can be a popup type string, popup options or boolean. See <a href="https://github.com/dfcreative/popoff">popoff</a> for popups engine.
+<dd>Enable popup — can be a popup type string, popup options or boolean. See <a href="https://github.com/dfcreative/popoff">popoff</a> for popup options.
 
 <dt>draggable: true
-<dd>Make panel draggable — can be boolean or handle selector. By default handle is panel title.
+<dd>Make panel draggable — can be boolean or handle selector. Default handle is panel title.
 
 <dt>button: true
 <dd>Create settings menu button at the corner of the page.

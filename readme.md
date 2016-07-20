@@ -31,8 +31,7 @@ var params = createParams(
 
 ## API
 
-**const Prama = require('prama');**
-<details><summary>**let prama = new Prama(options)**</summary>
+**const Prama = require('prama');**<details><summary>**let prama = new Prama(options)**</summary>
 
 Create settings manager instance based off `options`:
 

@@ -31,7 +31,7 @@ var params = createParams(
 
 ## API
 
-**const Prama = require('prama');**
+**`const Prama = require('prama');`**
 
 <details><summary>**const params = new Prama(options);**</summary>
 
@@ -86,11 +86,11 @@ Create parameters manager instance based off options.
 <dd>Default storage
 </dl>
 </details>
-<details><summary>**prama.show();**</summary>
-Show or hide params menu
+<details><summary>**prama.get(name?)**</summary>
+Get single property value. If name is omitted - return full state.
 </details>
-<details><summary>**prama.hide();**</summary>
-Show or hide params menu
+<details><summary>**prama.set(name?, value|options?) or prama.set(fields)**</summary>
+Set field value, of if an object passed - update state with passed values.
 </details>
 <details><summary>**prama.on('change', (name, value, opts) => {});**</summary>
 Hook up a callback for any parameter change.
@@ -98,13 +98,12 @@ Hook up a callback for any parameter change.
 <details><summary>**prama.toString();**</summary>
 Get string representation of state
 </details>
-<details><summary>**prama.get(name?)**</summary>
-Get single property value. If name is omitted - return full state.
+<details><summary>**prama.show();**</summary>
+Show or hide params menu
 </details>
-<details><summary>**prama.set(name?, value|options?) or prama.set(fields)**</summary>
-Set field value, of if an object passed - update state with passed values.
+<details><summary>**prama.hide();**</summary>
+Show or hide params menu
 </details>
-
 
 ## See also
 

@@ -31,20 +31,16 @@ var params = createParams(
 
 ## API
 
-<details>
-<summary>const Prama = require('prama');</summary>
-Require Prama class instance.
-</details>
-<details>
-<summary>const params = new Prama({</summary>
-// create parameters manager instance based off options.
-</details>
-	//menu title
-	title: 'Settings',
+<details><summary>`const Prama = require('prama');`</summary>
+Require Prama class instance.</details>
+<details><summary>`const params = new Prama({`</summary>
+Create parameters manager instance based off options.</details>
+<details><summary>`	title: 'Settings',`</summary>
+Menu title</details>
 
-	//list or object of fields, see settings-panel for fields specification
-	//prama adds `save` and `order` field properties
-	fields: [
+<details><summary>`	fields: [`</summary>
+List or object of fields, see settings-panel for fields specification
+Prama adds `save` and `order` field properties</details>
 		{type: 'range', label: 'my range', min: 0, max: 100, value: 20},
 		{type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
 		{type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
@@ -55,35 +51,35 @@ Require Prama class instance.
 		...
 	],
 
-	//theme, see theme folder
-	theme: require('prama/theme/control'),
+<details><summary>`	theme: require('prama/theme/control'),`</summary>
+Theme, see theme folder</details>
 
-	//container element to place panel and button
-	container: document.body,
+<details><summary>`	container: document.body,`</summary>
+Container element to place panel and button</details>
 
-	//popup - type string, options or true/false
-	popup: 'dropdown',
+<details><summary>`	popup: 'dropdown',`</summary>
+Popup - type string, options or true/false</details>
 
-	//make panel draggable - true, false or handle selector
-	draggable: true,
+<details><summary>`	draggable: true,`</summary>
+Make panel draggable - true, false or handle selector</details>
 
-	//create settings menu button
-	button: true,
+<details><summary>`	button: true,`</summary>
+Create settings menu button</details>
 
-	//position of a button
-	position: 'top-right',
+<details><summary>`	position: 'top-right',`</summary>
+Position of a button</details>
 
-	//svg to use for a menu icon
-	icon: `./gears.svg`,
+<details><summary>`	icon: `./gears.svg`,`</summary>
+Svg to use for a menu icon</details>
 
-	//reflect state in url
-	history: false,
+<details><summary>`	history: false,`</summary>
+Reflect state in url</details>
 
-	//save/load state between sessions, on load is overridden by history
-	session: true,
+<details><summary>`	session: true,`</summary>
+Save/load state between sessions, on load is overridden by history</details>
 
-	//default storage
-	storage: window.sessionStorage
+<details><summary>`	storage: window.sessionStorage`</summary>
+Default storage</details>
 });
 
 //Show/hide params menu

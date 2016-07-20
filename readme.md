@@ -31,10 +31,11 @@ var params = createParams(
 
 ## API
 
-const Prama = require('prama');
+<h4>const Prama = require('prama');</h4>
 
-<details><summary>const params = new Prama({</summary>
-Create parameters manager instance based off options.</details>
+<details><summary><h4>const params = new Prama(options);</h4></summary>
+Create parameters manager instance based off options.
+#### Options
 <details><summary>&nbsp;&nbsp;&nbsp;&nbsp;title: 'Settings',</summary>
 Display menu title at the top. Can be omitted.
 </details>
@@ -72,7 +73,7 @@ Reflect state in url</details>
 Save/load state between sessions, on load is overridden by history</details>
 <details><summary>&nbsp;&nbsp;&nbsp;&nbsp;storage: window.sessionStorage</summary>
 Default storage</details>
-});
+</details>
 
 <details><summary>
 prama.show();

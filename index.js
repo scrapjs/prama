@@ -14,6 +14,7 @@ const scopeCss = require('scope-css');
 const fs = require('fs');
 const qs = require('qs');
 const createPanel = require('settings-panel');
+const uid = require('get-uid');
 
 module.exports = Prama;
 
@@ -66,7 +67,9 @@ function Prama (opts) {
 
 		paramList.push(item);
 	}
-	paramList = paramList.sort((a, b) => (a.order || 0) - (b.order || 0));
+	if (paramList.some(a => a.order != null)) {
+		paramList = paramList.sort((a, b) => (a.order || paramList.length) - (b.order || paramList.length));
+	}
 
 	//create control panel
 	this.panel = createPanel(paramList, {
@@ -74,7 +77,7 @@ function Prama (opts) {
 		container: this.container
 	});
 
-	this.id = this.panel.id;
+	if (!this.id) this.id = uid();
 
 	this.panel.on('change', (data, value, state) => {
 		this.emit('change', data, value, state);
@@ -82,43 +85,52 @@ function Prama (opts) {
 	});
 
 	//create settings button
-	this.button = document.createElement('a');
-	this.button.href = '#settings';
-	this.button.classList.add('prama-button');
-	this.button.innerHTML = `<i>${this.icon}</i>`;
-	this.button.title = this.title;
-	this.button.addEventListener('click', (e) => {
-		e.preventDefault();
-	});
+	if (this.button !== false) {
+		this.button = document.createElement('a');
+		this.button.href = '#settings';
+		this.button.classList.add('prama-button');
+		this.button.innerHTML = `<i>${this.icon}</i>`;
+		this.button.title = this.title;
+		this.button.addEventListener('click', (e) => {
+			e.preventDefault();
+		});
+
+		if (this.container) this.container.appendChild(this.button);
+	}
 
 	//create settings button and popup
 	if (this.popup) {
 		if (typeof this.popup === 'string') this.popup = {type: this.popup};
 		this.popup = this.popup || {};
-		this.popup = createPopup(extend(this.popup, {
+		this.popup = createPopup(extend({
 			target: this.button,
-			content: this.panel.element
-		}));
+			content: this.panel.element,
+			overlay: false,
+			wrap: false,
+			container: this.container
+		}, this.popup));
 
-		if (this.draggable) {
-			this.dragman = draggable(this.popup.element, {
-				handle: typeof this.draggable === 'string' ? this.draggable : '.settings-panel-title'
-			});
-		}
 
 		this.popup.on('afterShow', () => {
 			this.dragman.update();
 		});
+		this.element = this.popup.element;
 	}
-
-	this.element = this.popup && this.popup.element || this.panel.element;
+	else {
+		this.element = this.panel.element;
+	}
 
 	this.element.classList.add('prama');
 	this.element.classList.add('prama-' + this.id);
 
+	if (this.draggable) {
+		this.dragman = draggable(this.element, {
+			handle: typeof this.draggable === 'string' ? this.draggable : `.prama-${this.id} .settings-panel-title`
+		});
+	}
+
 	//if container is passed - place ui to it
 	if (this.container) {
-		this.container.appendChild(this.button);
 		this.container.classList.add('prama-container');
 		this.container.classList.add('prama-container-' + this.id);
 	}
@@ -133,24 +145,7 @@ inherits(Prama, Emitter);
 Prama.prototype.container;
 
 //default theme
-Prama.prototype.theme = () => ``;
-
-//apply theme/orientation/position/other params changes
-Prama.prototype.update = function (opts) {
-	extend(this, opts);
-
-	this.panel.update({
-		title: this.title,
-		orientation: this.orientation
-	});
-
-	let css = this.theme instanceof Function ? this.theme.call(this, opts) : this.theme+'';
-	css = scopeCss(css, '.prama-container-' + this.id).trim();
-
-	insertCss(css, {
-		id: this.id
-	});
-};
+Prama.prototype.theme = false;
 
 //palette for the theme, see nice-color-palettes module
 Prama.prototype.palette;
@@ -194,6 +189,27 @@ Prama.prototype.key = 'prama';
 Prama.prototype.storage = self.sessionStorage || self.localStorage;
 
 
+//apply theme/orientation/position/other params changes
+Prama.prototype.update = function (opts) {
+	extend(this, opts);
+
+	let css = '';
+	if (this.theme) {
+		css = this.theme instanceof Function ? this.theme.call(this, opts) : this.theme+'';
+	}
+	else {
+		this.panel.css = '';
+	}
+	insertCss(css, {
+		id: this.id
+	});
+
+	this.panel.update({
+		title: this.title,
+		orientation: this.orientation
+	});
+};
+
 //show/hide popup
 Prama.prototype.show = function () {this.popup && this.popup.show(); return this;};
 Prama.prototype.hide = function () {this.popup && this.popup.hide(); return this;};
@@ -205,8 +221,6 @@ Prama.prototype.set = function () {
 Prama.prototype.get = function () {
 	return this.panel.get.apply(this.panel, arguments);
 };
-
-
 
 //save params state to local storage
 Prama.prototype.save = function (params) {

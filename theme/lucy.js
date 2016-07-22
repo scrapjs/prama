@@ -7,6 +7,7 @@
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
+const scopeCss = require('scope-css');
 
 fonts.add({
 	'Ubuntu Condensed': 400,
@@ -37,19 +38,22 @@ let dark = palette[3];
 let mono = '"Ubuntu Mono", monospace';
 let fontSize = this.fontSize || '1em';
 
-
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
 
-return `
-	.prama {
-		background: ${alpha(bg, .9)};
-		color: ${primary};
-		border-radius: .666em;
-		width: 24em;
-		box-shadow: 0 .5em 3em -1em ${dark};
+let css = `
+	:host > .prama {
+		background: none;
 		overflow: visible;
+		padding: 0;
+	}
+	.popoff-popup {
+		min-width: 0;
+	}
+	.prama.popoff-sidebar .settings-panel {
+		border-radius: 0;
+		height: 100%;
 	}
 
 	.prama-button {
@@ -67,11 +71,20 @@ return `
 	.popoff-close:hover {
 		color: ${active};
 	}
+`;
 
-	.settings-panel {
+css = scopeCss(css, '.prama-container-' + this.id).trim();
+
+//set panel css
+this.panel.css = `
+	:host {
+		box-shadow: 0 .5em 3em -1em ${dark};
+		color: ${primary};
+		background: ${alpha(bg, .9)};
 		font-size: ${px('font-size', fontSize)};
 		font-family: "Ubuntu Condensed", sans-serif;
-		padding: 0 .5em;
+		padding: 1em 1.5em;
+		border-radius: .666em;
 	}
 
 	.settings-panel-title {
@@ -82,8 +95,8 @@ return `
 		text-shadow: 0 0 .666em ${alpha(primary, .2)};
 	}
 
-	.settings-panel-orientation-top .settings-panel-field,
-	.settings-panel-orientation-bottom .settings-panel-field {
+	:host.settings-panel-orientation-top .settings-panel-field,
+	:host.settings-panel-orientation-bottom .settings-panel-field {
 		text-align: center;
 	}
 
@@ -91,12 +104,12 @@ return `
 		vertical-align: top;
 		padding-top: .5em;
 	}
-	.settings-panel-orientation-left .settings-panel-label,
-	.settings-panel-orientation-right .settings-panel-label {
+	:host.settings-panel-orientation-left .settings-panel-label,
+	:host.settings-panel-orientation-right .settings-panel-label {
 		width: 6em;
 	}
-	.settings-panel-orientation-top .settings-panel-label,
-	.settings-panel-orientation-bottom .settings-panel-label {
+	:host.settings-panel-orientation-top .settings-panel-label,
+	:host.settings-panel-orientation-bottom .settings-panel-label {
 		width: 100%;
 	}
 
@@ -396,29 +409,31 @@ return `
 
 
 	/** Placeholders */
-	.settings-panel ::-webkit-input-placeholder {
+	::-webkit-input-placeholder {
 		color: ${active};
 		background: ${dark};
 	}
-	.settings-panel ::-moz-placeholder {
+	::-moz-placeholder {
 		color: ${active};
 		background: ${dark};
 	}
-	.settings-panel :-ms-input-placeholder {
+	:-ms-input-placeholder {
 		color: ${active};
 		background: ${dark};
 	}
-	.settings-panel :-moz-placeholder {
+	:-moz-placeholder {
 		color: ${active};
 		background: ${dark};
 	}
-	.settings-panel ::-moz-selection {
+	::-moz-selection {
 		color: ${active};
 		background: ${dark};
 	}
-	.settings-panel ::selection {
+	::selection {
 		color: ${active};
 		background: ${dark};
 	}
+`;
 
-`}
+return css;
+}

@@ -126,7 +126,6 @@ Get state object with fields filtered for saving. Fields which `save` attribute 
 * [popoff](https://github.com/dfcreative/popoff) — any type of popup, modal, dropdown etc.
 * [start-app](https://github.com/dfcreative/start-app) — demo page for components.
 * [tst](https://github.com/dfcreative/tst) — minimalistic test runner.
-* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
 
 ## Credits
 

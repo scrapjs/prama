@@ -22,12 +22,20 @@ insertCss(`
 		background: url('./images/landscape.jpg');
 		background-position: center top;
 		background-size: cover;
+		background-attachment: fixed;
+	}
+	.frame {
+		top: 0;
+		height: 100vh;
+		left: 0;
+		position: relative;
+		width: calc(100% - 240px);
 	}
 `);
 
 
 const themes = {
-	none: {},
+	none: false,
 	lucy: require('./theme/lucy'),
 	// typer: require('./theme/typer'),
 	// control: require('./theme/control'),
@@ -36,20 +44,52 @@ const themes = {
 };
 
 
+var frame = document.createElement('div');
+frame.classList.add('frame');
+document.body.appendChild(frame);
+
+
+//create demo form
+
+var preview = createParams({
+	title: 'Preview',
+	id: 'preview',
+	fields: [
+		{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
+		{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
+		{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
+		{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1},
+		{type: 'text', label: 'Text', value: 'my setting'},
+		{type: 'checkbox', label: 'Checkbox', value: true},
+		{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
+		{type: 'button', label: 'Gimme an alert', input: function () { window.alert('hello!') }},
+		{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
+		{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
+		{type: 'email', label: 'Email', placeholder: 'email'},
+		{type: 'textarea', label: 'Long text', placeholder: 'long text...'}
+	],
+	//FIXME: if there is no popup, there is no way to bind button, therefore false popup == false button
+	popup: true,
+	button: true,
+	container: frame,
+	theme: false
+});
+
+
+
 //create main form
-var pm = createParams({
-	title: 'Settings',
+var settings = createParams({
 	fields: [
 		// {label: 'Title', type: 'text', value: 'Settings', change: (v) => {
-		// 	pm.title = v;
+		// 	preview.title = v;
 		// }},
 		{label: 'Orientation', type: 'switch', options: 'top left bottom right'.split(' '), value: createParams.prototype.orientation, change: (v) => {
-				pm.orientation = v;
+				preview.orientation = v;
 			}
 		},
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: v => {
-			pm.theme = themes[v];
-			if (!pm.get('Palette') || !pm.get('Palette').length) pm.set('Palette', pm.theme.palette);
+			preview.theme = themes[v];
+			if (!settings.get('Palette') || !settings.get('Palette').length) settings.set('Palette', preview.theme.palette);
 		}},
 		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 				let list = document.createElement('ul');
@@ -113,28 +153,37 @@ var pm = createParams({
 				return list;
 			},
 			change: (v) => {
-				if (!v) pm.palette = null;
-				else if (Array.isArray(v)) pm.palette = v;
-				else pm.palette = v.split(/\s*,\s*/);
+				if (!v) preview.palette = null;
+				else if (Array.isArray(v)) preview.palette = v;
+				else preview.palette = v.split(/\s*,\s*/);
 			}
 		},
 		// {label: 'Position', type: 'switch', options: ['top-left', 'top-right', 'bottom-left', 'bottom-right'], value: 'top-right', change: (v) => {
-		// 		pm.position = v;
+		// 		preview.position = v;
 		// 	}
 		// },
 		{label: 'Font size', type: 'range', value: 14, min: 8, max: 20, step: .5, change: (v) => {
-			pm.fontSize = v;
+			preview.fontSize = v;
 		}},
 		{label: 'Width', type: 'interval', value: [100, 200], min: 100, max: 600, step: 1, change: (v) => {
 
 		}},
-		{label: 'Draggable', type: 'checkbox', value: true, style: `width: 33%; display: inline-block; margin: 2em 0 1em; text-align: center;`, orientation: 'bottom' },
-		{label: 'History', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin: 2em 0 1em; text-align: center;`, orientation: 'bottom' },
-		{label: 'Session', type: 'checkbox', value: false, style: `width: 33%; display: inline-block; margin: 2em 0 1em; text-align: center;`, orientation: 'bottom' }
+		{label: 'Draggable', type: 'checkbox', value: true },
+		{label: 'History', type: 'checkbox', value: false },
+		{label: 'Session', type: 'checkbox', value: false }
 	],
-	button: true
+	popup: {
+		type: 'sidebar',
+		side: 'right',
+		closable: false
+	},
+	theme: require('./theme/lucy'),
+	button: false,
+	orientation: 'left'
 }).on('change', function () {
-	pm.update();
+	preview.update();
 });
 
-pm.show();
+
+settings.show();
+preview.show();

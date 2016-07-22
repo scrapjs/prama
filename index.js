@@ -11202,6 +11202,31 @@ Panel.prototype.set = function (name, value) {
 		field.insertBefore(label, inputContainer);
 	}
 
+	//handle after and before
+	if (item.before) {
+		var before = item.before;
+		if (before instanceof Function) {
+			before = item.before.call(item, component);
+		}
+		if (before instanceof HTMLElement) {
+			this.element.insertBefore(before, field);
+		}
+		else {
+			field.insertAdjacentHTML('beforebegin', before);
+		}
+	}
+	if (item.after) {
+		var after = item.after;
+		if (after instanceof Function) {
+			after = item.after.call(item, component);
+		}
+		if (after instanceof HTMLElement) {
+			this.element.insertBefore(after, field.nextSibling);
+		}
+		else {
+			field.insertAdjacentHTML('afterend', after);
+		}
+	}
 
 	if (component.on) {
 		component.on('init', function (data) {
@@ -12995,6 +13020,12 @@ function Custom (opts) {
 			this.container.appendChild(el);
 		}
 	}
+	else if (typeof this.create === 'string') {
+		this.container.innerHTML = el;
+	}
+	else if (this.create instanceof Element) {
+		this.container.appendChild(el);
+	}
 	else {
 		throw Error('`create` should be a function returning html element or string');
 	}
@@ -13499,7 +13530,7 @@ function Switch (opts) {
 	}
 
 	function createOption (label, value) {
-		var html = "<input type=\"radio\" class=\"settings-panel-switch-input\" " + (value === opts.value ? 'checked' : '') + " id=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" name=\"" + (opts.label) + "\" data-value=\"" + value + "\"/>\n\t\t<label for=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" class=\"settings-panel-switch-label\">" + label + "</label>";
+		var html = "<input type=\"radio\" class=\"settings-panel-switch-input\" " + (value === opts.value ? 'checked' : '') + " id=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" name=\"" + (opts.label) + "\" data-value=\"" + value + "\"/><label for=\"settings-panel-switch-input-" + (format(opts.label)) + "-" + (format(label)) + "\" class=\"settings-panel-switch-label\">" + label + "</label>";
 		return html;
 	}
 
@@ -16837,7 +16868,7 @@ meta.setAttribute('name', 'viewport');
 meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no');
 document.head.appendChild(meta);
 
-insertCss("\n\tbody {\n\t\tmargin: 0;\n\t\tposition: relative;\n\t\tmin-height: 100vh;\n\t\tbackground: url('./images/landscape.jpg');\n\t\tbackground-position: center top;\n\t\tbackground-size: cover;\n\t\tbackground-attachment: fixed;\n\t}\n\t.frame {\n\t\ttop: 0;\n\t\theight: 100vh;\n\t\tleft: 0;\n\t\tposition: relative;\n\t\twidth: calc(100% - 240px);\n\t}\n");
+insertCss("\n\tbody {\n\t\tmargin: 0;\n\t\tposition: relative;\n\t\tmin-height: 100vh;\n\t\tbackground: url('./images/landscape.jpg');\n\t\tbackground-position: center top;\n\t\tbackground-size: cover;\n\t\tbackground-attachment: fixed;\n\t}\n\t.frame {\n\t\tmin-height: 100vh;\n\t\tposition: relative;\n\t\twidth: calc(100% - 240px);\n\t}\n");
 
 
 var themes = {
@@ -16845,7 +16876,7 @@ var themes = {
 	lucy: require('./theme/lucy'),
 	// typer: require('./theme/typer'),
 	// control: require('./theme/control'),
-	// dragon: require('./theme/dragon'),
+	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
 };
 
@@ -16864,12 +16895,12 @@ var preview = createParams({
 		{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
 		{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 		{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
-		{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1},
+		{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1, after: '<hr/>'},
 		{type: 'text', label: 'Text', value: 'my setting'},
 		{type: 'checkbox', label: 'Checkbox', value: true},
 		{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
 		{type: 'button', label: 'Gimme an alert', input: function () { window.alert('hello!') }},
-		{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
+		{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20, before: '<hr/>'},
 		{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
 		{type: 'email', label: 'Email', placeholder: 'email'},
 		{type: 'textarea', label: 'Long text', placeholder: 'long text...'}
@@ -16878,7 +16909,8 @@ var preview = createParams({
 	popup: true,
 	button: true,
 	container: frame,
-	theme: false
+	theme: false,
+	session: false
 });
 
 
@@ -16895,7 +16927,7 @@ var settings = createParams({
 		},
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: function (v) {
 			preview.theme = themes[v];
-			if (!settings.get('Palette') || !settings.get('Palette').length) settings.set('Palette', preview.theme.palette);
+			settings.set('Palette', preview.theme.palette);
 		}},
 		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 				var this$1 = this;
@@ -16985,7 +17017,7 @@ var settings = createParams({
 		side: 'right',
 		closable: false
 	},
-	theme: require('./theme/lucy'),
+	theme: require('./theme/dragon'),
 	button: false,
 	orientation: 'left'
 }).on('change', function () {
@@ -16995,7 +17027,72 @@ var settings = createParams({
 
 settings.show();
 preview.show();
-},{"./":6,"./theme/lucy":134,"dom-css":15,"insert-styles":31,"just-extend":41,"nice-color-palettes/500":83,"popoff":86,"simple-color-picker":121,"sortablejs":125}],134:[function(require,module,exports){
+},{"./":6,"./theme/dragon":134,"./theme/lucy":135,"dom-css":15,"insert-styles":31,"just-extend":41,"nice-color-palettes/500":83,"popoff":86,"simple-color-picker":121,"sortablejs":125}],134:[function(require,module,exports){
+/**
+ * @module prama/theme/dragon
+ *
+ * Minimalistic theme
+ */
+
+var px = require('add-px-to-style');
+var fonts = require('google-fonts');
+var color = require('tinycolor2');
+var scopeCss = require('scope-css');
+
+fonts.add({
+	'Roboto': 400
+});
+
+module.exports = dragon;
+
+dragon.palette = [
+	'#fff',
+	'#999',
+	'#131522',
+	'#333',
+	'#222'
+];
+
+dragon.fontSize = 12;
+
+function dragon () {
+var defaultPalette = dragon.palette;
+
+var palette = this.palette || defaultPalette;
+
+var primary = palette[0] || defaultPalette[4];
+var secondary = palette[1] || defaultPalette[4];
+var active = palette[2] || defaultPalette[4];
+var bg = palette[3] || defaultPalette[4];
+var fg = palette[4] || defaultPalette[4];
+
+var font = '"Roboto", sans-serif';
+var fontSize = this.fontSize || 12;
+
+var css = "\n\t:host > .prama {\n\t\tbackground: none;\n\t\toverflow: visible;\n\t\tpadding: 0;\n\t}\n\t.popoff-popup {\n\t\tmin-width: 0;\n\t}\n\t.prama.popoff-sidebar .settings-panel {\n\t\tborder-radius: 0;\n\t\theight: 100%;\n\t}\n\n\t.prama-button {\n\t\tcolor: " + bg + ";\n\t\tfill: " + bg + ";\n\t}\n\t.prama-button:hover {\n\t\tcolor: " + active + ";\n\t\tfill: " + active + ";\n\t}\n\n\t.popoff-close {\n\t\tcolor: " + secondary + ";\n\t}\n\t.popoff-close:hover {\n\t\tcolor: " + active + ";\n\t}\n";
+
+css = scopeCss(css, '.prama-container-' + this.id).trim();
+
+//set panel css
+this.panel.css = "\n\t:host {\n\t\tcolor: " + secondary + ";\n\t\tbackground: " + (alpha(bg, .91)) + ";\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: " + font + ";\n\t\tpadding: 1.5em 1.5em;\n\t}\n\n\t.settings-panel-title {\n\t\ttext-transform: uppercase;\n\t\tfont-size: 1.2em;\n\t\tline-height: 2em;\n\t\theight: 2em;\n\t\tmargin-top: 0em;\n\t\tmargin-bottom: .75em;\n\t\tletter-spacing: .15ex;\n\t}\n\n\t/** Select style */\n\t.settings-panel-select {\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: 100%;\n\t\tpadding-right: 1em;\n\t\tmargin-right: -1em;\n\t\tcolor: " + primary + ";\n\t\tbox-shadow: 0 2px " + fg + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: '';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: .5em;\n\t\tborder-top: .3em solid " + primary + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select:focus {\n\t\tbox-shadow: 0 2px " + active + ";\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\tborder: none;\n\t\tbackground: none;\n\t\tcolor: " + primary + ";\n\t\twidth: 100%;\n\t\tbox-shadow: 0 2px " + fg + ";\n\t}\n\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + primary + ";\n\t\tbox-shadow: 0 2px " + active + ";\n\t}\n\n\t/** Color */\n\t.settings-panel-color {\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-color-value {\n\t\tborder: none;\n\t\tbackground: none;\n\t\tcolor: " + primary + ";\n\t\tbox-shadow: 0 2px " + fg + ";\n\t\tpadding-left: 1.5em;\n\t\twidth: 100%;\n\t}\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\tcolor: " + primary + ";\n\t\tbox-shadow: 0 2px " + active + ";\n\t}\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tcolor: " + secondary + ";\n\t\tdisplay: inline-block;\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tcursor: pointer;\n\t\tvertical-align: top;\n\t\tmin-height: 2em;\n\t\tpadding: 0 .75em;\n\t\tmargin: 0 2px 2px 0;\n\t\tline-height: 2em;\n\t\tcolor: " + (darken(primary, .2)) + ";\n\t\tbackground: " + (darken(secondary, .2)) + ";\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + primary + ";\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-switch-label:last-child {\n\t\tmargin-right: 0;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + primary + ";\n\t\tbackground: " + fg + ";\n\t\tbox-shadow: 2px 0 " + fg + ", -2px 0 " + fg + ";\n\t}\n\n\t/** Checkbox */\n\t.settings-panel-field--checkbox .settings-panel-label {\n\t\tmargin-bottom: .5em;\n\t}\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tvertical-align: middle;\n\t\twidth: 1.5em;\n\t\theight: 1.5em;\n\t\tcursor: pointer;\n\t\tborder-radius: 2px;\n\t\tbackground: " + fg + ";\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tposition: absolute;\n\t\tcontent: \"\";\n\t\theight: .666em;\n\t\twidth: .666em;\n\t\tleft: .4333em;\n\t\tbottom: .4333em;\n\t\tbackground: " + (darken(primary, .2)) + ";\n\t\topacity: .02;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\topacity: 1;\n\t\tbackground: " + (darken(primary, .2)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tbackground: " + fg + ";\n\t}\n\t.settings-panel-checkbox:focus + .settings-panel-checkbox-label,\n\t.settings-panel-checkbox + .settings-panel-checkbox-label:hover {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-checkbox:focus + .settings-panel-checkbox-label:before,\n\t.settings-panel-checkbox + .settings-panel-checkbox-label:hover:before {\n\t\tbackground: " + primary + ";\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tborder: none;\n\t\toutline: none;\n\t\tcursor: pointer;\n\t\tmin-height: 2.5em;\n\t\tpadding: .75em 1.5em;\n\t\tcolor: " + (darken(primary, .2)) + ";\n\t\tbackground: " + (darken(secondary, .2)) + ";\n\t}\n\t.settings-panel-button:hover {\n\t\tcolor: " + primary + ";\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-button:active {\n\t\tcolor: " + primary + ";\n\t\tbackground: " + fg + ";\n\t}\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tcolor: " + fg + ";\n\t}\n\t.settings-panel-range:focus {\n\t\tcolor: " + active + ";\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: none;\n\t\theight: 0px;\n\t\tborder: 1px solid;\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: none;\n\t\theight: 0px;\n\t\tborder: 1px solid;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + fg + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + fg + ";\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + secondary + ";\n\t\theight: 1.5em;\n\t\twidth: .5em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tmargin-top: -.75em;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb {\n\t\tbackground: " + primary + ";\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + secondary + ";\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tmargin-top: -.75em;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb {\n\t\tbackground: " + primary + ";\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + secondary + ";\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\tbackground: " + fg + ";\n\t\theight: 2px;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 2px;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: 0;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\twidth: .5em;\n\t\theight: 1.5em;\n\t\tbackground: inherit;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: 0;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\twidth: .5em;\n\t\theight: 1.5em;\n\t\tbackground: inherit;\n\t}\n\n\t.settings-panel-interval-dragging .settings-panel-interval-handle {\n\t\tbackground: " + primary + ";\n\t}\n\n\n\t/** Decorations */\n\t:host hr {\n\t\tborder: none;\n\t\theight: 0;\n\t\tmargin: 1.25em 0;\n\t\tborder-bottom: 1px dotted " + (lighten(bg, .15)) + ";\n\t}\n\t::-webkit-input-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + secondary + ";\n\t}\n\n\t::-moz-selection {\n\t\tcolor: " + primary + ";\n\t\tbackground: " + active + ";\n\t}\n\t::selection {\n\t\tcolor: " + primary + ";\n\t\tbackground: " + active + ";\n\t}\n";
+
+return css;
+}
+
+
+
+function alpha (c, value) {
+	return color(c).setAlpha(value).toString();
+}
+
+function darken (c, value) {
+	return color(c).darken(value*100).toString();
+}
+
+function lighten (c, value) {
+	return color(c).lighten(value*100).toString();
+}
+},{"add-px-to-style":7,"google-fonts":26,"scope-css":94,"tinycolor2":127}],135:[function(require,module,exports){
 /**
  * @module  prama/theme/lucy
  *
@@ -17045,7 +17142,7 @@ var css = "\n\t:host > .prama {\n\t\tbackground: none;\n\t\toverflow: visible;\n
 css = scopeCss(css, '.prama-container-' + this.id).trim();
 
 //set panel css
-this.panel.css = "\n\t:host {\n\t\tbox-shadow: 0 .5em 3em -1em " + dark + ";\n\t\tcolor: " + primary + ";\n\t\tbackground: " + (alpha(bg, .9)) + ";\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: \"Ubuntu Condensed\", sans-serif;\n\t\tpadding: 1em 1.5em;\n\t\tborder-radius: .666em;\n\t}\n\n\t.settings-panel-title {\n\t\tfont-size: 2.2em;\n\t\tfont-weight: normal;\n\t\tletter-spacing: 0;\n\t\ttext-transform: none;\n\t\ttext-shadow: 0 0 .666em " + (alpha(primary, .2)) + ";\n\t}\n\n\t:host.settings-panel-orientation-top .settings-panel-field,\n\t:host.settings-panel-orientation-bottom .settings-panel-field {\n\t\ttext-align: center;\n\t}\n\n\t.settings-panel-label {\n\t\tvertical-align: top;\n\t\tpadding-top: .5em;\n\t}\n\t:host.settings-panel-orientation-left .settings-panel-label,\n\t:host.settings-panel-orientation-right .settings-panel-label {\n\t\twidth: 6em;\n\t}\n\t:host.settings-panel-orientation-top .settings-panel-label,\n\t:host.settings-panel-orientation-bottom .settings-panel-label {\n\t\twidth: 100%;\n\t}\n\n\t.settings-panel-field--interval .settings-panel-input,\n\t.settings-panel-field--range .settings-panel-input {\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea,\n\t.settings-panel-text,\n\t.settings-panel-select {\n\t\tpadding-left: 0em;\n\t\tpadding-right: 0em;\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:hover,\n\t.settings-panel-select:hover {\n\t\tcolor: " + active + ";\n\t}\n\n\t/** Inputs fill */\n\t.settings-panel-interval,\n\t.settings-panel-value,\n\t.settings-panel-select,\n\t.settings-panel-text,\n\t.settings-panel-checkbox-label {\n\t\tbackground: none;\n\t\tfont-family: " + mono + ";\n\t\tcolor: " + secondary + ";\n\t}\n\n\t/** Panel value */\n\t.settings-panel-value {\n\t\tpadding-right: 0;\n\t}\n\t.settings-panel-value:focus {\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text {\n\t\tborder: none;\n\t\tbackground: none;\n\t}\n\n\t.settings-panel-textarea {\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: auto;\n\t\tpadding-right: 1em;\n\t\tmargin-right: -.5em;\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: ' ';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: 0;\n\t\tborder-top: .5em solid " + secondary + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select:focus {\n\t\tcolor: " + active + "\n\t}\n\t.settings-panel-select:focus + .settings-panel-select-triangle {\n\t\tborder-top-color: " + active + ";\n\t}\n\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tcolor: " + secondary + ";\n\t\tfont-family: " + mono + ";\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tcursor: pointer;\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-switch-label:last-child {\n\t\tmargin-right: 0;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + active + ";\n\t\tfont-weight: bold;\n\t}\n\n\n\t/** Slider */\n\t.settings-panel-range {\n\t\ttext-align: left;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder-radius: 1em;\n\t\tcolor: " + secondary + ";\n\t\tmargin-left: 15%;\n\t\twidth: 70%;\n\t}\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t\tcolor: " + primary + ";\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range:focus::-moz-range-track {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + secondary + ";\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + active + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tmargin-top: -.5em;\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + active + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tmargin-top: 0px;\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + secondary + ";\n\t\tborder-radius: 1em;\n\t}\n\t.settings-panel-field--interval .settings-panel-value:first-child {\n\t\ttext-align: right;\n\t\tpadding-left: 0;\n\t\tpadding-right: .5em;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: inherit;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: inherit;\n\t}\n\n\t.settings-panel-interval-dragging .settings-panel-interval-handle {\n\t\tbackground: " + active + ";\n\t}\n\n\t.settings-panel-field--range .settings-panel-input:before {\n\t\tcontent: attr(data-min);\n\t\tposition: absolute;\n\t\twidth: 15%;\n\t\tcolor: " + secondary + ";\n\t\ttext-align: right;\n\t\tline-height: 2em;\n\t\theight: 2em;\n\t\tpadding-right: .5em;\n\t\tbox-sizing: border-box;\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-field--checkbox .settings-panel-label {\n\t\tmargin-bottom: .5em;\n\t}\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tvertical-align: top;\n\t\twidth: 4.5em;\n\t\theight: 2em;\n\t\tcursor: pointer;\n\t\tbackground: " + secondary + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t\tbox-shadow: 0 0 .666em transparent;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tposition: absolute;\n\t\tcontent: \"\";\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tleft: .5em;\n\t\tbottom: .5em;\n\t\tbackground-color: " + active + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tbackground: " + secondary + ";\n\t\tbox-shadow: 0 0 .666em " + dark + ";\n\t}\n\t.settings-panel-checkbox:focus + .settings-panel-checkbox-label {\n\t\tbox-shadow: 0 0 .666em " + dark + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tleft: calc(100% - 1.6em);\n\t\tbackground-color: " + active + ";\n\t}\n\n\n\t/** Placeholders */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::-moz-selection {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::selection {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n";
+this.panel.css = "\n\t:host {\n\t\tbox-shadow: 0 .5em 3em -1em " + dark + ";\n\t\tcolor: " + primary + ";\n\t\tbackground: " + (alpha(bg, .9)) + ";\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: \"Ubuntu Condensed\", sans-serif;\n\t\tpadding: 1em 1.5em;\n\t\tborder-radius: .666em;\n\t}\n\n\t.settings-panel-title {\n\t\tfont-size: 2.2em;\n\t\tfont-weight: normal;\n\t\tletter-spacing: 0;\n\t\ttext-transform: none;\n\t\ttext-shadow: 0 0 .666em " + (alpha(primary, .2)) + ";\n\t}\n\n\t:host.settings-panel-orientation-top .settings-panel-field,\n\t:host.settings-panel-orientation-bottom .settings-panel-field {\n\t\ttext-align: center;\n\t}\n\n\t.settings-panel-label {\n\t\tvertical-align: top;\n\t\tpadding-top: .5em;\n\t}\n\t:host.settings-panel-orientation-left .settings-panel-label,\n\t:host.settings-panel-orientation-right .settings-panel-label {\n\t\twidth: 6em;\n\t}\n\t:host.settings-panel-orientation-top .settings-panel-label,\n\t:host.settings-panel-orientation-bottom .settings-panel-label {\n\t\twidth: 100%;\n\t}\n\n\t.settings-panel-field--interval .settings-panel-input,\n\t.settings-panel-field--range .settings-panel-input {\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea,\n\t.settings-panel-text,\n\t.settings-panel-select {\n\t\tpadding-left: 0em;\n\t\tpadding-right: 0em;\n\t\ttext-align: left;\n\t}\n\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:hover,\n\t.settings-panel-select:hover {\n\t\tcolor: " + active + ";\n\t}\n\n\t/** Inputs fill */\n\t.settings-panel-interval,\n\t.settings-panel-value,\n\t.settings-panel-select,\n\t.settings-panel-text,\n\t.settings-panel-checkbox-label {\n\t\tbackground: none;\n\t\tfont-family: " + mono + ";\n\t\tcolor: " + secondary + ";\n\t}\n\n\t/** Panel value */\n\t.settings-panel-value {\n\t\tpadding-right: 0;\n\t}\n\t.settings-panel-value:focus {\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text {\n\t\tborder: none;\n\t\tbackground: none;\n\t}\n\n\t.settings-panel-textarea {\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + active + ";\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: auto;\n\t\tpadding-right: 1em;\n\t\tmargin-right: -.5em;\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: ' ';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: 0;\n\t\tborder-top: .5em solid " + secondary + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select:focus {\n\t\tcolor: " + active + "\n\t}\n\t.settings-panel-select:focus + .settings-panel-select-triangle {\n\t\tborder-top-color: " + active + ";\n\t}\n\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tcolor: " + secondary + ";\n\t\tfont-family: " + mono + ";\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tcursor: pointer;\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-switch-label:last-child {\n\t\tmargin-right: 0;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + active + ";\n\t\tfont-weight: bold;\n\t}\n\n\n\t/** Slider */\n\t.settings-panel-range {\n\t\ttext-align: left;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder-radius: 1em;\n\t\tcolor: " + secondary + ";\n\t\tmargin-left: 15%;\n\t\twidth: 70%;\n\t}\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t\tcolor: " + primary + ";\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t}\n\t.settings-panel-range:focus::-moz-range-track {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + secondary + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + secondary + ";\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + active + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tmargin-top: -.5em;\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + active + ";\n\t\tborder-radius: 1em;\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tborder: 0;\n\t\tcursor: ew-resize;\n\t\t-webkit-appearance: none;\n\t\tmargin-top: 0px;\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + secondary + ";\n\t\tborder-radius: 1em;\n\t}\n\t.settings-panel-field--interval .settings-panel-value:first-child {\n\t\ttext-align: right;\n\t\tpadding-left: 0;\n\t\tpadding-right: .5em;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbackground: " + secondary + ";\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 1px;\n\t\tmargin-top: 1em;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: inherit;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: 0;\n\t\ttop: -.5em;\n\t\twidth: 1em;\n\t\theight: 1em;\n\t\tborder-radius: 1em;\n\t\tbackground: inherit;\n\t}\n\n\t.settings-panel-interval-dragging .settings-panel-interval-handle {\n\t\tbackground: " + active + ";\n\t}\n\n\t.settings-panel-field--range .settings-panel-input:before {\n\t\tcontent: attr(data-min);\n\t\tposition: absolute;\n\t\twidth: 15%;\n\t\tcolor: " + secondary + ";\n\t\ttext-align: right;\n\t\tline-height: 2em;\n\t\theight: 2em;\n\t\tpadding-right: .5em;\n\t\tbox-sizing: border-box;\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-field--checkbox .settings-panel-label {\n\t\tmargin-bottom: .5em;\n\t}\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tvertical-align: top;\n\t\twidth: 4.5em;\n\t\theight: 2em;\n\t\tcursor: pointer;\n\t\tbackground: " + secondary + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t\tbox-shadow: 0 0 .666em transparent;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tposition: absolute;\n\t\tcontent: \"\";\n\t\theight: 1em;\n\t\twidth: 1em;\n\t\tleft: .5em;\n\t\tbottom: .5em;\n\t\tbackground-color: " + active + ";\n\t\t-webkit-transition: .4s;\n\t\ttransition: .4s;\n\t\tborder-radius: 2em;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tbackground: " + secondary + ";\n\t\tbox-shadow: 0 0 .666em " + dark + ";\n\t}\n\t.settings-panel-checkbox:focus + .settings-panel-checkbox-label {\n\t\tbox-shadow: 0 0 .666em " + dark + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tleft: calc(100% - 1.6em);\n\t\tbackground-color: " + active + ";\n\t}\n\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::-moz-selection {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::selection {\n\t\tcolor: " + active + ";\n\t\tbackground: " + dark + ";\n\t}\n";
 
 return css;
 }

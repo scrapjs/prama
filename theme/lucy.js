@@ -408,7 +408,7 @@ this.panel.css = `
 	}
 
 
-	/** Placeholders */
+	/** Decorations */
 	::-webkit-input-placeholder {
 		color: ${active};
 		background: ${dark};

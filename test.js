@@ -25,9 +25,7 @@ insertCss(`
 		background-attachment: fixed;
 	}
 	.frame {
-		top: 0;
-		height: 100vh;
-		left: 0;
+		min-height: 100vh;
 		position: relative;
 		width: calc(100% - 240px);
 	}
@@ -39,7 +37,7 @@ const themes = {
 	lucy: require('./theme/lucy'),
 	// typer: require('./theme/typer'),
 	// control: require('./theme/control'),
-	// dragon: require('./theme/dragon'),
+	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
 };
 
@@ -58,12 +56,12 @@ var preview = createParams({
 		{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
 		{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 		{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
-		{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1},
+		{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1, after: '<hr/>'},
 		{type: 'text', label: 'Text', value: 'my setting'},
 		{type: 'checkbox', label: 'Checkbox', value: true},
 		{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
 		{type: 'button', label: 'Gimme an alert', input: function () { window.alert('hello!') }},
-		{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
+		{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20, before: '<hr/>'},
 		{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
 		{type: 'email', label: 'Email', placeholder: 'email'},
 		{type: 'textarea', label: 'Long text', placeholder: 'long text...'}
@@ -72,7 +70,8 @@ var preview = createParams({
 	popup: true,
 	button: true,
 	container: frame,
-	theme: false
+	theme: false,
+	session: false
 });
 
 
@@ -89,7 +88,7 @@ var settings = createParams({
 		},
 		{label: 'Theme', type: 'select', options: Object.keys(themes), value: 'none', change: v => {
 			preview.theme = themes[v];
-			if (!settings.get('Palette') || !settings.get('Palette').length) settings.set('Palette', preview.theme.palette);
+			settings.set('Palette', preview.theme.palette);
 		}},
 		{label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 				let list = document.createElement('ul');
@@ -177,7 +176,7 @@ var settings = createParams({
 		side: 'right',
 		closable: false
 	},
-	theme: require('./theme/lucy'),
+	theme: require('./theme/dragon'),
 	button: false,
 	orientation: 'left'
 }).on('change', function () {
